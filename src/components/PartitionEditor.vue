@@ -22,7 +22,7 @@
         </v-col>
         <v-col>
           <v-text-field v-model.number="partition.size" label="Size (bytes)" dense hide-details
-            @change="validateSize(partition)"></v-text-field>
+            @change="validateSize(partition, index)"></v-text-field>
         </v-col>
         <v-col cols="auto">
           <v-btn @click="removePartition(index)" dense>Remove</v-btn>
@@ -103,17 +103,15 @@ export default defineComponent({
 
     const validateSize = (partition, index) => {
       // Enforce the offset rules
-      if (index === 0) {
-        partition.offset = 0x9000; // First partition offset
+      if (partition.type === 'app') {
+        partition.offset = Math.ceil((index === 0 ? 0x10000 : partitions.value[index - 1].offset + partitions.value[index - 1].size) / 0x10000) * 0x10000;
       } else {
-        let previousPartition = partitions.value[index - 1];
-        let previousOffsetEnd = previousPartition.offset + previousPartition.size;
-
-        if (partition.type === 'app' && index === partitions.value.findIndex(p => p.type === 'app')) {
-          partition.offset = 0x10000; // First application partition offset
+        if (index === 0) {
+          partition.offset = 0x9000; // First non-app partition offset
         } else {
-          // Align the offset to 0x1000 (4KB)
-          partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000;
+          let previousPartition = partitions.value[index - 1];
+          let previousOffsetEnd = previousPartition.offset + previousPartition.size;
+          partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000; // Align the offset to 0x1000 (4KB)
         }
       }
 
