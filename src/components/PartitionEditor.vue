@@ -66,7 +66,7 @@ export default defineComponent({
       emit('updatePartitions', newPartitions);
     }, { deep: true, immediate: true });
 
-    const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024 - 0x1000);
+    const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024 - PARTITION_TABLE_SIZE);
 
     const totalSize = computed(() => {
       return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
