@@ -9,42 +9,20 @@
     <div v-for="(partition, index) in partitions" :key="index" class="partition">
       <v-row dense>
         <v-col>
-          <v-text-field
-            v-model="partition.name"
-            label="Name"
-            dense
-            hide-details
-            @change="validateName(partition)"
-          ></v-text-field>
+          <v-text-field v-model="partition.name" label="Name" dense hide-details
+            @change="validateName(partition)"></v-text-field>
         </v-col>
         <v-col>
-          <v-select
-            v-model="partition.type"
-            :items="['app', 'data']"
-            label="Type"
-            dense
-            hide-details
-            @change="validateType(partition)"
-          ></v-select>
+          <v-select v-model="partition.type" :items="['app', 'data']" label="Type" dense hide-details
+            @change="validateType(partition)"></v-select>
         </v-col>
         <v-col>
-          <v-select
-            v-model="partition.subtype"
-            :items="getSubtypes(partition.type)"
-            label="Subtype"
-            dense
-            hide-details
-            @change="validateSubtype(partition)"
-          ></v-select>
+          <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype" dense hide-details
+            @change="validateSubtype(partition)"></v-select>
         </v-col>
         <v-col>
-          <v-text-field
-            v-model.number="partition.size"
-            label="Size (bytes)"
-            dense
-            hide-details
-            @change="validateSize(partition)"
-          ></v-text-field>
+          <v-text-field v-model.number="partition.size" label="Size (bytes)" dense hide-details
+            @change="validateSize(partition)"></v-text-field>
         </v-col>
         <v-col cols="auto">
           <v-btn @click="removePartition(index)" dense>Remove</v-btn>
@@ -52,14 +30,9 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <v-slider
-            v-model="partition.size"
-            :max="flashSizeBytes - totalSize + partition.size"
-            @input="updateSize(index, $event)"
-            dense
-            hide-details
-            :step="partition.type === 'app' ? 65536 : 4096"
-          ></v-slider>
+          <v-slider v-model="partition.size" :max="flashSizeBytes - totalSize + partition.size"
+            @input="updateSize(index, $event)" dense hide-details
+            :step="partition.type === 'app' ? 65536 : 4096"></v-slider>
         </v-col>
       </v-row>
     </div>
@@ -68,6 +41,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, computed, type PropType } from 'vue';
+import { PARTITION_TABLE_SIZE } from '@/config';
 
 export default defineComponent({
   name: 'PartitionEditor',
@@ -92,7 +66,7 @@ export default defineComponent({
       emit('updatePartitions', newPartitions);
     }, { deep: true, immediate: true });
 
-    const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024- 0x1000);
+    const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024 - 0x1000);
 
     const totalSize = computed(() => {
       return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
@@ -127,22 +101,43 @@ export default defineComponent({
       }
     };
 
-    const validateSize = (partition) => {
-      if (partition.type === 'app') {
-        partition.size = Math.ceil(partition.size / 65536) * 65536; // Align to 64KB
+    const validateSize = (partition, index) => {
+      // Enforce the offset rules
+      if (index === 0) {
+        partition.offset = 0x9000; // First partition offset
       } else {
-        partition.size = Math.ceil(partition.size / 4096) * 4096; // Align to 4KB
+        let previousPartition = partitions.value[index - 1];
+        let previousOffsetEnd = previousPartition.offset + previousPartition.size;
+
+        if (partition.type === 'app' && index === partitions.value.findIndex(p => p.type === 'app')) {
+          partition.offset = 0x10000; // First application partition offset
+        } else {
+          // Align the offset to 0x1000 (4KB)
+          partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000;
+        }
       }
 
+      if (partition.type === 'app') {
+        // Align size to 64KB for app partitions
+        partition.size = Math.ceil(partition.size / 65536) * 65536;
+      } else {
+        // Align size to 4KB for data partitions
+        partition.size = Math.ceil(partition.size / 4096) * 4096;
+      }
+
+      // Check and adjust for total size overflow
       if (totalSize.value > flashSizeBytes.value) {
         partition.size = flashSizeBytes.value - (totalSize.value - partition.size);
       }
     };
 
+
     const updateSize = (index: number, newSize: number) => {
-      partitions.value[index].size = Math.round(newSize);
-      validateSize(partitions.value[index]);
+      const maxAvailableSize = flashSizeBytes.value - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
+      partitions.value[index].size = Math.min(Math.round(newSize), maxAvailableSize);
+      validateSize(partitions.value[index], index);
     };
+
 
     const generatePartitionName = () => {
       const baseName = "partition";

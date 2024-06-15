@@ -37,6 +37,7 @@
 import { defineComponent, ref, computed } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
+import { PARTITION_TABLE_SIZE } from '@/config';
 
 export default defineComponent({
   name: 'App',
@@ -54,7 +55,6 @@ export default defineComponent({
       { name: 'app1', type: 'app', subtype: 'ota_1', size: 0x140000 },
       { name: 'spiffs', type: 'data', subtype: 'spiffs', size: 0x170000 },
     ]);
-    const PARTITION_TABLE_SIZE = 0x1000; // 4KB reserved for the partition table
 
     const totalUsedMemory = computed(() => {
       return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
