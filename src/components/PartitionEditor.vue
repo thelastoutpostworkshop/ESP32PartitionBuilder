@@ -83,6 +83,7 @@ export default defineComponent({
       if (!validTypes.includes(partition.type)) {
         partition.type = 'data';
       }
+      partition.subtype = getSubtypes(partition.type)[0];
     };
 
     const getSubtypes = (type) => {
@@ -129,13 +130,11 @@ export default defineComponent({
       }
     };
 
-
     const updateSize = (index: number, newSize: number) => {
       const maxAvailableSize = flashSizeBytes.value - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
       partitions.value[index].size = Math.min(Math.round(newSize), maxAvailableSize);
       validateSize(partitions.value[index], index);
     };
-
 
     const generatePartitionName = () => {
       const baseName = "partition";
