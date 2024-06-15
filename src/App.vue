@@ -4,7 +4,7 @@
       <v-container fluid>
         <v-row>
           <v-col>
-            <h1>ESP32 Partition Manager</h1>
+            <h1>ESP32 Partition Builder</h1>
           </v-col>
         </v-row>
         <v-row>
