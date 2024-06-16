@@ -45,8 +45,8 @@ import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';
 import { partitionStore } from '@/store';
-import type { Partition, PartitionSet } from '@/types';
-import { partitionSets } from '@/partitions';
+import type { Partition } from '@/types';
+import { esp32Partitions } from '@/partitions';
 
 export default defineComponent({
   name: 'App',
@@ -58,10 +58,10 @@ export default defineComponent({
     const store = partitionStore();
 
     const flashSize = ref(4);
-    const partitions = ref<Partition[]>(partitionSets[0].partitions);
-    const selectedPartitionSet = ref(partitionSets[0].name);
+    const partitions = ref<Partition[]>(esp32Partitions[0].partitions);
+    const selectedPartitionSet = ref(esp32Partitions[0].name);
 
-    const partitionOptions = partitionSets.map(set => ({
+    const partitionOptions = esp32Partitions.map(set => ({
       text: set.name,
       value: set.name
     }));
@@ -102,7 +102,7 @@ export default defineComponent({
     };
 
     const loadPartitions = () => {
-      const selectedSet = partitionSets.find(set => set.name === selectedPartitionSet.value);
+      const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
       if (selectedSet) {
         partitions.value = [...selectedSet.partitions];
       }

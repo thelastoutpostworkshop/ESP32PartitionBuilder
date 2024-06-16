@@ -5,3 +5,8 @@ export interface Partition {
     size: number;
     offset: number;
   }
+
+ export  interface PartitionSet {
+    name: string;
+    partitions: Partition[];
+  }

@@ -1,12 +1,9 @@
 // src/partitions.ts
-import type { Partition } from '@/types';
+import type { PartitionSet } from '@/types';
 
-interface PartitionSet {
-  name: string;
-  partitions: Partition[];
-}
 
-export const partitionSets: PartitionSet[] = [
+
+export const esp32Partitions: PartitionSet[] = [
   {
     name: 'Partition Set 1',
     partitions: [
