@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col class="mb-2">
-        <v-btn @click="addPartition" dense>Add Partition</v-btn>
+        <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
         <span class="pl-2">Available Memory: {{ availableMemory }} bytes</span>
       </v-col>
     </v-row>
