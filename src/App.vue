@@ -20,7 +20,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <partition-editor :partitions="partitions" :flashSize="flashSize" :availableMemory="availableMemory"
+            <partition-editor :partitions="partitions" :flashSize="flashSize"
               @updatePartitions="updatePartitions"></partition-editor>
           </v-col>
         </v-row>
@@ -65,16 +65,11 @@ export default defineComponent({
 
     const flashSizeBytes = computed(() => flashSize.value * 1024 * 1024);
 
-    const availableMemory = computed(() => {
-      return flashSizeBytes.value - PARTITION_TABLE_SIZE - totalUsedMemory.value;
-    });
+    store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - totalUsedMemory.value;
 
     const updatePartitions = (newPartitions: any) => {
       partitions.value = newPartitions;
     };
-
-
-
 
     return {
       flashSizes: FLASH_SIZES,
@@ -83,7 +78,6 @@ export default defineComponent({
       updatePartitions,
       totalUsedMemory,
       flashSizeBytes,
-      availableMemory
     };
   }
 });

@@ -3,7 +3,7 @@
     <v-container class="mb-2">
       <v-row align="center">
         <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
-        <span class="pl-2">Available Memory: {{ availableMemory }} bytes</span>
+        <span class="pl-2">Available Memory: {{ store.availableMemory }} bytes</span>
         <v-spacer></v-spacer>
         <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
       </v-row>
@@ -45,6 +45,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch, computed, type PropType } from 'vue';
 import { PARTITION_TABLE_SIZE } from '@/config';
+import { partitionStore } from '@/store'
 
 export default defineComponent({
   name: 'PartitionEditor',
@@ -56,14 +57,11 @@ export default defineComponent({
     flashSize: {
       type: Number,
       required: true
-    },
-    availableMemory: {
-      type: Number,
-      required: true
     }
   },
   setup(props, { emit }) {
     const partitions = ref([...props.partitions]);
+    const store = partitionStore();
 
     watch(partitions, (newPartitions) => {
       emit('updatePartitions', newPartitions);
@@ -189,6 +187,7 @@ export default defineComponent({
       removePartition,
       getSubtypes,
       downloadCSV,
+      store
     };
   }
 });
