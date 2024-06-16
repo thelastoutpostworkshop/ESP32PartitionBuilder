@@ -23,8 +23,12 @@
             @change="validateSubtype(partition)"></v-select>
         </v-col>
         <v-col>
-          <v-text-field v-model.number="partition.size" label="Size (bytes)" dense hide-details
+          <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense hide-details
             @change="validateSize(partition, index)"></v-text-field>
+        </v-col>
+        <v-col>
+          <v-text-field readonly label="offset" v-model.number="partition.offset">
+          </v-text-field>
         </v-col>
         <v-col cols="auto">
           <v-btn color="red-darken-4" icon="mdi-trash-can" variant="text" size="x-large"
