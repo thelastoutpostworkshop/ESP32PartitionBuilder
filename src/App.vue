@@ -14,7 +14,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-select v-model="flashSize" :items="flashSizes" label="Flash Size" dense hide-details></v-select>
+            <v-select v-model="flashSize" :items="flashSizes" item-value="value" item-title="text" label="Flash Size" dense hide-details></v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -46,7 +46,11 @@ export default defineComponent({
     PartitionVisualizer
   },
   setup() {
-    const flashSizes = [4, 8, 16];
+    const flashSizes = [
+      { value: 4, text: '4 MB' },
+      { value: 8, text: '8 MB' },
+      { value: 16, text: '16 MB' }
+    ];
     const flashSize = ref(4);
     const partitions = ref([
       { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x4000 },
