@@ -25,7 +25,7 @@
         </v-row>
         <v-row>
           <v-col class="text-center">
-            <v-btn @click="downloadCSV" dense>Download CSV</v-btn>
+            <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
           </v-col>
         </v-row>
       </v-container>
