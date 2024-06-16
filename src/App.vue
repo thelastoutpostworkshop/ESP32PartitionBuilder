@@ -38,6 +38,8 @@ import { defineComponent, ref, computed } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';
+import { partitionStore } from '@/store'
+
 
 export default defineComponent({
   name: 'App',
@@ -46,6 +48,7 @@ export default defineComponent({
     PartitionVisualizer
   },
   setup() {
+    const store = partitionStore();
 
     const flashSize = ref(4);
     const partitions = ref([
