@@ -50,12 +50,13 @@
 import { defineComponent, ref, watch, computed, type PropType } from 'vue';
 import { PARTITION_TABLE_SIZE } from '@/config';
 import { partitionStore } from '@/store'
+import type { Partition } from '@/types'
 
 export default defineComponent({
   name: 'PartitionEditor',
   props: {
     partitions: {
-      type: Array as PropType<any[]>,
+      type: Array as PropType<Partition[]>,
       required: true
     },
     flashSize: {
