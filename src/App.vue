@@ -59,16 +59,12 @@ export default defineComponent({
       { name: 'spiffs', type: 'data', subtype: 'spiffs', size: 0x170000 },
     ]);
 
-    const totalUsedMemory = computed(() => {
-      return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
-    });
-
     const flashSizeBytes = computed(() => flashSize.value * 1024 * 1024);
-
-    store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - totalUsedMemory.value;
 
     const updatePartitions = (newPartitions: any) => {
       partitions.value = newPartitions;
+      const total = partitions.value.reduce((sum, partition) => sum + partition.size, 0);
+      store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - total;
     };
 
     return {
@@ -76,7 +72,6 @@ export default defineComponent({
       flashSize,
       partitions,
       updatePartitions,
-      totalUsedMemory,
       flashSizeBytes,
     };
   }
