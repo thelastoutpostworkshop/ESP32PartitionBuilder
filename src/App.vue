@@ -14,7 +14,8 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-select v-model="flashSize" :items="flashSizes" item-value="value" item-title="text" label="Flash Size" dense hide-details></v-select>
+            <v-select v-model="flashSize" :items="flashSizes" item-value="value" item-title="text" label="Flash Size"
+              dense hide-details></v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -37,7 +38,7 @@
 import { defineComponent, ref, computed } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
-import { PARTITION_TABLE_SIZE } from '@/config';
+import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';
 
 export default defineComponent({
   name: 'App',
@@ -46,11 +47,7 @@ export default defineComponent({
     PartitionVisualizer
   },
   setup() {
-    const flashSizes = [
-      { value: 4, text: '4 MB' },
-      { value: 8, text: '8 MB' },
-      { value: 16, text: '16 MB' }
-    ];
+
     const flashSize = ref(4);
     const partitions = ref([
       { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x4000 },
@@ -93,7 +90,7 @@ export default defineComponent({
 
 
     return {
-      flashSizes,
+      flashSizes: FLASH_SIZES,
       flashSize,
       partitions,
       updatePartitions,
