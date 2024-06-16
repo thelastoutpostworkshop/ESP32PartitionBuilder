@@ -26,7 +26,6 @@
         </v-row>
         <v-row>
           <v-col class="text-center">
-            <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -71,22 +70,7 @@ export default defineComponent({
       partitions.value = newPartitions;
     };
 
-    const downloadCSV = () => {
-      const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
-      const csvContent = partitions.value.map(p => {
-        const sizeKB = Math.round(p.size / 1024) + 'K';
-        return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
-      }).join("\n");
-      const csvData = csvHeader + csvContent;
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "partitions.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
+
 
 
     return {
@@ -94,7 +78,6 @@ export default defineComponent({
       flashSize,
       partitions,
       updatePartitions,
-      downloadCSV,
       totalUsedMemory,
       flashSizeBytes,
       availableMemory

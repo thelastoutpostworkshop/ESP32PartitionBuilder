@@ -1,11 +1,13 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col class="mb-2">
+    <v-container class="mb-2">
+      <v-row align="center">
         <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
         <span class="pl-2">Available Memory: {{ availableMemory }} bytes</span>
-      </v-col>
-    </v-row>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
+      </v-row>
+    </v-container>
     <div v-for="(partition, index) in partitions" :key="index" class="partition">
       <v-row dense>
         <v-col>
@@ -25,7 +27,8 @@
             @change="validateSize(partition, index)"></v-text-field>
         </v-col>
         <v-col cols="auto">
-          <v-btn color="red-darken-4" icon="mdi-trash-can" variant="text" size="x-large" @click="removePartition(index)"></v-btn>
+          <v-btn color="red-darken-4" icon="mdi-trash-can" variant="text" size="x-large"
+            @click="removePartition(index)"></v-btn>
         </v-col>
       </v-row>
       <v-row dense>
@@ -71,6 +74,23 @@ export default defineComponent({
     const totalSize = computed(() => {
       return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
     });
+
+    const downloadCSV = () => {
+      const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
+      const csvContent = partitions.value.map(p => {
+        const sizeKB = Math.round(p.size / 1024) + 'K';
+        return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
+      }).join("\n");
+      const csvData = csvHeader + csvContent;
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "partitions.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
 
     const validateName = (partition) => {
       if (partition.name.length > 16) {
@@ -167,7 +187,8 @@ export default defineComponent({
       updateSize,
       addPartition,
       removePartition,
-      getSubtypes
+      getSubtypes,
+      downloadCSV,
     };
   }
 });
