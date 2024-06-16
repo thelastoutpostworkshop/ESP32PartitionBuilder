@@ -64,9 +64,8 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: black;
   text-align: center;
-  font-size: 12px;
   overflow: hidden;
 }
 </style>
