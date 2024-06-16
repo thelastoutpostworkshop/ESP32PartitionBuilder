@@ -95,13 +95,13 @@ export default defineComponent({
       document.body.removeChild(link);
     };
 
-    const validateName = (partition) => {
+    const validateName = (partition:Partition) => {
       if (partition.name.length > 16) {
         partition.name = partition.name.substring(0, 16);
       }
     };
 
-    const validateType = (partition) => {
+    const validateType = (partition:Partition) => {
       const validTypes = ['app', 'data'];
       if (!validTypes.includes(partition.type)) {
         partition.type = 'data';
@@ -125,7 +125,7 @@ export default defineComponent({
       }
     };
 
-    const validateSize = (partition, index) => {
+    const validateSize = (partition:Partition, index) => {
       // Enforce the offset rules
       if (partition.type === 'app') {
         partition.offset = Math.ceil((index === 0 ? 0x10000 : partitions.value[index - 1].offset + partitions.value[index - 1].size) / 0x10000) * 0x10000;
@@ -170,7 +170,7 @@ export default defineComponent({
 
     const addPartition = () => {
       const newName = generatePartitionName();
-      partitions.value.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096 });
+      partitions.value.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096,offset:0 });
       emit('updatePartitions', partitions.value);
     };
 
