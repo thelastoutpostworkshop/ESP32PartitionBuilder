@@ -67,6 +67,33 @@ export default defineComponent({
       store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - total;
     };
 
+    const calculateAlignmentWaste = () => {
+      let wastedSpace = 0;
+      partitions.value.forEach((partition, index) => {
+        if (index === 0) {
+          if (partition.type === 'app') {
+            const startOffset = 0x10000;
+            wastedSpace += partition.offset - startOffset;
+          } else {
+            const startOffset = 0x9000;
+            wastedSpace += partition.offset - startOffset;
+          }
+        } else {
+          let previousPartition = partitions.value[index - 1];
+          let previousOffsetEnd = previousPartition.offset + previousPartition.size;
+          if (partition.type === 'app') {
+            const alignedOffset = Math.ceil(previousOffsetEnd / 0x10000) * 0x10000;
+            wastedSpace += alignedOffset - previousOffsetEnd;
+          } else {
+            const alignedOffset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000;
+            wastedSpace += alignedOffset - previousOffsetEnd;
+          }
+        }
+      });
+      return wastedSpace;
+    };
+
+
     return {
       flashSizes: FLASH_SIZES,
       flashSize,
