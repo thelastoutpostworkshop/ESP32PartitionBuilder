@@ -25,7 +25,7 @@
             @change="validateSize(partition, index)"></v-text-field>
         </v-col>
         <v-col cols="auto">
-          <v-btn color="red-darken-4" @click="removePartition(index)" dense>Remove</v-btn>
+          <v-btn color="red-darken-4" icon="mdi-trash-can" variant="text" size="x-large" @click="removePartition(index)"></v-btn>
         </v-col>
       </v-row>
       <v-row dense>
