@@ -39,7 +39,7 @@ import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';
 import { partitionStore } from '@/store'
-
+import type { Partition } from '@/types'
 
 export default defineComponent({
   name: 'App',
@@ -51,20 +51,22 @@ export default defineComponent({
     const store = partitionStore();
 
     const flashSize = ref(4);
-    const partitions = ref([
-      { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x4000 },
-      { name: 'otadata', type: 'data', subtype: 'ota', size: 0x2000 },
-      { name: 'app0', type: 'app', subtype: 'ota_0', size: 0x140000 },
-      { name: 'app1', type: 'app', subtype: 'ota_1', size: 0x140000 },
-      { name: 'spiffs', type: 'data', subtype: 'spiffs', size: 0x170000 },
+    const partitions = ref<Partition[]>([
+      { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x4000, offset: 0 },
+      { name: 'otadata', type: 'data', subtype: 'ota', size: 0x2000, offset: 0 },
+      { name: 'app0', type: 'app', subtype: 'ota_0', size: 0x140000, offset: 0 },
+      { name: 'app1', type: 'app', subtype: 'ota_1', size: 0x140000, offset: 0 },
+      { name: 'spiffs', type: 'data', subtype: 'spiffs', size: 0x170000, offset: 0 },
     ]);
+
 
     const flashSizeBytes = computed(() => flashSize.value * 1024 * 1024);
 
     const updatePartitions = (newPartitions: any) => {
       partitions.value = newPartitions;
       const total = partitions.value.reduce((sum, partition) => sum + partition.size, 0);
-      store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - total;
+      const wastedMemory = calculateAlignmentWaste();
+      store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - total-wastedMemory;
     };
 
     const calculateAlignmentWaste = () => {
