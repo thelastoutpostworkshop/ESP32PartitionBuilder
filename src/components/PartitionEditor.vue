@@ -1,9 +1,9 @@
 <template>
   <v-container>
     <v-row>
-      <v-col>
+      <v-col class="mb-2">
         <v-btn @click="addPartition" dense>Add Partition</v-btn>
-        <span>Available Memory: {{ availableMemory }} bytes</span>
+        <span class="pl-2">Available Memory: {{ availableMemory }} bytes</span>
       </v-col>
     </v-row>
     <div v-for="(partition, index) in partitions" :key="index" class="partition">
