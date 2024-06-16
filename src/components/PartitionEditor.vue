@@ -30,7 +30,7 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <v-slider v-model="partition.size" :max="flashSizeBytes - totalSize + partition.size"
+          <v-slider color="teal" v-model="partition.size" :max="flashSizeBytes - totalSize + partition.size"
             @input="updateSize(index, $event)" dense hide-details
             :step="partition.type === 'app' ? 65536 : 4096"></v-slider>
         </v-col>
