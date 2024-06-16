@@ -104,7 +104,7 @@ export default defineComponent({
     const loadPartitions = () => {
       const selectedSet = partitionSets.find(set => set.name === selectedPartitionSet.value);
       if (selectedSet) {
-        partitions.value = selectedSet.partitions;
+        partitions.value = [...selectedSet.partitions];
       }
     };
 
