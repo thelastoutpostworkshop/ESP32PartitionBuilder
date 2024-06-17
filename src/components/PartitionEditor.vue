@@ -52,14 +52,8 @@ import { PARTITION_TABLE_SIZE } from '@/config';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
-const emit = defineEmits(['updatePartitions']);
-
 const store = partitionStore();
 const partitions = ref([...store.partitions]);
-
-watch(partitions, (newPartitions) => {
-  emit('updatePartitions', newPartitions);
-}, { deep: true, immediate: true });
 
 const totalSize = computed(() => {
   return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
@@ -96,7 +90,7 @@ const validateType = (partition: Partition) => {
   partition.subtype = getSubtypes(partition.type)[0];
 };
 
-const getSubtypes = (type) => {
+const getSubtypes = (type:string) => {
   if (type === 'app') {
     return ['factory', 'test', 'ota_0', 'ota_1', 'ota_2', 'ota_3', 'ota_4', 'ota_5', 'ota_6', 'ota_7', 'ota_8', 'ota_9', 'ota_10', 'ota_11', 'ota_12', 'ota_13', 'ota_14', 'ota_15'];
   } else if (type === 'data') {
@@ -158,12 +152,10 @@ const generatePartitionName = () => {
 const addPartition = () => {
   const newName = generatePartitionName();
   partitions.value.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096, offset: 0 });
-  emit('updatePartitions', partitions.value);
 };
 
 const removePartition = (index: number) => {
   partitions.value.splice(index, 1);
-  emit('updatePartitions', partitions.value);
 };
 
 </script>

@@ -26,7 +26,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <partition-editor @updatePartitions="updatePartitions"></partition-editor>
+            <partition-editor></partition-editor>
           </v-col>
         </v-row>
         <v-row>
