@@ -54,6 +54,7 @@ import type { Partition } from '@/types'
 
 const store = partitionStore();
 
+
 const totalSize = computed(() => {
   return store.partitions.reduce((sum, partition) => sum + partition.size, 0);
 });
@@ -75,8 +76,7 @@ const downloadCSV = () => {
   document.body.removeChild(link);
 };
 
-const updatePartitions = (newPartitions: Partition[]) => {
-  store.partitions = newPartitions;
+function updatePartitions () {
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   const wastedMemory = calculateAlignmentWaste();
   store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total - wastedMemory;
@@ -190,6 +190,10 @@ const removePartition = (index: number) => {
   store.partitions.splice(index, 1);
 };
 
+watch(store.partitions, () => {
+  console.log("watch partitions")
+  updatePartitions();
+},{ immediate: true,deep:true });
 </script>
 
 <style scoped>
