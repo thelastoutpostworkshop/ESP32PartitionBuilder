@@ -21,7 +21,7 @@
         <v-row>
           <v-col>
             <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
-              label="Partition Set" dense hide-details @change="loadPartitions"></v-select>
+              label="Partition Set" dense hide-details></v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';
@@ -57,6 +57,9 @@ const partitionOptions = esp32Partitions.map(set => ({
   value: set.name
 }));
 
+watch(selectedPartitionSet, () => {
+  loadPartitions();
+});
 
 const updatePartitions = (newPartitions: Partition[]) => {
   store.partitions = newPartitions;
@@ -91,7 +94,8 @@ const calculateAlignmentWaste = () => {
   return wastedSpace;
 };
 
-const loadPartitions = () => {
+function loadPartitions () {
+  console.log("loadPartitions")
   const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
   if (selectedSet) {
     store.partitions = [...selectedSet.partitions];
