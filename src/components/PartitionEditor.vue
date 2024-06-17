@@ -15,7 +15,7 @@
             @change="validateName(partition)"></v-text-field>
         </v-col>
         <v-col>
-          <v-select v-model="partition.type" :items="['app', 'data']" label="Type" dense hide-details
+          <v-select v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
             @change="validateType(partition)"></v-select>
         </v-col>
         <v-col>
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, type PropType } from 'vue';
-import { PARTITION_TABLE_SIZE } from '@/config';
+import { PARTITION_TABLE_SIZE,PARTITION_TYPES } from '@/config';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
