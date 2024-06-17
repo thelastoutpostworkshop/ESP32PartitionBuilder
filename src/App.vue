@@ -26,8 +26,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <partition-editor :partitions="store.partitions" :flashSize="flashSize"
-              @updatePartitions="updatePartitions"></partition-editor>
+            <partition-editor @updatePartitions="updatePartitions"></partition-editor>
           </v-col>
         </v-row>
         <v-row>
@@ -40,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed } from 'vue';
+import { ref, computed } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';

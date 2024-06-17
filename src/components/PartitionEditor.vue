@@ -37,7 +37,7 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <v-slider color="teal" v-model="partition.size" :max="flashSizeBytes - totalSize + partition.size"
+          <v-slider color="teal" v-model="partition.size" :max="store.flashSizeBytes - totalSize + partition.size"
             @input="updateSize(index, $event)" dense hide-details
             :step="partition.type === 'app' ? 65536 : 4096"></v-slider>
         </v-col>
@@ -54,21 +54,12 @@ import type { Partition } from '@/types'
 
 const emit = defineEmits(['updatePartitions']);
 
-const props = defineProps({
-  flashSize: {
-    type: Number,
-    required: true
-  }
-})
-
 const store = partitionStore();
 const partitions = ref([...store.partitions]);
 
 watch(partitions, (newPartitions) => {
   emit('updatePartitions', newPartitions);
 }, { deep: true, immediate: true });
-
-const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024 - PARTITION_TABLE_SIZE);
 
 const totalSize = computed(() => {
   return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
@@ -144,13 +135,13 @@ const validateSize = (partition: Partition, index:number) => {
   }
 
   // Check and adjust for total size overflow
-  if (totalSize.value > flashSizeBytes.value) {
-    partition.size = flashSizeBytes.value - (totalSize.value - partition.size);
+  if (totalSize.value > store.flashSizeBytes) {
+    partition.size = store.flashSizeBytes - (totalSize.value - partition.size);
   }
 };
 
 const updateSize = (index: number, newSize: number) => {
-  const maxAvailableSize = flashSizeBytes.value - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
+  const maxAvailableSize = store.flashSizeBytes - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
   partitions.value[index].size = Math.min(Math.round(newSize), maxAvailableSize);
   validateSize(partitions.value[index], index);
 };
