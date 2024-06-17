@@ -9,7 +9,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <partition-visualizer :partitions="partitions" :flashSize="flashSize"></partition-visualizer>
+            <partition-visualizer :partitions="store.partitions" :flashSize="flashSize"></partition-visualizer>
           </v-col>
         </v-row>
         <v-row>
@@ -26,7 +26,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <partition-editor :partitions="partitions" :flashSize="flashSize"
+            <partition-editor :partitions="store.partitions" :flashSize="flashSize"
               @updatePartitions="updatePartitions"></partition-editor>
           </v-col>
         </v-row>
@@ -51,7 +51,6 @@ import { esp32Partitions } from '@/partitions';
 const store = partitionStore();
 
 const flashSize = ref(4);
-const partitions = ref<Partition[]>(esp32Partitions[0].partitions);
 const selectedPartitionSet = ref(esp32Partitions[0].name);
 
 const partitionOptions = esp32Partitions.map(set => ({
@@ -62,15 +61,15 @@ const partitionOptions = esp32Partitions.map(set => ({
 const flashSizeBytes = computed(() => flashSize.value * 1024 * 1024);
 
 const updatePartitions = (newPartitions: Partition[]) => {
-  partitions.value = newPartitions;
-  const total = partitions.value.reduce((sum, partition) => sum + partition.size, 0);
+  store.partitions = newPartitions;
+  const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   const wastedMemory = calculateAlignmentWaste();
   store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - total - wastedMemory;
 };
 
 const calculateAlignmentWaste = () => {
   let wastedSpace = 0;
-  partitions.value.forEach((partition, index) => {
+  store.partitions.forEach((partition, index) => {
     if (index === 0) {
       if (partition.type === 'app') {
         const startOffset = 0x10000;
@@ -80,7 +79,7 @@ const calculateAlignmentWaste = () => {
         wastedSpace += partition.offset - startOffset;
       }
     } else {
-      let previousPartition = partitions.value[index - 1];
+      let previousPartition = store.partitions[index - 1];
       let previousOffsetEnd = previousPartition.offset + previousPartition.size;
       if (partition.type === 'app') {
         const alignedOffset = Math.ceil(previousOffsetEnd / 0x10000) * 0x10000;
@@ -97,7 +96,7 @@ const calculateAlignmentWaste = () => {
 const loadPartitions = () => {
   const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
   if (selectedSet) {
-    partitions.value = [...selectedSet.partitions];
+    store.partitions = [...selectedSet.partitions];
   }
 };
 
