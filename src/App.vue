@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import {ref, computed } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';

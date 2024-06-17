@@ -46,156 +46,139 @@
   </v-container>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch, computed, type PropType } from 'vue';
+<script setup lang="ts">
+import { ref, watch, computed, type PropType } from 'vue';
 import { PARTITION_TABLE_SIZE } from '@/config';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
-export default defineComponent({
-  name: 'PartitionEditor',
-  props: {
-    partitions: {
-      type: Array as PropType<Partition[]>,
-      required: true
-    },
-    flashSize: {
-      type: Number,
-      required: true
-    }
+const emit = defineEmits(['updatePartitions']);
+
+const props = defineProps({
+  partitions: {
+    type: Array as PropType<Partition[]>,
+    required: true
   },
-  setup(props, { emit }) {
-    const partitions = ref([...props.partitions]);
-    const store = partitionStore();
-
-    watch(partitions, (newPartitions) => {
-      emit('updatePartitions', newPartitions);
-    }, { deep: true, immediate: true });
-
-    const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024 - PARTITION_TABLE_SIZE);
-
-    const totalSize = computed(() => {
-      return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
-    });
-
-    const downloadCSV = () => {
-      const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
-      const csvContent = partitions.value.map(p => {
-        const sizeKB = Math.round(p.size / 1024) + 'K';
-        return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
-      }).join("\n");
-      const csvData = csvHeader + csvContent;
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "partitions.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
-    const validateName = (partition:Partition) => {
-      if (partition.name.length > 16) {
-        partition.name = partition.name.substring(0, 16);
-      }
-    };
-
-    const validateType = (partition:Partition) => {
-      const validTypes = ['app', 'data'];
-      if (!validTypes.includes(partition.type)) {
-        partition.type = 'data';
-      }
-      partition.subtype = getSubtypes(partition.type)[0];
-    };
-
-    const getSubtypes = (type) => {
-      if (type === 'app') {
-        return ['factory', 'test', 'ota_0', 'ota_1', 'ota_2', 'ota_3', 'ota_4', 'ota_5', 'ota_6', 'ota_7', 'ota_8', 'ota_9', 'ota_10', 'ota_11', 'ota_12', 'ota_13', 'ota_14', 'ota_15'];
-      } else if (type === 'data') {
-        return ['ota', 'phy', 'nvs', 'nvs_keys', 'coredump', 'efuse', 'fat', 'spiffs', 'littlefs'];
-      }
-      return [];
-    };
-
-    const validateSubtype = (partition) => {
-      const validSubtypes = getSubtypes(partition.type);
-      if (!validSubtypes.includes(partition.subtype)) {
-        partition.subtype = validSubtypes[0];
-      }
-    };
-
-    const validateSize = (partition:Partition, index) => {
-      // Enforce the offset rules
-      if (partition.type === 'app') {
-        partition.offset = Math.ceil((index === 0 ? 0x10000 : partitions.value[index - 1].offset + partitions.value[index - 1].size) / 0x10000) * 0x10000;
-      } else {
-        if (index === 0) {
-          partition.offset = 0x9000; // First non-app partition offset
-        } else {
-          let previousPartition = partitions.value[index - 1];
-          let previousOffsetEnd = previousPartition.offset + previousPartition.size;
-          partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000; // Align the offset to 0x1000 (4KB)
-        }
-      }
-
-      if (partition.type === 'app') {
-        // Align size to 64KB for app partitions
-        partition.size = Math.ceil(partition.size / 65536) * 65536;
-      } else {
-        // Align size to 4KB for data partitions
-        partition.size = Math.ceil(partition.size / 4096) * 4096;
-      }
-
-      // Check and adjust for total size overflow
-      if (totalSize.value > flashSizeBytes.value) {
-        partition.size = flashSizeBytes.value - (totalSize.value - partition.size);
-      }
-    };
-
-    const updateSize = (index: number, newSize: number) => {
-      const maxAvailableSize = flashSizeBytes.value - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
-      partitions.value[index].size = Math.min(Math.round(newSize), maxAvailableSize);
-      validateSize(partitions.value[index], index);
-    };
-
-    const generatePartitionName = () => {
-      const baseName = "partition";
-      let index = 1;
-      while (partitions.value.some(p => p.name === `${baseName}_${index}`)) {
-        index++;
-      }
-      return `${baseName}_${index}`;
-    };
-
-    const addPartition = () => {
-      const newName = generatePartitionName();
-      partitions.value.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096,offset:0 });
-      emit('updatePartitions', partitions.value);
-    };
-
-    const removePartition = (index: number) => {
-      partitions.value.splice(index, 1);
-      emit('updatePartitions', partitions.value);
-    };
-
-    return {
-      partitions,
-      flashSizeBytes,
-      totalSize,
-      validateName,
-      validateType,
-      validateSubtype,
-      validateSize,
-      updateSize,
-      addPartition,
-      removePartition,
-      getSubtypes,
-      downloadCSV,
-      store
-    };
+  flashSize: {
+    type: Number,
+    required: true
   }
+})
+
+const partitions = ref([...props.partitions]);
+const store = partitionStore();
+
+watch(partitions, (newPartitions) => {
+  emit('updatePartitions', newPartitions);
+}, { deep: true, immediate: true });
+
+const flashSizeBytes = computed(() => props.flashSize * 1024 * 1024 - PARTITION_TABLE_SIZE);
+
+const totalSize = computed(() => {
+  return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
 });
+
+const downloadCSV = () => {
+  const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
+  const csvContent = partitions.value.map(p => {
+    const sizeKB = Math.round(p.size / 1024) + 'K';
+    return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
+  }).join("\n");
+  const csvData = csvHeader + csvContent;
+  const blob = new Blob([csvData], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "partitions.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const validateName = (partition: Partition) => {
+  if (partition.name.length > 16) {
+    partition.name = partition.name.substring(0, 16);
+  }
+};
+
+const validateType = (partition: Partition) => {
+  const validTypes = ['app', 'data'];
+  if (!validTypes.includes(partition.type)) {
+    partition.type = 'data';
+  }
+  partition.subtype = getSubtypes(partition.type)[0];
+};
+
+const getSubtypes = (type) => {
+  if (type === 'app') {
+    return ['factory', 'test', 'ota_0', 'ota_1', 'ota_2', 'ota_3', 'ota_4', 'ota_5', 'ota_6', 'ota_7', 'ota_8', 'ota_9', 'ota_10', 'ota_11', 'ota_12', 'ota_13', 'ota_14', 'ota_15'];
+  } else if (type === 'data') {
+    return ['ota', 'phy', 'nvs', 'nvs_keys', 'coredump', 'efuse', 'fat', 'spiffs', 'littlefs'];
+  }
+  return [];
+};
+
+const validateSubtype = (partition) => {
+  const validSubtypes = getSubtypes(partition.type);
+  if (!validSubtypes.includes(partition.subtype)) {
+    partition.subtype = validSubtypes[0];
+  }
+};
+
+const validateSize = (partition: Partition, index) => {
+  // Enforce the offset rules
+  if (partition.type === 'app') {
+    partition.offset = Math.ceil((index === 0 ? 0x10000 : partitions.value[index - 1].offset + partitions.value[index - 1].size) / 0x10000) * 0x10000;
+  } else {
+    if (index === 0) {
+      partition.offset = 0x9000; // First non-app partition offset
+    } else {
+      let previousPartition = partitions.value[index - 1];
+      let previousOffsetEnd = previousPartition.offset + previousPartition.size;
+      partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000; // Align the offset to 0x1000 (4KB)
+    }
+  }
+
+  if (partition.type === 'app') {
+    // Align size to 64KB for app partitions
+    partition.size = Math.ceil(partition.size / 65536) * 65536;
+  } else {
+    // Align size to 4KB for data partitions
+    partition.size = Math.ceil(partition.size / 4096) * 4096;
+  }
+
+  // Check and adjust for total size overflow
+  if (totalSize.value > flashSizeBytes.value) {
+    partition.size = flashSizeBytes.value - (totalSize.value - partition.size);
+  }
+};
+
+const updateSize = (index: number, newSize: number) => {
+  const maxAvailableSize = flashSizeBytes.value - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
+  partitions.value[index].size = Math.min(Math.round(newSize), maxAvailableSize);
+  validateSize(partitions.value[index], index);
+};
+
+const generatePartitionName = () => {
+  const baseName = "partition";
+  let index = 1;
+  while (partitions.value.some(p => p.name === `${baseName}_${index}`)) {
+    index++;
+  }
+  return `${baseName}_${index}`;
+};
+
+const addPartition = () => {
+  const newName = generatePartitionName();
+  partitions.value.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096, offset: 0 });
+  emit('updatePartitions', partitions.value);
+};
+
+const removePartition = (index: number) => {
+  partitions.value.splice(index, 1);
+  emit('updatePartitions', partitions.value);
+};
+
 </script>
 
 <style scoped>
