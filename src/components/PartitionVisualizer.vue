@@ -13,24 +13,23 @@
 import { computed, type PropType } from 'vue';
 import type { Partition } from '@/types'
 import { PARTITION_TABLE_SIZE } from '@/config';
+import { partitionStore } from '@/store'
 
 const props = defineProps({
-  partitions: {
-    type: Array as PropType<Partition[]>,
-    required: true
-  },
   flashSize: {
     type: Number,
     required: true
   }
 })
 
+const store = partitionStore();
+
 const flashSizeBytes = computed(() => {
   return props.flashSize * 1024 * 1024 - PARTITION_TABLE_SIZE;
 });
 
 const partitionSegments = computed(() => {
-  return props.partitions.map((partition, index) => {
+  return store.partitions.map((partition, index) => {
     const width = (partition.size / flashSizeBytes.value * 100) + '%';
     const color = getColor(index);
     const title = `${partition.name}: ${partition.size} bytes`;
