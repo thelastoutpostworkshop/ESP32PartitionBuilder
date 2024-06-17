@@ -58,13 +58,12 @@ const partitionOptions = esp32Partitions.map(set => ({
   value: set.name
 }));
 
-const flashSizeBytes = computed(() => flashSize.value * 1024 * 1024);
 
 const updatePartitions = (newPartitions: Partition[]) => {
   store.partitions = newPartitions;
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   const wastedMemory = calculateAlignmentWaste();
-  store.availableMemory = flashSizeBytes.value - PARTITION_TABLE_SIZE - total - wastedMemory;
+  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total - wastedMemory;
 };
 
 const calculateAlignmentWaste = () => {
