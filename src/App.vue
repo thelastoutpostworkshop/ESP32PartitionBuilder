@@ -9,7 +9,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <partition-visualizer :partitions="store.partitions" :flashSize="flashSize"></partition-visualizer>
+            <partition-visualizer></partition-visualizer>
           </v-col>
         </v-row>
         <v-row>

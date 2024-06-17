@@ -11,26 +11,14 @@
 
 <script setup lang="ts">
 import { computed, type PropType } from 'vue';
-import type { Partition } from '@/types'
-import { PARTITION_TABLE_SIZE } from '@/config';
 import { partitionStore } from '@/store'
 
-const props = defineProps({
-  flashSize: {
-    type: Number,
-    required: true
-  }
-})
 
 const store = partitionStore();
 
-const flashSizeBytes = computed(() => {
-  return props.flashSize * 1024 * 1024 - PARTITION_TABLE_SIZE;
-});
-
 const partitionSegments = computed(() => {
   return store.partitions.map((partition, index) => {
-    const width = (partition.size / flashSizeBytes.value * 100) + '%';
+    const width = (partition.size / store.flashSizeBytes * 100) + '%';
     const color = getColor(index);
     const title = `${partition.name}: ${partition.size} bytes`;
     return { width, color, title, name: partition.name };
