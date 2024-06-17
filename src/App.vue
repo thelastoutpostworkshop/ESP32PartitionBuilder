@@ -61,39 +61,6 @@ watch(selectedPartitionSet, () => {
   loadPartitions();
 });
 
-const updatePartitions = (newPartitions: Partition[]) => {
-  store.partitions = newPartitions;
-  const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
-  const wastedMemory = calculateAlignmentWaste();
-  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total - wastedMemory;
-};
-
-const calculateAlignmentWaste = () => {
-  let wastedSpace = 0;
-  store.partitions.forEach((partition, index) => {
-    if (index === 0) {
-      if (partition.type === 'app') {
-        const startOffset = 0x10000;
-        wastedSpace += partition.offset - startOffset;
-      } else {
-        const startOffset = 0x9000;
-        wastedSpace += partition.offset - startOffset;
-      }
-    } else {
-      let previousPartition = store.partitions[index - 1];
-      let previousOffsetEnd = previousPartition.offset + previousPartition.size;
-      if (partition.type === 'app') {
-        const alignedOffset = Math.ceil(previousOffsetEnd / 0x10000) * 0x10000;
-        wastedSpace += alignedOffset - previousOffsetEnd;
-      } else {
-        const alignedOffset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000;
-        wastedSpace += alignedOffset - previousOffsetEnd;
-      }
-    }
-  });
-  return wastedSpace;
-};
-
 function loadPartitions () {
   const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
   if (selectedSet) {
