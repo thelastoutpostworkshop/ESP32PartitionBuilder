@@ -55,18 +55,14 @@ import type { Partition } from '@/types'
 const emit = defineEmits(['updatePartitions']);
 
 const props = defineProps({
-  partitions: {
-    type: Array as PropType<Partition[]>,
-    required: true
-  },
   flashSize: {
     type: Number,
     required: true
   }
 })
 
-const partitions = ref([...props.partitions]);
 const store = partitionStore();
+const partitions = ref([...store.partitions]);
 
 watch(partitions, (newPartitions) => {
   emit('updatePartitions', newPartitions);
@@ -118,14 +114,14 @@ const getSubtypes = (type) => {
   return [];
 };
 
-const validateSubtype = (partition) => {
+const validateSubtype = (partition: Partition) => {
   const validSubtypes = getSubtypes(partition.type);
   if (!validSubtypes.includes(partition.subtype)) {
     partition.subtype = validSubtypes[0];
   }
 };
 
-const validateSize = (partition: Partition, index) => {
+const validateSize = (partition: Partition, index:number) => {
   // Enforce the offset rules
   if (partition.type === 'app') {
     partition.offset = Math.ceil((index === 0 ? 0x10000 : partitions.value[index - 1].offset + partitions.value[index - 1].size) / 0x10000) * 0x10000;
