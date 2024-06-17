@@ -95,7 +95,6 @@ const calculateAlignmentWaste = () => {
 };
 
 function loadPartitions () {
-  console.log("loadPartitions")
   const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
   if (selectedSet) {
     store.partitions = [...selectedSet.partitions];
