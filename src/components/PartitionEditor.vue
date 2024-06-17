@@ -8,7 +8,7 @@
         <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
       </v-row>
     </v-container>
-    <div v-for="(partition, index) in partitions" :key="index" class="partition">
+    <div v-for="(partition, index) in store.partitions" :key="index" class="partition">
       <v-row dense>
         <v-col>
           <v-text-field v-model="partition.name" label="Name" dense hide-details
@@ -53,15 +53,14 @@ import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
 const store = partitionStore();
-const partitions = ref([...store.partitions]);
 
 const totalSize = computed(() => {
-  return partitions.value.reduce((sum, partition) => sum + partition.size, 0);
+  return store.partitions.reduce((sum, partition) => sum + partition.size, 0);
 });
 
 const downloadCSV = () => {
   const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
-  const csvContent = partitions.value.map(p => {
+  const csvContent = store.partitions.map(p => {
     const sizeKB = Math.round(p.size / 1024) + 'K';
     return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
   }).join("\n");
@@ -109,12 +108,12 @@ const validateSubtype = (partition: Partition) => {
 const validateSize = (partition: Partition, index:number) => {
   // Enforce the offset rules
   if (partition.type === 'app') {
-    partition.offset = Math.ceil((index === 0 ? 0x10000 : partitions.value[index - 1].offset + partitions.value[index - 1].size) / 0x10000) * 0x10000;
+    partition.offset = Math.ceil((index === 0 ? 0x10000 : store.partitions[index - 1].offset + store.partitions[index - 1].size) / 0x10000) * 0x10000;
   } else {
     if (index === 0) {
       partition.offset = 0x9000; // First non-app partition offset
     } else {
-      let previousPartition = partitions.value[index - 1];
+      let previousPartition = store.partitions[index - 1];
       let previousOffsetEnd = previousPartition.offset + previousPartition.size;
       partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000; // Align the offset to 0x1000 (4KB)
     }
@@ -135,15 +134,15 @@ const validateSize = (partition: Partition, index:number) => {
 };
 
 const updateSize = (index: number, newSize: number) => {
-  const maxAvailableSize = store.flashSizeBytes - totalSize.value + partitions.value[index].size - PARTITION_TABLE_SIZE;
-  partitions.value[index].size = Math.min(Math.round(newSize), maxAvailableSize);
-  validateSize(partitions.value[index], index);
+  const maxAvailableSize = store.flashSizeBytes - totalSize.value + store.partitions[index].size - PARTITION_TABLE_SIZE;
+  store.partitions[index].size = Math.min(Math.round(newSize), maxAvailableSize);
+  validateSize(store.partitions[index], index);
 };
 
 const generatePartitionName = () => {
   const baseName = "partition";
   let index = 1;
-  while (partitions.value.some(p => p.name === `${baseName}_${index}`)) {
+  while (store.partitions.some(p => p.name === `${baseName}_${index}`)) {
     index++;
   }
   return `${baseName}_${index}`;
@@ -151,11 +150,11 @@ const generatePartitionName = () => {
 
 const addPartition = () => {
   const newName = generatePartitionName();
-  partitions.value.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096, offset: 0 });
+  store.partitions.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096, offset: 0 });
 };
 
 const removePartition = (index: number) => {
-  partitions.value.splice(index, 1);
+  store.partitions.splice(index, 1);
 };
 
 </script>
