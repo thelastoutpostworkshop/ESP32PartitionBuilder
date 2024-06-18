@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { PARTITION_TABLE_SIZE,PARTITION_TYPES,PARTITION_TYPE_DATA,PARTITION_TYPE_APP } from '@/config';
+import { PARTITION_TABLE_SIZE, PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES } from '@/config';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
@@ -76,7 +76,7 @@ const downloadCSV = () => {
   document.body.removeChild(link);
 };
 
-function updatePartitions () {
+function updatePartitions() {
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   const wastedMemory = calculateAlignmentWaste();
   store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total - wastedMemory;
@@ -121,11 +121,11 @@ const validateType = (partition: Partition) => {
   partition.subtype = getSubtypes(partition.type)[0];
 };
 
-const getSubtypes = (type:string) => {
-  if (type === 'app') {
-    return ['factory', 'test', 'ota_0', 'ota_1', 'ota_2', 'ota_3', 'ota_4', 'ota_5', 'ota_6', 'ota_7', 'ota_8', 'ota_9', 'ota_10', 'ota_11', 'ota_12', 'ota_13', 'ota_14', 'ota_15'];
-  } else if (type === 'data') {
-    return ['ota', 'phy', 'nvs', 'nvs_keys', 'coredump', 'efuse', 'fat', 'spiffs', 'littlefs'];
+const getSubtypes = (type: string) => {
+  if (type === PARTITION_TYPE_APP) {
+    return PARTITION_APP_SUBTYPES;
+  } else if (type === PARTITION_TYPE_DATA) {
+    return PARTITION_DATA_SUBTYPES;
   }
   return [];
 };
@@ -137,9 +137,9 @@ const validateSubtype = (partition: Partition) => {
   }
 };
 
-const validateSize = (partition: Partition, index:number) => {
+const validateSize = (partition: Partition, index: number) => {
   // Enforce the offset rules
-  if (partition.type === 'app') {
+  if (partition.type === PARTITION_TYPE_APP) {
     partition.offset = Math.ceil((index === 0 ? 0x10000 : store.partitions[index - 1].offset + store.partitions[index - 1].size) / 0x10000) * 0x10000;
   } else {
     if (index === 0) {
@@ -151,7 +151,7 @@ const validateSize = (partition: Partition, index:number) => {
     }
   }
 
-  if (partition.type === 'app') {
+  if (partition.type === PARTITION_TYPE_APP) {
     // Align size to 64KB for app partitions
     partition.size = Math.ceil(partition.size / 65536) * 65536;
   } else {
@@ -182,7 +182,7 @@ const generatePartitionName = () => {
 
 const addPartition = () => {
   const newName = generatePartitionName();
-  store.partitions.push({ name: newName, type: 'data', subtype: getSubtypes('data')[0], size: 4096, offset: 0 });
+  store.partitions.push({ name: newName, type: PARTITION_TYPE_DATA, subtype: getSubtypes(PARTITION_TYPE_DATA)[0], size: 4096, offset: 0 });
 };
 
 const removePartition = (index: number) => {
@@ -192,7 +192,7 @@ const removePartition = (index: number) => {
 watch(store.partitions, () => {
   console.log("watch partitions")
   updatePartitions();
-},{ immediate: true,deep:true });
+}, { immediate: true, deep: true });
 </script>
 
 <style scoped>
