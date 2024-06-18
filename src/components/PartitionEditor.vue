@@ -80,7 +80,7 @@ function updatePartitions() {
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   // const wastedMemory = calculateAlignmentWaste();
   console.log(store.flashSizeBytes)
-  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total ;
+  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total;
 };
 
 const calculateAlignmentWaste = () => {
@@ -190,9 +190,7 @@ const removePartition = (index: number) => {
   store.partitions.splice(index, 1);
 };
 
-watch(store.partitions, () => {
-  updatePartitions();
-}, { immediate: true, deep: true });
+store.$subscribe(updatePartitions)
 
 </script>
 
