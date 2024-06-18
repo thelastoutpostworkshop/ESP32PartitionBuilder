@@ -5,5 +5,5 @@ export const FLASH_SIZES = [
     { value: 16, text: '16 MB' }
 ];
 export const PARTITION_TYPE_APP = "app"
-export const PARTITION_TYPE_data = "data"
-export const PARTITION_TYPES = [PARTITION_TYPE_APP, PARTITION_TYPE_data]
+export const PARTITION_TYPE_DATA = "data"
+export const PARTITION_TYPES = [PARTITION_TYPE_APP, PARTITION_TYPE_DATA]

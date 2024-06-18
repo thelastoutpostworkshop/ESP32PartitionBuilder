@@ -47,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, type PropType } from 'vue';
-import { PARTITION_TABLE_SIZE,PARTITION_TYPES } from '@/config';
+import { ref, watch, computed } from 'vue';
+import { PARTITION_TABLE_SIZE,PARTITION_TYPES,PARTITION_TYPE_DATA,PARTITION_TYPE_APP } from '@/config';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
@@ -86,7 +86,7 @@ const calculateAlignmentWaste = () => {
   let wastedSpace = 0;
   store.partitions.forEach((partition, index) => {
     if (index === 0) {
-      if (partition.type === 'app') {
+      if (partition.type === PARTITION_TYPE_APP) {
         const startOffset = 0x10000;
         wastedSpace += partition.offset - startOffset;
       } else {
@@ -96,7 +96,7 @@ const calculateAlignmentWaste = () => {
     } else {
       let previousPartition = store.partitions[index - 1];
       let previousOffsetEnd = previousPartition.offset + previousPartition.size;
-      if (partition.type === 'app') {
+      if (partition.type === PARTITION_TYPE_APP) {
         const alignedOffset = Math.ceil(previousOffsetEnd / 0x10000) * 0x10000;
         wastedSpace += alignedOffset - previousOffsetEnd;
       } else {
@@ -116,7 +116,7 @@ const validateName = (partition: Partition) => {
 
 const validateType = (partition: Partition) => {
   if (!PARTITION_TYPES.includes(partition.type)) {
-    partition.type = 'data';
+    partition.type = PARTITION_TYPE_DATA;
   }
   partition.subtype = getSubtypes(partition.type)[0];
 };
