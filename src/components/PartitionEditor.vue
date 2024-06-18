@@ -77,9 +77,9 @@ const downloadCSV = () => {
 };
 
 function updatePartitions() {
+  console.log("updatePartitions")
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   // const wastedMemory = calculateAlignmentWaste();
-  // console.log(store.flashSizeBytes)
   store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total;
 };
 
