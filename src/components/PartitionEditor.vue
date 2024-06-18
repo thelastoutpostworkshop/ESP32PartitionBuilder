@@ -79,7 +79,7 @@ const downloadCSV = () => {
 function updatePartitions() {
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
   // const wastedMemory = calculateAlignmentWaste();
-  console.log(store.flashSizeBytes)
+  // console.log(store.flashSizeBytes)
   store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total;
 };
 
@@ -140,8 +140,10 @@ const validateSubtype = (partition: Partition) => {
 
 const validateSize = (partition: Partition, index: number) => {
   // Enforce the offset rules
+  console.log("validateSize")
   if (partition.type === PARTITION_TYPE_APP) {
     partition.offset = Math.ceil((index === 0 ? 0x10000 : store.partitions[index - 1].offset + store.partitions[index - 1].size) / 0x10000) * 0x10000;
+    console.log(partition.offset);
   } else {
     if (index === 0) {
       partition.offset = 0x9000; // First non-app partition offset
