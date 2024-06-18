@@ -14,7 +14,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-select v-model="flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
+            <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
               dense hide-details></v-select>
           </v-col>
         </v-row>
@@ -44,12 +44,10 @@ import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { PARTITION_TABLE_SIZE, FLASH_SIZES } from '@/config';
 import { partitionStore } from '@/store';
-import type { Partition } from '@/types';
 import { esp32Partitions } from '@/partitions';
 
 const store = partitionStore();
 
-const flashSize = ref(4);
 const selectedPartitionSet = ref(esp32Partitions[0].name);
 
 const partitionOptions = esp32Partitions.map(set => ({

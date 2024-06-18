@@ -78,8 +78,9 @@ const downloadCSV = () => {
 
 function updatePartitions() {
   const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
-  const wastedMemory = calculateAlignmentWaste();
-  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total - wastedMemory;
+  // const wastedMemory = calculateAlignmentWaste();
+  console.log(store.flashSizeBytes)
+  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total ;
 };
 
 const calculateAlignmentWaste = () => {
@@ -190,9 +191,9 @@ const removePartition = (index: number) => {
 };
 
 watch(store.partitions, () => {
-  console.log("watch partitions")
   updatePartitions();
 }, { immediate: true, deep: true });
+
 </script>
 
 <style scoped>
