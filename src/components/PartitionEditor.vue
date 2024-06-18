@@ -115,8 +115,7 @@ const validateName = (partition: Partition) => {
 };
 
 const validateType = (partition: Partition) => {
-  const validTypes = ['app', 'data'];
-  if (!validTypes.includes(partition.type)) {
+  if (!PARTITION_TYPES.includes(partition.type)) {
     partition.type = 'data';
   }
   partition.subtype = getSubtypes(partition.type)[0];
