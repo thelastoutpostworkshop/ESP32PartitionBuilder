@@ -59,7 +59,7 @@ export class PartitionTable {
     return this.partitions.reduce((total, partition) => total + partition.size, 0);
   }
 
-  getFlashSize():number {
+  getTotalMemory(): number {
     return this.flashSize - PARTITION_TABLE_SIZE
   }
 

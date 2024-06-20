@@ -37,7 +37,8 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <v-slider color="teal" v-model="partition.size" :max="store.partitionTables.getFlashSize()-store.partitionTables.getTotalPartitionSize()+partition.size"
+          <v-slider color="teal" v-model="partition.size"
+            :max="store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size"
             @end="updateSize(partition)" dense hide-details
             :step="partition.type === PARTITION_TYPE_APP ? 65536 : 4096"></v-slider>
         </v-col>
@@ -110,7 +111,7 @@ const validateSize = (partition: Partition, index: number) => {
 };
 
 const updateSize = (partition: Partition) => {
-  store.partitionTables.updatePartitionSize(partition.name,partition.size/1024);
+  store.partitionTables.updatePartitionSize(partition.name, partition.size / 1024);
 };
 
 const generatePartitionName = () => {
@@ -124,10 +125,10 @@ const generatePartitionName = () => {
 
 const addPartition = () => {
   const newName = generatePartitionName();
-  store.partitionTables.addPartition(newName,PARTITION_TYPE_DATA,getSubtypes(PARTITION_TYPE_DATA)[0],4,"")
+  store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, getSubtypes(PARTITION_TYPE_DATA)[0], 4, "")
 };
 
-const removePartition = (partition:Partition) => {
+const removePartition = (partition: Partition) => {
   store.partitionTables.removePartition(partition.name)
 };
 
