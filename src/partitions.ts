@@ -60,11 +60,11 @@ export class PartitionTable {
   }
 
   getFlashSize():number {
-    return this.flashSize
+    return this.flashSize - PARTITION_TABLE_SIZE
   }
 
   getCurrentOffset(type: string): number {
-    let currentOffset = 0x9000; // Start after bootloader and partition table
+    let currentOffset = PARTITION_TABLE_SIZE; // Start after bootloader and partition table
 
     if (this.partitions.length > 0) {
       const lastPartition = this.partitions[this.partitions.length - 1];
@@ -101,7 +101,7 @@ export class PartitionTable {
   }
 
   recalculateOffsets() {
-    let currentOffset = 0x9000;
+    let currentOffset = PARTITION_TABLE_SIZE;
 
     this.partitions.forEach(partition => {
       if (partition.type === PARTITION_TYPE_APP) {
