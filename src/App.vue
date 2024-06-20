@@ -67,6 +67,7 @@ function loadPartitions() {
     })
   }
 };
+loadPartitions();
 
 </script>
 
