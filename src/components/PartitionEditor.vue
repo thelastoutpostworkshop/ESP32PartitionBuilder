@@ -37,8 +37,8 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <v-slider color="teal" v-model="partition.size" :max="store.partitionTables.getAvailableMemory()-partition.size"
-            @input="updateSize(partition)" dense hide-details
+          <v-slider color="teal" v-model="partition.newsize" :max="store.partitionTables.getAvailableMemory()-partition.size"
+            @end="updateSize(partition)" dense hide-details
             :step="partition.type === PARTITION_TYPE_APP ? 65536 : 4096"></v-slider>
         </v-col>
       </v-row>
@@ -110,6 +110,8 @@ const validateSize = (partition: Partition, index: number) => {
 };
 
 const updateSize = (partition: Partition) => {
+  console.log(partition.newsize)
+  store.partitionTables.updatePartitionSize(partition.name,partition.newsize/1024);
 };
 
 const generatePartitionName = () => {

@@ -5,6 +5,7 @@ export interface Partition {
     size: number;
     offset: number;
     flags:string;
+    newsize:number;
   }
 
  export  interface PartitionSet {
