@@ -32,7 +32,7 @@
         </v-col>
         <v-col cols="auto">
           <v-btn color="red-darken-4" icon="mdi-trash-can" variant="text" size="x-large"
-            @click="removePartition(index)"></v-btn>
+            @click="removePartition(partition)"></v-btn>
         </v-col>
       </v-row>
       <v-row dense>
@@ -57,7 +57,7 @@ const store = partitionStore();
 
 const downloadCSV = () => {
   const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
-  const csvContent = store.partitions.map(p => {
+  const csvContent = store.partitionTables.getPartitions().map(p => {
     const sizeKB = Math.round(p.size / 1024) + 'K';
     return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
   }).join("\n");
@@ -126,9 +126,8 @@ const addPartition = () => {
   store.partitionTables.addPartition(newName,PARTITION_TYPE_DATA,getSubtypes(PARTITION_TYPE_DATA)[0],4,"")
 };
 
-const removePartition = (index: number) => {
-  store.partitionTables.removePartition(st)
-  store.partitions.splice(index, 1);
+const removePartition = (partition:Partition) => {
+  store.partitionTables.removePartition(partition.name)
 };
 
 store.$subscribe(updatePartitions)
