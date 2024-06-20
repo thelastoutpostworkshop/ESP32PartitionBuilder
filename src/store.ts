@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue';
 import type { Partition } from '@/types';
-import { esp32Partitions } from '@/partitions';
+import { esp32Partitions,PartitionTable } from '@/partitions';
+
+const ptables = new PartitionTable(4);
 
 export const partitionStore = defineStore('partition_store', () => {
     const availableMemory = ref(0)
@@ -11,10 +13,13 @@ export const partitionStore = defineStore('partition_store', () => {
         return flashSize.value * 1024 * 1024;
     });
 
+    const partitionTables = ref(ptables);
+
     return {
         availableMemory,
         partitions,
         flashSize,
-        flashSizeBytes
+        flashSizeBytes,
+        partitionTables
     }
 })
