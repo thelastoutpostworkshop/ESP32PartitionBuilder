@@ -55,6 +55,14 @@ export class PartitionTable {
     this.partitions.push(partition);
   }
 
+  getTotalPartitionSize(): number {
+    return this.partitions.reduce((total, partition) => total + partition.size, 0);
+  }
+
+  getFlashSize():number {
+    return this.flashSize
+  }
+
   getCurrentOffset(type: string): number {
     let currentOffset = 0x9000; // Start after bootloader and partition table
 
