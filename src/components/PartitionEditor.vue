@@ -47,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import { PARTITION_TABLE_SIZE, PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES } from '@/config';
+import { computed } from 'vue';
+import { PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES } from '@/partitions';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
@@ -77,36 +77,7 @@ const downloadCSV = () => {
 };
 
 function updatePartitions() {
-  console.log("updatePartitions")
-  const total = store.partitions.reduce((sum, partition) => sum + partition.size, 0);
-  // const wastedMemory = calculateAlignmentWaste();
-  store.availableMemory = store.flashSizeBytes - PARTITION_TABLE_SIZE - total;
-};
 
-const calculateAlignmentWaste = () => {
-  let wastedSpace = 0;
-  store.partitions.forEach((partition, index) => {
-    if (index === 0) {
-      if (partition.type === PARTITION_TYPE_APP) {
-        const startOffset = 0x10000;
-        wastedSpace += partition.offset - startOffset;
-      } else {
-        const startOffset = 0x9000;
-        wastedSpace += partition.offset - startOffset;
-      }
-    } else {
-      let previousPartition = store.partitions[index - 1];
-      let previousOffsetEnd = previousPartition.offset + previousPartition.size;
-      if (partition.type === PARTITION_TYPE_APP) {
-        const alignedOffset = Math.ceil(previousOffsetEnd / 0x10000) * 0x10000;
-        wastedSpace += alignedOffset - previousOffsetEnd;
-      } else {
-        const alignedOffset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000;
-        wastedSpace += alignedOffset - previousOffsetEnd;
-      }
-    }
-  });
-  return wastedSpace;
 };
 
 const validateName = (partition: Partition) => {
@@ -139,39 +110,10 @@ const validateSubtype = (partition: Partition) => {
 };
 
 const validateSize = (partition: Partition, index: number) => {
-  // Enforce the offset rules
-  console.log("validateSize")
-  if (partition.type === PARTITION_TYPE_APP) {
-    partition.offset = Math.ceil((index === 0 ? 0x10000 : store.partitions[index - 1].offset + store.partitions[index - 1].size) / 0x10000) * 0x10000;
-    console.log(partition.offset);
-  } else {
-    if (index === 0) {
-      partition.offset = 0x9000; // First non-app partition offset
-    } else {
-      let previousPartition = store.partitions[index - 1];
-      let previousOffsetEnd = previousPartition.offset + previousPartition.size;
-      partition.offset = Math.ceil(previousOffsetEnd / 0x1000) * 0x1000; // Align the offset to 0x1000 (4KB)
-    }
-  }
 
-  if (partition.type === PARTITION_TYPE_APP) {
-    // Align size to 64KB for app partitions
-    partition.size = Math.ceil(partition.size / 65536) * 65536;
-  } else {
-    // Align size to 4KB for data partitions
-    partition.size = Math.ceil(partition.size / 4096) * 4096;
-  }
-
-  // Check and adjust for total size overflow
-  if (totalSize.value > store.flashSizeBytes) {
-    partition.size = store.flashSizeBytes - (totalSize.value - partition.size);
-  }
 };
 
 const updateSize = (index: number, newSize: number) => {
-  const maxAvailableSize = store.flashSizeBytes - totalSize.value + store.partitions[index].size - PARTITION_TABLE_SIZE;
-  store.partitions[index].size = Math.min(Math.round(newSize), maxAvailableSize);
-  validateSize(store.partitions[index], index);
 };
 
 const generatePartitionName = () => {
