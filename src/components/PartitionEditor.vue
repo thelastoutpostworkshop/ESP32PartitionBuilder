@@ -39,7 +39,7 @@
         <v-col>
           <v-slider color="teal" v-model="partition.size" :max="store.partitionTables.getAvailableMemory()-partition.size"
             @input="updateSize(partition)" dense hide-details
-            :step="partition.type === 'app' ? 65536 : 4096"></v-slider>
+            :step="partition.type === PARTITION_TYPE_APP ? 65536 : 4096"></v-slider>
         </v-col>
       </v-row>
     </div>
