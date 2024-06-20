@@ -44,6 +44,10 @@ export class PartitionTable {
     this.flashSize = flashSize * 1024 * 1024; // Convert MB to bytes
   }
 
+  getPartitions():Partition[] {
+    return this.partitions
+  }
+
   addPartition(name: string, type: 'app' | 'data', subtype: AppSubType | DataSubType, sizeInKB: number, flags: string) {
     const size = sizeInKB * 1024; // Convert KB to bytes
     // Align the offset based on type

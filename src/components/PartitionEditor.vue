@@ -8,7 +8,7 @@
         <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
       </v-row>
     </v-container>
-    <div v-for="(partition, index) in store.partitions" :key="index" class="partition">
+    <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition">
       <v-row dense>
         <v-col>
           <v-text-field v-model="partition.name" label="Name" dense hide-details
@@ -131,6 +131,7 @@ const addPartition = () => {
 };
 
 const removePartition = (index: number) => {
+  store.partitionTables.removePartition(st)
   store.partitions.splice(index, 1);
 };
 
