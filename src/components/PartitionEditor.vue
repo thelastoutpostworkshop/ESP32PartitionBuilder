@@ -3,7 +3,7 @@
     <v-container class="mb-2">
       <v-row align="center">
         <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
-        <span class="pl-2">Available Memory: {{ store.availableMemory }} bytes</span>
+        <span class="pl-2">Available Memory: {{ store.partitionTables.getAvailableMemory() }} bytes</span>
         <v-spacer></v-spacer>
         <v-btn color="primary" @click="downloadCSV" dense>Download CSV</v-btn>
       </v-row>
