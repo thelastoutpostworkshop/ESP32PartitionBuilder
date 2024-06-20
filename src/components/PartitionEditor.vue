@@ -127,7 +127,7 @@ const generatePartitionName = () => {
 
 const addPartition = () => {
   const newName = generatePartitionName();
-  store.partitions.push({ name: newName, type: PARTITION_TYPE_DATA, subtype: getSubtypes(PARTITION_TYPE_DATA)[0], size: 4096, offset: 0 });
+  store.partitions.push({ name: newName, type: PARTITION_TYPE_DATA, subtype: getSubtypes(PARTITION_TYPE_DATA)[0], size: 4096, offset: 0,flags:"" });
 };
 
 const removePartition = (index: number) => {
