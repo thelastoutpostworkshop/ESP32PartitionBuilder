@@ -17,7 +17,7 @@ import { partitionStore } from '@/store'
 const store = partitionStore();
 
 const partitionSegments = computed(() => {
-  return store.partitions.map((partition, index) => {
+  return store.partitionTables.getPartitions().map((partition, index) => {
     const width = (partition.size / store.flashSizeBytes * 100) + '%';
     const color = getColor(index);
     const title = `${partition.name}: ${partition.size} bytes`;
