@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue';
 import type { Partition } from '@/types';
 import { esp32Partitions } from '@/partitions';
-import { PARTITION_TABLE_SIZE } from '@/config';
 
 export const partitionStore = defineStore('partition_store', () => {
     const availableMemory = ref(0)
