@@ -1,5 +1,5 @@
 // src/partitions.ts
-import type { PartitionSet, Partition } from '@/types';
+import type { Partition } from '@/types';
 
 export const PARTITION_TABLE_SIZE = 0x9000; // 36KB reserved for the partition table
 export const FLASH_SIZES = [
