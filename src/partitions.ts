@@ -33,7 +33,7 @@ export class PartitionTable {
     this.partitions = []
   }
 
-  addPartition(name: string, type:string, subtype: AppSubType | DataSubType, sizeInKB: number, flags: string) {
+  addPartition(name: string, type: string, subtype: AppSubType | DataSubType, sizeInKB: number, flags: string) {
     const size = sizeInKB * 1024; // Convert KB to bytes
     // Align the offset based on type
     let currentOffset = this.getCurrentOffset(type);
@@ -105,6 +105,21 @@ export class PartitionTable {
       partition.offset = currentOffset;
       currentOffset += partition.size;
     });
+  }
+
+  updatePartitionSize(name: string, newSizeInKB: number) {
+    const size = newSizeInKB * 1024; // Convert KB to bytes
+    const index = this.partitions.findIndex(partition => partition.name === name);
+
+    if (index === -1) {
+      throw new Error(`Partition ${name} not found.`);
+    }
+
+    // Update the size of the partition
+    this.partitions[index].size = size;
+
+    // Recalculate offsets
+    this.recalculateOffsets();
   }
 
   generateTable(): Partition[] {
