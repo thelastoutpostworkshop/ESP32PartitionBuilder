@@ -4,6 +4,7 @@ export interface Partition {
     subtype: string;
     size: number;
     offset: number;
+    flags:string;
   }
 
  export  interface PartitionSet {
