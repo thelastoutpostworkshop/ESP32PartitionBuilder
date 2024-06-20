@@ -37,7 +37,7 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <v-slider color="teal" v-model="partition.size" :max="store.flashSizeBytes - totalSize + partition.size"
+          <v-slider color="teal" v-model="partition.size" :max="store.partitionTables.getAvailableMemory() + partition.size"
             @input="updateSize(index, $event)" dense hide-details
             :step="partition.type === 'app' ? 65536 : 4096"></v-slider>
         </v-col>
@@ -54,10 +54,6 @@ import type { Partition } from '@/types'
 
 const store = partitionStore();
 
-
-const totalSize = computed(() => {
-  return store.partitions.reduce((sum, partition) => sum + partition.size, 0);
-});
 
 const downloadCSV = () => {
   const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
@@ -119,7 +115,7 @@ const updateSize = (index: number, newSize: number) => {
 const generatePartitionName = () => {
   const baseName = "partition";
   let index = 1;
-  while (store.partitions.some(p => p.name === `${baseName}_${index}`)) {
+  while (store.partitionTables.getPartitions().some(p => p.name === `${baseName}_${index}`)) {
     index++;
   }
   return `${baseName}_${index}`;
@@ -127,7 +123,7 @@ const generatePartitionName = () => {
 
 const addPartition = () => {
   const newName = generatePartitionName();
-  store.partitions.push({ name: newName, type: PARTITION_TYPE_DATA, subtype: getSubtypes(PARTITION_TYPE_DATA)[0], size: 4096, offset: 0,flags:"" });
+  store.partitionTables.addPartition(newName,PARTITION_TYPE_DATA,getSubtypes(PARTITION_TYPE_DATA)[0],4,"")
 };
 
 const removePartition = (index: number) => {
