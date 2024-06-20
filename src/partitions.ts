@@ -3,9 +3,9 @@ import type { PartitionSet, Partition } from '@/types';
 
 export const PARTITION_TABLE_SIZE = 0x9000; // 36KB reserved for the partition table
 export const FLASH_SIZES = [
-    { value: 4, text: '4 MB' },
-    { value: 8, text: '8 MB' },
-    { value: 16, text: '16 MB' }
+  { value: 4, text: '4 MB' },
+  { value: 8, text: '8 MB' },
+  { value: 16, text: '16 MB' }
 ];
 export const PARTITION_TYPE_APP = "app"
 export const PARTITION_TYPE_DATA = "data"
@@ -20,18 +20,18 @@ export const esp32Partitions: PartitionSet[] = [
   {
     name: 'Partition Set 1',
     partitions: [
-      { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x4000, offset: 0,flags:"" },
-      { name: 'otadata', type: 'data', subtype: 'ota', size: 0x2000, offset: 0,flags:"" },
-      { name: 'app0', type: 'app', subtype: 'ota_0', size: 0x140000, offset: 0,flags:"" },
-      { name: 'app1', type: 'app', subtype: 'ota_1', size: 0x140000, offset: 0,flags:"" },
-      { name: 'spiffs', type: 'data', subtype: 'spiffs', size: 0x170000, offset: 0,flags:"" },
+      { name: 'nvs', type: 'data', subtype: 'nvs', size: 16, offset: 0, flags: "" },
+      { name: 'otadata', type: 'data', subtype: 'ota', size: 8, offset: 0, flags: "" },
+      { name: 'app0', type: 'app', subtype: 'ota_0', size: 1280, offset: 0, flags: "" },
+      { name: 'app1', type: 'app', subtype: 'ota_1', size: 1280, offset: 0, flags: "" },
+      { name: 'spiffs', type: 'data', subtype: 'spiffs', size: 1504, offset: 0, flags: "" },
     ]
   },
   {
     name: 'Partition Set 2',
     partitions: [
-      { name: 'storage', type: 'data', subtype: 'spiffs', size: 0x100000, offset: 0,flags:"" },
-      { name: 'app2', type: 'app', subtype: 'factory', size: 0x200000, offset: 0,flags:"" },
+      { name: 'storage', type: 'data', subtype: 'spiffs', size: 1024, offset: 0, flags: "" },
+      { name: 'app2', type: 'app', subtype: 'factory', size: 2048, offset: 0, flags: "" },
     ]
   }
 ];
@@ -44,19 +44,23 @@ export class PartitionTable {
     this.flashSize = flashSize * 1024 * 1024; // Convert MB to bytes
   }
 
-  getPartitions():Partition[] {
+  getPartitions(): Partition[] {
     return this.partitions
   }
 
-  addPartition(name: string, type: 'app' | 'data', subtype: AppSubType | DataSubType, sizeInKB: number, flags: string) {
+  clearPartitions() {
+    this.partitions = []
+  }
+
+  addPartition(name: string, type:string, subtype: AppSubType | DataSubType, sizeInKB: number, flags: string) {
     const size = sizeInKB * 1024; // Convert KB to bytes
     // Align the offset based on type
     let currentOffset = this.getCurrentOffset(type);
 
-    // Check if the partition fits within the flash memory
-    if (currentOffset + size > this.flashSize) {
-      throw new Error(`Partition ${name} exceeds the flash memory size of ${this.flashSize} bytes.`);
-    }
+    // // Check if the partition fits within the flash memory
+    // if (currentOffset + size > this.flashSize) {
+    //   throw new Error(`Partition ${name} exceeds the flash memory size of ${this.flashSize} bytes.`);
+    // }
 
     const partition: Partition = {
       name,
@@ -70,7 +74,7 @@ export class PartitionTable {
     this.partitions.push(partition);
   }
 
-  getCurrentOffset(type: 'app' | 'data'): number {
+  getCurrentOffset(type: string): number {
     let currentOffset = 0x9000; // Start after bootloader and partition table
 
     if (this.partitions.length > 0) {
@@ -78,7 +82,7 @@ export class PartitionTable {
       currentOffset = lastPartition.offset + lastPartition.size;
     }
 
-    if (type === 'app') {
+    if (type === PARTITION_TYPE_APP) {
       return this.alignOffset(currentOffset, 0x10000);
     } else {
       return this.alignOffset(currentOffset, 0x1000);
@@ -111,7 +115,7 @@ export class PartitionTable {
     let currentOffset = 0x9000;
 
     this.partitions.forEach(partition => {
-      if (partition.type === 'app') {
+      if (partition.type === PARTITION_TYPE_APP) {
         currentOffset = this.alignOffset(currentOffset, 0x10000);
       } else {
         currentOffset = this.alignOffset(currentOffset, 0x1000);
@@ -135,7 +139,7 @@ export class PartitionTable {
   }
 
   printAvailableMemory(): void {
-      const availableMemoryKB = this.getAvailableMemory() / 1024;
-      console.log(`Available Memory: ${availableMemoryKB} KB`);
-    }
+    const availableMemoryKB = this.getAvailableMemory() / 1024;
+    console.log(`Available Memory: ${availableMemoryKB} KB`);
+  }
 }

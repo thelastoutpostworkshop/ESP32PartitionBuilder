@@ -14,8 +14,8 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
-              dense hide-details></v-select>
+            <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text"
+              label="Flash Size" dense hide-details></v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -43,7 +43,7 @@ import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { esp32Partitions,FLASH_SIZES } from '@/partitions';
+import { esp32Partitions, FLASH_SIZES } from '@/partitions';
 
 const store = partitionStore();
 
@@ -58,10 +58,13 @@ watch(selectedPartitionSet, () => {
   loadPartitions();
 });
 
-function loadPartitions () {
+function loadPartitions() {
   const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
   if (selectedSet) {
-    store.partitions = [...selectedSet.partitions];
+    store.partitionTables.clearPartitions();
+    selectedSet.partitions.forEach(partition => {
+      store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, "");
+    })
   }
 };
 
