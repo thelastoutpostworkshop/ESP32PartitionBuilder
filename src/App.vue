@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar title="ESP32 Partition Builder"></v-app-bar>
+    <v-app-bar title="ESP32 Partition Builder">
+      <v-btn color="yellow" @click="goToBuyMeACoffee">
+        ☕ Buymeacoffee
+      </v-btn>
+    </v-app-bar>
     <v-main>
       <v-container fluid>
         <v-row>
@@ -52,6 +56,10 @@ const partitionOptions = esp32Partitions.map(set => ({
 watch(selectedPartitionSet, () => {
   loadPartitions();
 });
+
+function goToBuyMeACoffee() {
+  window.open('https://www.buymeacoffee.com/thelastoutpostworkshop', '_blank');
+}
 
 function changeFlashSize() {
   store.partitionTables.setFlashSize(store.flashSize)
