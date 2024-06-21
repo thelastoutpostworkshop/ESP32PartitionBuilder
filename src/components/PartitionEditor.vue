@@ -41,7 +41,12 @@
                 <v-slider color="teal" v-model="partition.size" thumb-label show-ticks
                   :max="store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size"
                   @end="updateSize(partition)" dense hide-details
-                  :step="partition.type === PARTITION_TYPE_APP ? 65536 : 4096"></v-slider>
+                  :step="stepSize(partition)">
+                  <template v-slot:prepend>
+                    <v-btn color="primary" icon="mdi-minus" size="small" variant="text"
+                      @click="decrement(partition)"></v-btn>
+                  </template>
+                </v-slider>
               </v-col>
             </v-row>
           </div>
@@ -70,6 +75,14 @@ const partitionNameRule = (name: string, index: number) => {
     return true
   }
 };
+
+function stepSize(partition: Partition): number {
+  return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
+}
+
+function decrement(partition: Partition) {
+
+}
 
 const getHexOffset = (offset: number): string => {
   return '0x' + offset.toString(16).toUpperCase();
