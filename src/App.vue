@@ -15,7 +15,7 @@
         <v-row>
           <v-col>
             <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
-              label="Default partitions" dense hide-details></v-select>
+              label="Built-in partitions" dense hide-details></v-select>
           </v-col>
           <v-col>
             <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text"
