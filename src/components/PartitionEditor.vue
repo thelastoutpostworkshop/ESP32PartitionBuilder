@@ -108,14 +108,15 @@ const getHexOffset = (offset: number): string => {
   return '0x' + offset.toString(16).toUpperCase();
 };
 
-async function downloadCSV() {
+const downloadCSV = async () => {
   if (formRef.value) {
     const { valid } = await formRef.value.validate();
     if (valid) {
       const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
       const csvContent = store.partitionTables.getPartitions().map(p => {
         const sizeKB = Math.round(p.size / 1024) + 'K';
-        return `${p.name},${p.type},${p.subtype},,${sizeKB},`;
+        const offsetHex = '0x' + p.offset.toString(16).toUpperCase();
+        return `${p.name},${p.type},${p.subtype},${offsetHex},${sizeKB},`;
       }).join("\n");
       const csvData = csvHeader + csvContent;
       const blob = new Blob([csvData], { type: 'text/csv' });
@@ -126,10 +127,10 @@ async function downloadCSV() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
     }
   }
 };
+
 
 function updatePartitions() {
 
