@@ -27,6 +27,16 @@ export class PartitionTable {
 
   setFlashSize(newFlashSizeMB: number) {
     this.flashSize = newFlashSizeMB * 1024 * 1024; // Convert MB to bytes
+    // Remove partitions from the last until they fit within the new flash size
+    while (this.getTotalPartitionSize() > this.getTotalMemory()) {
+      const removedPartition = this.partitions.pop();
+      if (!removedPartition) {
+        throw new Error('Cannot remove any more partitions. The partitions cannot fit within the new flash memory size.');
+      }
+    }
+
+    // Recalculate offsets after removing partitions
+    this.recalculateOffsets();
   }
 
   getPartitions(): Partition[] {
