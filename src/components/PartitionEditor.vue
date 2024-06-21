@@ -38,7 +38,7 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-slider color="teal" v-model="partition.size" thumb-label
+                <v-slider color="teal" v-model="partition.size" thumb-label show-ticks
                   :max="store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size"
                   @end="updateSize(partition)" dense hide-details
                   :step="partition.type === PARTITION_TYPE_APP ? 65536 : 4096"></v-slider>
