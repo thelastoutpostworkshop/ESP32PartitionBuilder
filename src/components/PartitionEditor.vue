@@ -46,7 +46,7 @@
                       @click="decrement(partition)"></v-btn>
                   </template>
                   <template v-slot:append>
-                    <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text" @click="increment"></v-btn>
+                    <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text" @click="increment(partition)"></v-btn>
                   </template>
                 </v-slider>
               </v-col>
@@ -84,10 +84,12 @@ function stepSize(partition: Partition): number {
 
 function decrement(partition: Partition) {
   partition.size -= stepSize(partition)
+  updateSize(partition)
 }
 
 function increment(partition: Partition) {
   partition.size += stepSize(partition)
+  updateSize(partition)
 }
 
 const getHexOffset = (offset: number): string => {
