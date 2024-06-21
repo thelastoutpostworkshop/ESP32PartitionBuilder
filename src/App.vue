@@ -5,6 +5,10 @@
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
       </v-btn>
+      <v-btn @click="goToRepository">
+        Get Help
+        <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
+      </v-btn>
     </v-app-bar>
     <v-main>
       <v-container fluid>
@@ -60,6 +64,9 @@ watch(selectedPartitionSet, () => {
 
 function goToBuyMeACoffee() {
   window.open('https://www.buymeacoffee.com/thelastoutpostworkshop', '_blank');
+}
+function goToRepository() {
+  window.open('https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder', '_blank');
 }
 
 function changeFlashSize() {
