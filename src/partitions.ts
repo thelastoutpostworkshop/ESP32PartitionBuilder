@@ -25,7 +25,7 @@ export class PartitionTable {
     this.flashSize = flashSize * 1024 * 1024; // Convert MB to bytes
   }
 
-  setFlashSize(newFlashSizeMB: 4 | 8 | 16) {
+  setFlashSize(newFlashSizeMB: number) {
     this.flashSize = newFlashSizeMB * 1024 * 1024; // Convert MB to bytes
   }
 

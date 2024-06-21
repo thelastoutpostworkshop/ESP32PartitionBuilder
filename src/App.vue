@@ -15,7 +15,7 @@
         <v-row>
           <v-col>
             <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text"
-              label="Flash Size" dense hide-details></v-select>
+              label="Flash Size" dense hide-details @update:model-value="changeFlashSize"></v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -58,6 +58,10 @@ const partitionOptions = esp32Partitions.map(set => ({
 watch(selectedPartitionSet, () => {
   loadPartitions();
 });
+
+function changeFlashSize() {
+  store.partitionTables.setFlashSize(store.flashSize)
+}
 
 function loadPartitions() {
   const selectedSet = esp32Partitions.find(set => set.name === selectedPartitionSet.value);
