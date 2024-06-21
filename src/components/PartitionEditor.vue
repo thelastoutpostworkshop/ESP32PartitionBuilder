@@ -139,11 +139,6 @@ const downloadCSV = async () => {
   }
 };
 
-
-function updatePartitions() {
-
-};
-
 const validateType = (partition: Partition) => {
   if (!PARTITION_TYPES.includes(partition.type)) {
     partition.type = PARTITION_TYPE_DATA;
@@ -188,8 +183,6 @@ const addPartition = () => {
 const removePartition = (partition: Partition) => {
   store.partitionTables.removePartition(partition.name)
 };
-
-store.$subscribe(updatePartitions)
 
 </script>
 
