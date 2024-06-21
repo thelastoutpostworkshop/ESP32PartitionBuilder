@@ -32,8 +32,16 @@
                 </v-text-field>
               </v-col>
               <v-col cols="auto">
-                <v-btn color="red-darken-4" icon="mdi-trash-can" variant="text" size="x-large"
-                  @click="removePartition(partition)"></v-btn>
+                <v-tooltip  location="top">
+                  <template v-slot:activator="{ props }">
+                    <v-btn icon v-bind="props"  @click="removePartition(partition)" variant="text">
+                      <v-icon color="red-darken-4">
+                        mdi-trash-can
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Delete Partition</span>
+                </v-tooltip>
               </v-col>
             </v-row>
             <v-row dense>
