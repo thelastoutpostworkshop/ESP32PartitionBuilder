@@ -9,7 +9,7 @@
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
 
           <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
-            <v-row>
+            <v-row dense>
               <v-col>
                 <v-text-field v-model="partition.name" label="Name" dense
                   :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
