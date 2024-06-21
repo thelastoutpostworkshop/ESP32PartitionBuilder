@@ -5,7 +5,7 @@
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
       </v-btn>
-      <v-btn @click="goToRepository">
+      <v-btn @click="goToRepository" prepend-icon="mdi-help-box">
         Get Help
         <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
       </v-btn>
