@@ -115,8 +115,8 @@ export class PartitionTable {
     });
   }
 
-  updatePartitionSize(name: string, newSizeInKB: number) {
-    const size = newSizeInKB * 1024; // Convert KB to bytes
+  updatePartitionSize(name: string, newSize: number) {
+    const size = newSize; // Convert KB to bytes
     const index = this.partitions.findIndex(partition => partition.name === name);
 
     if (index === -1) {

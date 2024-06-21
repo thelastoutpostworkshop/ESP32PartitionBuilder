@@ -106,7 +106,7 @@ const validateSubtype = (partition: Partition) => {
 };
 
 const updateSize = (partition: Partition) => {
-  store.partitionTables.updatePartitionSize(partition.name, partition.size / 1024);
+  store.partitionTables.updatePartitionSize(partition.name, partition.size);
 };
 
 const generatePartitionName = () => {
