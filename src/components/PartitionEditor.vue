@@ -9,10 +9,10 @@
       </v-row>
     </v-container>
     <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition">
-      <v-row dense>
+      <v-row >
         <v-col>
-          <v-text-field v-model="partition.name" label="Name" dense hide-details
-            @change="validateName(partition)"></v-text-field>
+          <v-text-field v-model="partition.name" label="Name" dense 
+            :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
         </v-col>
         <v-col>
           <v-select v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
@@ -27,7 +27,7 @@
         </v-col>
         <v-col>
           <v-text-field readonly active label="offset">
-            {{getHexOffset(partition.offset)}}
+            {{ getHexOffset(partition.offset) }}
           </v-text-field>
         </v-col>
         <v-col cols="auto">
@@ -54,6 +54,16 @@ import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
 const store = partitionStore();
+
+const partitionNameRule = (name: string,index:number) => {
+  const nameConflict = store.partitionTables.getPartitions().some((p, i) => i !== index && p.name === name)
+  if(nameConflict) {
+    console.log(name)
+    return  'Name already exists'
+  } else {
+    return true
+  }
+};
 
 const getHexOffset = (offset: number): string => {
   return '0x' + offset.toString(16).toUpperCase();
