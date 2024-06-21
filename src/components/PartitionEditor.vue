@@ -23,8 +23,7 @@
             @change="validateSubtype(partition)"></v-select>
         </v-col>
         <v-col>
-          <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense hide-details
-            @change="validateSize(partition, index)"></v-text-field>
+          <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense hide-details></v-text-field>
         </v-col>
         <v-col>
           <v-text-field readonly label="offset" v-model.number="partition.offset">
@@ -104,10 +103,6 @@ const validateSubtype = (partition: Partition) => {
   if (!validSubtypes.includes(partition.subtype)) {
     partition.subtype = validSubtypes[0];
   }
-};
-
-const validateSize = (partition: Partition, index: number) => {
-
 };
 
 const updateSize = (partition: Partition) => {
