@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-container class="mb-2">
-      <v-form validate-on="submit" ref="formRef" @submit.prevent="downloadCSV">
-          <v-row align="center">
+      <v-form ref="formRef" @submit.prevent="downloadCSV">
+        <v-row align="center">
           <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
           <span class="pl-2">Available Memory: {{ store.partitionTables.getAvailableMemory() }} bytes</span>
           <v-spacer></v-spacer>
@@ -46,7 +46,7 @@
             </v-row>
           </div>
         </v-row>
-        </v-form>
+      </v-form>
 
     </v-container>
   </v-container>
