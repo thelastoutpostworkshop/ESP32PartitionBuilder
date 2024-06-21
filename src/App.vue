@@ -1,12 +1,8 @@
 <template>
   <v-app>
+    <v-app-bar title="ESP32 Partition Builder"></v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-row>
-          <v-col>
-            <h1>ESP32 Partition Builder</h1>
-          </v-col>
-        </v-row>
         <v-row>
           <v-col>
             <partition-visualizer></partition-visualizer>
