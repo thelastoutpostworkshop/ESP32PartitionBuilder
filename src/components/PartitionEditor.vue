@@ -26,7 +26,8 @@
           <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense hide-details></v-text-field>
         </v-col>
         <v-col>
-          <v-text-field readonly label="offset" v-model.number="partition.offset">
+          <v-text-field readonly active label="offset">
+            {{getHexOffset(partition.offset)}}
           </v-text-field>
         </v-col>
         <v-col cols="auto">
@@ -54,6 +55,9 @@ import type { Partition } from '@/types'
 
 const store = partitionStore();
 
+const getHexOffset = (offset: number): string => {
+  return '0x' + offset.toString(16).toUpperCase();
+};
 
 const downloadCSV = () => {
   const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
