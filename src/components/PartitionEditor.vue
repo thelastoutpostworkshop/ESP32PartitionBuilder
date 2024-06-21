@@ -40,8 +40,7 @@
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label show-ticks
                   :max="store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size"
-                  @end="updateSize(partition)" dense hide-details
-                  :step="stepSize(partition)">
+                  @end="updateSize(partition)" dense hide-details :step="stepSize(partition)">
                   <template v-slot:prepend>
                     <v-btn color="primary" icon="mdi-minus" size="small" variant="text"
                       @click="decrement(partition)"></v-btn>
@@ -81,7 +80,7 @@ function stepSize(partition: Partition): number {
 }
 
 function decrement(partition: Partition) {
-
+  partition.size -= stepSize(partition)
 }
 
 const getHexOffset = (offset: number): string => {
