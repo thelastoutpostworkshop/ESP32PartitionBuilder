@@ -3,6 +3,7 @@
     <v-app-bar title="ESP32 Partition Builder">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
+        <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
       </v-btn>
     </v-app-bar>
     <v-main>
