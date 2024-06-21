@@ -8,7 +8,7 @@
           <v-spacer></v-spacer>
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
 
-          <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition">
+          <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
             <v-row>
               <v-col>
                 <v-text-field v-model="partition.name" label="Name" dense
@@ -188,7 +188,6 @@ store.$subscribe(updatePartitions)
 .partition {
   border: 1px solid #ccc;
   padding: 8px;
-  margin-bottom: 8px;
   width: 100%;
 }
 </style>
