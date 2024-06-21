@@ -39,14 +39,15 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label show-ticks
-                  :max="store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size"
-                  @end="updateSize(partition)" dense hide-details :step="stepSize(partition)">
+                  :max="maxPartitionSize(partition)" @end="updateSize(partition)" dense hide-details
+                  :step="stepSize(partition)">
                   <template v-slot:prepend>
                     <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
                       @click="decrement(partition)"></v-btn>
                   </template>
                   <template v-slot:append>
-                    <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text" @click="increment(partition)"></v-btn>
+                    <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
+                      @click="increment(partition)"></v-btn>
                   </template>
                 </v-slider>
               </v-col>
@@ -77,6 +78,10 @@ const partitionNameRule = (name: string, index: number) => {
     return true
   }
 };
+
+function maxPartitionSize(partition: Partition): number {
+  return store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size
+}
 
 function stepSize(partition: Partition): number {
   return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
