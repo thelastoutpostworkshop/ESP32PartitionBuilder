@@ -89,15 +89,19 @@ function stepSize(partition: Partition): number {
 
 function decrement(partition: Partition) {
   const step_size = stepSize(partition)
-  if(partition.size - step_size >= 0 ) {
+  if (partition.size - step_size >= 0) {
     partition.size -= step_size
     updateSize(partition)
   }
 }
 
 function increment(partition: Partition) {
-  partition.size += stepSize(partition)
-  updateSize(partition)
+  const step_size = stepSize(partition)
+  if (partition.size + step_size <= maxPartitionSize(partition)) {
+
+    partition.size += stepSize(partition)
+    updateSize(partition)
+  }
 }
 
 const getHexOffset = (offset: number): string => {
