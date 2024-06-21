@@ -121,12 +121,6 @@ function updatePartitions() {
 
 };
 
-const validateName = (partition: Partition) => {
-  if (partition.name.length > 16) {
-    partition.name = partition.name.substring(0, 16);
-  }
-};
-
 const validateType = (partition: Partition) => {
   if (!PARTITION_TYPES.includes(partition.type)) {
     partition.type = PARTITION_TYPE_DATA;
