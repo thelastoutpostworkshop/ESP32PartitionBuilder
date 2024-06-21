@@ -17,11 +17,9 @@
             <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text"
               label="Flash Size" dense hide-details @update:model-value="changeFlashSize"></v-select>
           </v-col>
-        </v-row>
-        <v-row>
           <v-col>
             <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
-              label="Partition Set" dense hide-details></v-select>
+              label="Default partitions" dense hide-details></v-select>
           </v-col>
         </v-row>
         <v-row>
