@@ -88,8 +88,11 @@ function stepSize(partition: Partition): number {
 }
 
 function decrement(partition: Partition) {
-  partition.size -= stepSize(partition)
-  updateSize(partition)
+  const step_size = stepSize(partition)
+  if(partition.size - step_size >= 0 ) {
+    partition.size -= step_size
+    updateSize(partition)
+  }
 }
 
 function increment(partition: Partition) {
