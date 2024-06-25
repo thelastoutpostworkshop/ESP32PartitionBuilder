@@ -143,6 +143,7 @@ const validateType = (partition: Partition) => {
     partition.type = PARTITION_TYPE_DATA;
   }
   partition.subtype = getSubtypes(partition.type)[0];
+  store.partitionTables.recalculateOffsets()
 };
 
 const getSubtypes = (type: string) => {
