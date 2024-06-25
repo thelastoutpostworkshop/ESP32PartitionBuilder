@@ -139,9 +139,6 @@ const downloadCSV = async () => {
 };
 
 const validateType = (partition: Partition) => {
-  if (!PARTITION_TYPES.includes(partition.type)) {
-    partition.type = PARTITION_TYPE_DATA;
-  }
   partition.subtype = getSubtypes(partition.type)[0];
   store.partitionTables.recalculateOffsets()
 };
