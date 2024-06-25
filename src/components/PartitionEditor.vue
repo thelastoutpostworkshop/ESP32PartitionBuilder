@@ -18,7 +18,7 @@
               </v-col>
               <v-col>
                 <v-select v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
-                  @change="validateType(partition)"></v-select>
+                @update:model-value="validateType(partition)"></v-select>
               </v-col>
               <v-col>
                 <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype" dense
