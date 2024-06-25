@@ -3,8 +3,10 @@
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
         <v-row align="center">
-          <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
-          <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }} bytes</span>
+          <v-btn @click="addPartition" :disabled="store.partitionTables.getAvailableMemory() == 0" dense
+            color="primary">Add Partition</v-btn>
+          <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
+            bytes</span>
           <v-spacer></v-spacer>
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
 
@@ -32,9 +34,9 @@
                 </v-text-field>
               </v-col>
               <v-col cols="auto">
-                <v-tooltip  location="top">
+                <v-tooltip location="top">
                   <template v-slot:activator="{ props }">
-                    <v-btn icon v-bind="props"  @click="removePartition(partition)" variant="text">
+                    <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
                       <v-icon color="red-darken-4">
                         mdi-trash-can
                       </v-icon>
