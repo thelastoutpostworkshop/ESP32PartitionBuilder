@@ -100,7 +100,9 @@ export class PartitionTable {
     const currentOffset = this.partitions.length > 0
       ? this.partitions[this.partitions.length - 1].offset + this.partitions[this.partitions.length - 1].size
       : 0x9000;
-    return this.flashSize - this.alignOffset(currentOffset, 0x1000);
+    const avalaible = this.flashSize - this.alignOffset(currentOffset, 0x1000);
+    console.log(avalaible);
+    return avalaible;
   }
 
   removePartition(name: string) {

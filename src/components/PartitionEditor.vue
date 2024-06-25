@@ -4,7 +4,7 @@
       <v-form ref="formRef" @submit.prevent="downloadCSV">
         <v-row align="center">
           <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
-          <span class="pl-2">Available Memory: {{ store.partitionTables.getAvailableMemory() }} bytes</span>
+          <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }} bytes</span>
           <v-spacer></v-spacer>
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
 
