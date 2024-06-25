@@ -3,7 +3,7 @@
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
         <v-row align="center">
-          <v-btn @click="addPartition" :disabled="store.partitionTables.getAvailableMemory() == 0" dense
+          <v-btn @click="addPartition" dense
             color="primary">Add Partition</v-btn>
           <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
             bytes</span>
@@ -18,7 +18,7 @@
               </v-col>
               <v-col>
                 <v-select v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
-                @update:model-value="validateType(partition)"></v-select>
+                  @update:model-value="validateType(partition)"></v-select>
               </v-col>
               <v-col>
                 <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype" dense
@@ -49,8 +49,8 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label show-ticks
-                  :max="store.partitionTables.getMaxPartitionSize(partition)" @end="updateSize(partition)" dense hide-details
-                  :step="stepSize(partition)">
+                  :max="store.partitionTables.getMaxPartitionSize(partition)" @end="updateSize(partition)" dense
+                  hide-details :step="stepSize(partition)">
                   <template v-slot:prepend>
                     <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
                       @click="decrement(partition)"></v-btn>
@@ -65,7 +65,14 @@
           </div>
         </v-row>
       </v-form>
-
+      <v-dialog v-model="showDialog" width="auto">
+        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="yellow"
+          :text="dialogText" :title="dialogTitle">
+          <template v-slot:actions>
+            <v-btn class="ms-auto" text="Ok" @click="showDialog = false"></v-btn>
+          </template>
+        </v-card>
+      </v-dialog>
     </v-container>
   </v-container>
 </template>
@@ -78,7 +85,9 @@ import type { Partition } from '@/types'
 
 const store = partitionStore();
 const formRef = ref();
-
+const showDialog = ref(false);
+const dialogText = ref("")
+const dialogTitle = ref("")
 const partitionNameRule = (name: string, index: number) => {
   const nameConflict = store.partitionTables.getPartitions().some((p, i) => i !== index && p.name === name)
   if (nameConflict) {
@@ -173,8 +182,14 @@ const generatePartitionName = () => {
 };
 
 const addPartition = () => {
-  const newName = generatePartitionName();
-  store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, getSubtypes(PARTITION_TYPE_DATA)[0], 4, "")
+  if(store.partitionTables.getAvailableMemory() <= 0) {
+    dialogTitle.value="Cannot add a new partition"
+    dialogText.value="There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
+    showDialog.value = true
+  } else {
+    const newName = generatePartitionName();
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, getSubtypes(PARTITION_TYPE_DATA)[0], 4, "")
+  }
 };
 
 const removePartition = (partition: Partition) => {
