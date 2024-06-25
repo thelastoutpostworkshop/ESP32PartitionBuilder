@@ -77,6 +77,23 @@ export class PartitionTable {
     return this.flashSize - PARTITION_TABLE_SIZE
   }
 
+  getMaxPartitionSize(partition: Partition): number {
+    const alignment = partition.type === PARTITION_TYPE_APP ? 0x10000 : 0x1000;
+    const alignedOffset = this.alignOffset(partition.offset, alignment);
+    
+    let maxSize = this.flashSize - alignedOffset;
+    
+    for (const existingPartition of this.partitions) {
+      if (existingPartition.offset > partition.offset) {
+        maxSize = existingPartition.offset - alignedOffset;
+        break;
+      }
+    }
+  
+    return maxSize;
+  }
+  
+
   getCurrentOffset(type: string): number {
     let currentOffset = PARTITION_TABLE_SIZE; // Start after bootloader and partition table
 

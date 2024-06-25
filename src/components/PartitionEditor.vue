@@ -49,7 +49,7 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label show-ticks
-                  :max="maxPartitionSize(partition)" @end="updateSize(partition)" dense hide-details
+                  :max="store.partitionTables.getMaxPartitionSize(partition)" @end="updateSize(partition)" dense hide-details
                   :step="stepSize(partition)">
                   <template v-slot:prepend>
                     <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
