@@ -89,9 +89,6 @@ const partitionNameRule = (name: string, index: number) => {
   }
 };
 
-function maxPartitionSize(partition: Partition): number {
-  return store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize() + partition.size
-}
 
 function stepSize(partition: Partition): number {
   return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
@@ -107,7 +104,7 @@ function decrement(partition: Partition) {
 
 function increment(partition: Partition) {
   const step_size = stepSize(partition)
-  if (partition.size + step_size <= maxPartitionSize(partition)) {
+  if (partition.size + step_size <= store.partitionTables.getMaxPartitionSize(partition)) {
 
     partition.size += stepSize(partition)
     updateSize(partition)
