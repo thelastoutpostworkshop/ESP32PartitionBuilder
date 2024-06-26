@@ -46,7 +46,7 @@ import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { FLASH_SIZES } from '@/partitions';
+import { FLASH_SIZES } from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();

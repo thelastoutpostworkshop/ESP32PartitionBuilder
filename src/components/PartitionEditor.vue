@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES } from '@/partitions';
+import { PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
