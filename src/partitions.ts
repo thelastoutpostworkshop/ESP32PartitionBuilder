@@ -1,5 +1,6 @@
 // src/partitions.ts
 import type { Partition } from '@/types';
+import {OFFSET_APP_TYPE,OFFSET_DATA_TYPE} from '@/const'
 
 export const PARTITION_TABLE_SIZE = 0x9000; // 36KB reserved for the partition table
 export const FLASH_SIZES = [
@@ -78,7 +79,7 @@ export class PartitionTable {
   }
 
   getMaxPartitionSize(partition: Partition): number {
-    const alignment = partition.type === PARTITION_TYPE_APP ? 0x10000 : 0x1000;
+    const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
     const alignedOffset = this.alignOffset(partition.offset, alignment);
     
     let maxSize = this.flashSize - alignedOffset;
