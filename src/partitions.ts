@@ -103,9 +103,9 @@ export class PartitionTable {
     }
 
     if (type === PARTITION_TYPE_APP) {
-      return this.alignOffset(currentOffset, 0x10000);
+      return this.alignOffset(currentOffset, OFFSET_APP_TYPE);
     } else {
-      return this.alignOffset(currentOffset, 0x1000);
+      return this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
     }
   }
 
@@ -116,8 +116,8 @@ export class PartitionTable {
   getAvailableMemory(): number {
     const currentOffset = this.partitions.length > 0
       ? this.partitions[this.partitions.length - 1].offset + this.partitions[this.partitions.length - 1].size
-      : 0x9000;
-    const avalaible = this.flashSize - this.alignOffset(currentOffset, 0x1000);
+      : PARTITION_TABLE_SIZE;
+    const avalaible = this.flashSize - this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
     return avalaible;
   }
 
@@ -137,9 +137,9 @@ export class PartitionTable {
 
     this.partitions.forEach(partition => {
       if (partition.type === PARTITION_TYPE_APP) {
-        currentOffset = this.alignOffset(currentOffset, 0x10000);
+        currentOffset = this.alignOffset(currentOffset,OFFSET_APP_TYPE);
       } else {
-        currentOffset = this.alignOffset(currentOffset, 0x1000);
+        currentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
       }
 
       partition.offset = currentOffset;
