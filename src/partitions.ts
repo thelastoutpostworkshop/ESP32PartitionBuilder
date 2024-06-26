@@ -11,7 +11,7 @@ export class PartitionTable {
   partitions: Partition[] = [];
   flashSize: number;
 
-  constructor(flashSize: 4 | 8 | 16) {
+  constructor(flashSize: number) {
     this.flashSize = flashSize * 1024 * 1024; // Convert MB to bytes
   }
 
