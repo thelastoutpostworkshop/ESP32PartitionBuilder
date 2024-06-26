@@ -1,8 +1,7 @@
 // src/partitions.ts
 import type { Partition } from '@/types';
-import {OFFSET_APP_TYPE,OFFSET_DATA_TYPE} from '@/const'
+import {OFFSET_APP_TYPE,OFFSET_DATA_TYPE,PARTITION_TABLE_SIZE} from '@/const'
 
-export const PARTITION_TABLE_SIZE = 0x9000; // 36KB reserved for the partition table
 export const FLASH_SIZES = [
   { value: 4, text: '4 MB' },
   { value: 8, text: '8 MB' },
