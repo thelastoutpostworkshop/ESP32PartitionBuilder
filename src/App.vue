@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar title="ESP32 Partition Builder">
+    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
@@ -46,7 +46,7 @@ import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { FLASH_SIZES } from '@/const';
+import { FLASH_SIZES, APP_VERSION } from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
