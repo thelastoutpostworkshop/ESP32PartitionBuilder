@@ -2,15 +2,16 @@
   <v-container>
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
-        <v-row align="center">
+        <v-row>
           <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
-          <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
-            bytes</span>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV</v-btn>
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
-
+        </v-row>
+        <v-row>
+          <span class="pt-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
+            bytes</span>
           <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
             <v-row dense>
               <v-col>
