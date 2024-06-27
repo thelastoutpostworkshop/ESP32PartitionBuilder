@@ -214,6 +214,31 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
+const parseSize = (sizeStr: string): number => {
+  const sizeRegex = /^(\d+)([KMB]?)$/;
+  const hexRegex = /^0x[0-9a-fA-F]+$/;
+
+  if (hexRegex.test(sizeStr)) {
+    return parseInt(sizeStr, 16); // Parse as hex
+  }
+
+  const match = sizeStr.match(sizeRegex);
+  if (!match) {
+    throw new Error(`Invalid size format: ${sizeStr}`);
+  }
+  
+  const size = parseInt(match[1], 10);
+  const unit = match[2];
+  switch (unit) {
+    case 'K':
+      return size * 1024;
+    case 'M':
+      return size * 1024 * 1024;
+    default:
+      return size;
+  }
+};
+
 const loadPartitionsFromCSV = (csv: string) => {
   const rows = csv.split('\n').filter(row => row.trim() !== '');
   const header = rows.shift(); // Remove the header row
@@ -226,22 +251,24 @@ const loadPartitionsFromCSV = (csv: string) => {
 
   const partitions: Partition[] = [];
   for (const row of rows) {
-    const [name, type, subtype, offsetHex, sizeKB, flags] = row.split(',');
-    if (!name || !type || !subtype || !offsetHex || !sizeKB) {
+    const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
+    if (!name || !type || !subtype || !offsetHex || !sizeStr) {
       dialogTitle.value = "Invalid CSV Data";
       dialogText.value = "The CSV file contains invalid data. Please check the file and try again.";
       showDialog.value = true;
       return;
     }
 
-    const size = parseInt(sizeKB, 10) * 1024; // Convert KB to bytes
-    const offset = parseInt(offsetHex, 16); // Convert hex to decimal
-    partitions.push({ name, type, subtype, size, offset, flags: flags || '' });
+    const size = parseSize(sizeStr.trim()); // Convert size to bytes
+    const offset = parseInt(offsetHex.trim(), 16); // Convert hex to decimal
+    partitions.push({ name: name.trim(), type: type.trim(), subtype: subtype.trim(), size, offset, flags: flags?.trim() || '' });
   }
 
   store.partitionTables.clearPartitions();
   partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size / 1024, partition.flags));
 };
+
+
 
 const loadCSV = () => {
   if (fileInput.value) {
