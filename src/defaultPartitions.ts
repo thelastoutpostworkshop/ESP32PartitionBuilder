@@ -23,5 +23,12 @@ export const esp32Partitions: PartitionSet[] = [
           { name: 'coredump', type: 'data', subtype: 'coredump', size: 64, offset: 0, flags: "" },
         ]
       },
+    {
+        name: 'Single factory app, no OTA)',
+        partitions: [
+          { name: 'nvs', type: 'data', subtype: 'nvs', size: 24, offset: 0, flags: "" },
+          { name: 'factory', type: 'app', subtype: 'factory', size: 2048, offset: 0, flags: "" },
+        ]
+      },
   ];
   
