@@ -67,7 +67,7 @@
         </v-row>
       </v-form>
       <v-dialog v-model="showDialog" width="auto">
-        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="yellow" :text="dialogText"
+        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="white" :text="dialogText"
           :title="dialogTitle">
           <template v-slot:actions>
             <v-btn class="ms-auto" text="Ok" @click="showDialog = false"></v-btn>
