@@ -3,11 +3,12 @@
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
         <v-row align="center">
-          <v-btn @click="addPartition" dense
-            color="primary">Add Partition</v-btn>
+          <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
           <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
             bytes</span>
           <v-spacer></v-spacer>
+          <v-btn color="primary" @click="loadCSV" dense>Upload CSV</v-btn>
+          <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
 
           <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
@@ -66,8 +67,8 @@
         </v-row>
       </v-form>
       <v-dialog v-model="showDialog" width="auto">
-        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="yellow"
-          :text="dialogText" :title="dialogTitle">
+        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="yellow" :text="dialogText"
+          :title="dialogTitle">
           <template v-slot:actions>
             <v-btn class="ms-auto" text="Ok" @click="showDialog = false"></v-btn>
           </template>
@@ -88,6 +89,8 @@ const formRef = ref();
 const showDialog = ref(false);
 const dialogText = ref("")
 const dialogTitle = ref("")
+const fileInput = ref<HTMLInputElement | null>(null);
+
 const partitionNameRule = (name: string, index: number) => {
   const nameConflict = store.partitionTables.getPartitions().some((p, i) => i !== index && p.name === name)
   if (nameConflict) {
@@ -182,9 +185,9 @@ const generatePartitionName = () => {
 };
 
 const addPartition = () => {
-  if(store.partitionTables.getAvailableMemory() <= 0) {
-    dialogTitle.value="Cannot add a new partition"
-    dialogText.value="There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
+  if (store.partitionTables.getAvailableMemory() <= 0) {
+    dialogTitle.value = "Cannot add a new partition"
+    dialogText.value = "There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
     showDialog.value = true
   } else {
     const newName = generatePartitionName();
@@ -194,6 +197,56 @@ const addPartition = () => {
 
 const removePartition = (partition: Partition) => {
   store.partitionTables.removePartition(partition.name)
+};
+
+const handleFileUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target && typeof e.target.result === 'string') {
+        const csv = e.target.result;
+        loadPartitionsFromCSV(csv);
+      }
+    };
+    reader.readAsText(file);
+  }
+};
+
+const loadPartitionsFromCSV = (csv: string) => {
+  const rows = csv.split('\n').filter(row => row.trim() !== '');
+  const header = rows.shift(); // Remove the header row
+  if (header !== '# Name,   Type, SubType, Offset,  Size, Flags') {
+    dialogTitle.value = "Invalid CSV Format";
+    dialogText.value = "The CSV file format is incorrect. Please use the correct format.";
+    showDialog.value = true;
+    return;
+  }
+
+  const partitions: Partition[] = [];
+  for (const row of rows) {
+    const [name, type, subtype, offsetHex, sizeKB, flags] = row.split(',');
+    if (!name || !type || !subtype || !offsetHex || !sizeKB) {
+      dialogTitle.value = "Invalid CSV Data";
+      dialogText.value = "The CSV file contains invalid data. Please check the file and try again.";
+      showDialog.value = true;
+      return;
+    }
+
+    const size = parseInt(sizeKB, 10) * 1024; // Convert KB to bytes
+    const offset = parseInt(offsetHex, 16); // Convert hex to decimal
+    partitions.push({ name, type, subtype, size, offset, flags: flags || '' });
+  }
+
+  store.partitionTables.clearPartitions();
+  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size / 1024, partition.flags));
+};
+
+const loadCSV = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
 };
 
 </script>
