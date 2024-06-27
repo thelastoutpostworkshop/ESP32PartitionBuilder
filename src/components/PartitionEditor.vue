@@ -7,7 +7,7 @@
           <span class="pl-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
             bytes</span>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="loadCSV" dense>Upload CSV</v-btn>
+          <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV</v-btn>
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
 
