@@ -2,7 +2,7 @@ import type { PartitionSet } from '@/types';
 
 export const esp32Partitions: PartitionSet[] = [
     {
-      name: '4MB with spiffs (1.2MP APP/1.5MB SPIFFS)',
+      name: '4MB with spiffs & OTA (1.2MP APP/1.5MB SPIFFS)',
       partitions: [
         { name: 'nvs', type: 'data', subtype: 'nvs', size: 20, offset: 0, flags: "" },
         { name: 'otadata', type: 'data', subtype: 'ota', size: 8, offset: 0, flags: "" },
@@ -13,7 +13,7 @@ export const esp32Partitions: PartitionSet[] = [
       ]
     },
     {
-        name: '4MB with fat (1.2MP APP/1.5MB FAT)',
+        name: '4MB with fat & OTA (1.2MP APP/1.5MB FAT)',
         partitions: [
           { name: 'nvs', type: 'data', subtype: 'nvs', size: 20, offset: 0, flags: "" },
           { name: 'otadata', type: 'data', subtype: 'ota', size: 8, offset: 0, flags: "" },
