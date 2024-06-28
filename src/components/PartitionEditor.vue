@@ -24,11 +24,11 @@
               </v-col>
               <v-col>
                 <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype" dense
-                  hide-details @change="validateSubtype(partition)"></v-select>
+                  ></v-select>
               </v-col>
               <v-col>
                 <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
-                  hide-details></v-text-field>
+                :rules="[partitionSizeRule(partition)]"></v-text-field>
               </v-col>
               <v-col>
                 <v-text-field readonly active label="offset">
@@ -81,7 +81,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES } from '@/const';
+import { PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, 
+  PARTITION_DATA_SUBTYPES,PARTITION_NVS,NVS_PARTITION_SIZE_RECOMMENDED } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
@@ -102,6 +103,14 @@ const partitionNameRule = (name: string, index: number) => {
   }
 };
 
+const partitionSizeRule = (partition: Partition) => {
+  if(partition.subtype === PARTITION_NVS) {
+    if(partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
+      return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`;
+    }
+  }
+  return true;
+};
 
 function stepSize(partition: Partition): number {
   return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
@@ -165,12 +174,6 @@ const getSubtypes = (type: string) => {
   return [];
 };
 
-const validateSubtype = (partition: Partition) => {
-  const validSubtypes = getSubtypes(partition.type);
-  if (!validSubtypes.includes(partition.subtype)) {
-    partition.subtype = validSubtypes[0];
-  }
-};
 
 const updateSize = (partition: Partition) => {
   store.partitionTables.updatePartitionSize(partition.name, partition.size);
@@ -227,7 +230,7 @@ const parseSize = (sizeStr: string): number => {
   if (!match) {
     throw new Error(`Invalid size format: ${sizeStr}`);
   }
-  
+
   const size = parseInt(match[1], 10);
   const unit = match[2];
   switch (unit) {
