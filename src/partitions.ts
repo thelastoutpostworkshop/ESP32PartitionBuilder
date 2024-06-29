@@ -163,9 +163,4 @@ export class PartitionTable {
       console.log(`${partition.name}, ${partition.type}, ${partition.subtype}, 0x${partition.offset.toString(16)}, ${size}, ${partition.flags || ''}`);
     });
   }
-
-  printAvailableMemory(): void {
-    const availableMemoryKB = this.getAvailableMemory() / 1024;
-    console.log(`Available Memory: ${availableMemoryKB} KB`);
-  }
 }

@@ -222,7 +222,7 @@ const addNVSPartition = () => {
 };
 
 const addOTAPartition = () => {
-  if (store.partitionTables.getAvailableMemory() < OTA_DATA_PARTITION_SIZE) {
+  if (store.partitionTables.getAvailableMemory() < (OTA_DATA_PARTITION_SIZE+2048)) {
     dialogTitle.value = "Cannot add OTA partitions"
     dialogText.value = `There is not enough memory to add a OTA partition. OTA partition size must be at least ${OTA_DATA_PARTITION_SIZE} bytes.`
     showDialog.value = true
