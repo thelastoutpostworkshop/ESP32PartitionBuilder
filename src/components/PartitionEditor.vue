@@ -205,11 +205,19 @@ const addPartition = () => {
     dialogTitle.value = "Cannot add a new partition"
     dialogText.value = "There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
     showDialog.value = true
-  } 
+  }
 };
 const addNVSPartition = () => {
+  console.log(NVS_PARTITION_SIZE_RECOMMENDED)
+  console.log(store.partitionTables.getAvailableMemory())
+  if (store.partitionTables.getAvailableMemory() < NVS_PARTITION_SIZE_RECOMMENDED) {
+    dialogTitle.value = "Cannot add a NVS partition"
+    dialogText.value = `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`
+    showDialog.value = true
+  } else {
     const newName = generatePartitionName();
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED/1024, "")
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
+  }
 };
 
 const removePartition = (partition: Partition) => {
