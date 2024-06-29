@@ -5,7 +5,7 @@
         <v-row>
           <v-btn dense color="primary" @click="addPartition">Add Partition
             <v-menu activator="parent">
-              <v-list v-if="store.partitionTables.getAvailableMemory() > 0" variant="outlined" style="cursor: pointer;">
+              <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
                 <v-list-item>
                   <v-list-item-title @click="addNVSPartition">NVS (Non-Volatile Storage)</v-list-item-title>
                   <v-list-item-title>OTA (Over The Air Updates )</v-list-item-title>
