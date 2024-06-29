@@ -94,8 +94,8 @@
 import { ref } from 'vue';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
-  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED,OTA_DATA_PARTITION_SIZE,
-  OFFSET_DATA_TYPE,PARTITION_OTA,OFFSET_APP_TYPE
+  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
+  OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -227,12 +227,13 @@ const addNVSPartition = () => {
 };
 
 const addOTAPartition = () => {
-  if (store.partitionTables.getAvailableMemory() < (OTA_DATA_PARTITION_SIZE+2048)) {
+  const sizeNeeded = OTA_DATA_PARTITION_SIZE + OFFSET_APP_TYPE * 2
+  if (store.partitionTables.getAvailableMemory() < sizeNeeded) {
     dialogTitle.value = "Cannot add OTA partitions"
-    dialogText.value = `There is not enough memory to add a OTA partition. OTA partition size must be at least ${OTA_DATA_PARTITION_SIZE} bytes.`
+    dialogText.value = `There is not enough memory to add a OTA partitions. You need at least ${sizeNeeded} bytes of memory available.`
     showDialog.value = true
   } else {
-    let partitionName:string = ""
+    let partitionName: string = ""
     partitionName = generatePartitionName("otadata")
     store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE / 1024, "")
     partitionName = generatePartitionName("app0")
