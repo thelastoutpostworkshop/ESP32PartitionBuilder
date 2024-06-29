@@ -94,7 +94,8 @@
 import { ref } from 'vue';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
-  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED,OTA_DATA_PARTITION_SIZE
+  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED,OTA_DATA_PARTITION_SIZE,
+  OFFSET_DATA_TYPE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -128,7 +129,7 @@ const partitionSizeRule = (partition: Partition) => {
 
 function stepSize(partition: Partition): number {
   // return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
-  return 1024
+  return OFFSET_DATA_TYPE
 }
 
 function decrement(partition: Partition) {
