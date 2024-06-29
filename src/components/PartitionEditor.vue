@@ -3,12 +3,14 @@
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
         <v-row>
-          <v-btn dense color="primary" @click="addPartition">Add Partition
+          <v-btn color="primary" @click="addPartition">Add Partition
             <v-menu activator="parent">
               <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
+                <v-list-item @click="addNVSPartition">
+                  NVS (Non-Volatile Storage)
+                </v-list-item>
                 <v-list-item>
-                  <v-list-item-title @click="addNVSPartition">NVS (Non-Volatile Storage)</v-list-item-title>
-                  <v-list-item-title>OTA (Over The Air Updates )</v-list-item-title>
+                  OTA (Over The Air Updates)
                 </v-list-item>
               </v-list>
             </v-menu>
