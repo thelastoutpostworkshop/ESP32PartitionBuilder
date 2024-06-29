@@ -3,7 +3,16 @@
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
         <v-row>
-          <v-btn @click="addPartition" dense color="primary">Add Partition</v-btn>
+          <v-btn dense color="primary" @click="addPartition">Add Partition
+            <v-menu activator="parent">
+              <v-list v-if="store.partitionTables.getAvailableMemory() > 0">
+                <v-list-item>
+                  <v-list-item-title @click="addNVSPartition">NVS (Non-Volatile Storage)</v-list-item-title>
+                  <v-list-item-title>OTA (Over The Air Updates )</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-btn>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV</v-btn>
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
@@ -23,12 +32,12 @@
                   @update:model-value="validateType(partition)"></v-select>
               </v-col>
               <v-col>
-                <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype" dense
-                  ></v-select>
+                <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
+                  dense></v-select>
               </v-col>
               <v-col>
                 <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
-                :rules="[partitionSizeRule(partition)]"></v-text-field>
+                  :rules="[partitionSizeRule(partition)]"></v-text-field>
               </v-col>
               <v-col>
                 <v-text-field readonly active label="offset">
@@ -81,8 +90,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES, 
-  PARTITION_DATA_SUBTYPES,PARTITION_NVS,NVS_PARTITION_SIZE_RECOMMENDED } from '@/const';
+import {
+  PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
+  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED
+} from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
 
@@ -92,6 +103,7 @@ const showDialog = ref(false);
 const dialogText = ref("")
 const dialogTitle = ref("")
 const fileInput = ref<HTMLInputElement | null>(null);
+
 
 const partitionNameRule = (name: string, index: number) => {
   const nameConflict = store.partitionTables.getPartitions().some((p, i) => i !== index && p.name === name)
@@ -104,8 +116,8 @@ const partitionNameRule = (name: string, index: number) => {
 };
 
 const partitionSizeRule = (partition: Partition) => {
-  if(partition.subtype === PARTITION_NVS) {
-    if(partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
+  if (partition.subtype === PARTITION_NVS) {
+    if (partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
       return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`;
     }
   }
@@ -193,10 +205,11 @@ const addPartition = () => {
     dialogTitle.value = "Cannot add a new partition"
     dialogText.value = "There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
     showDialog.value = true
-  } else {
+  } 
+};
+const addNVSPartition = () => {
     const newName = generatePartitionName();
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, getSubtypes(PARTITION_TYPE_DATA)[0], 4, "")
-  }
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED/1024, "")
 };
 
 const removePartition = (partition: Partition) => {
