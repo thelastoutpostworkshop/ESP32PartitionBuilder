@@ -95,7 +95,7 @@ import { ref } from 'vue';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED,OTA_DATA_PARTITION_SIZE,
-  OFFSET_DATA_TYPE,PARTITION_OTA
+  OFFSET_DATA_TYPE,PARTITION_OTA,OFFSET_APP_TYPE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -235,6 +235,10 @@ const addOTAPartition = () => {
     let partitionName:string = ""
     partitionName = generatePartitionName("otadata")
     store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE / 1024, "")
+    partitionName = generatePartitionName("app0")
+    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE / 1024, "")
+    partitionName = generatePartitionName("app1")
+    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE / 1024, "")
   }
 };
 
