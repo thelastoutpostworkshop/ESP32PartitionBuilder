@@ -66,9 +66,13 @@ export class PartitionTable {
   }
   
   getTotalMemory(): number {
-    return this.flashSize - PARTITION_TABLE_SIZE
+    if (this.partitions.length > 0 && this.partitions[0].type === PARTITION_TYPE_APP) {
+      return this.flashSize - OFFSET_APP_TYPE;
+    } else {
+      return this.flashSize - PARTITION_TABLE_SIZE;
+    }
   }
-
+  
   getMaxPartitionSize(partition: Partition): number {
     const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
     const alignedOffset = this.alignOffset(partition.offset, alignment);
