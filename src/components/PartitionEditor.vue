@@ -61,7 +61,7 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-slider color="teal" v-model="partition.size" thumb-label show-ticks label="Size"
+                <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
                   :max="store.partitionTables.getMaxPartitionSize(partition)" @end="updateSize(partition)" dense
                   hide-details :step="stepSize(partition)" :min="stepSize(partition)">
                   <template v-slot:prepend>
@@ -127,7 +127,8 @@ const partitionSizeRule = (partition: Partition) => {
 };
 
 function stepSize(partition: Partition): number {
-  return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
+  // return partition.type === PARTITION_TYPE_APP ? 65536 : 4096
+  return 1024
 }
 
 function decrement(partition: Partition) {
