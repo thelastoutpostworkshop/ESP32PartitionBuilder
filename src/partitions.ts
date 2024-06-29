@@ -155,12 +155,4 @@ export class PartitionTable {
   generateTable(): Partition[] {
     return this.partitions;
   }
-
-  printTable(sizeFormat: 'hex' | 'kb' = 'hex'): void {
-    console.log('# Name,   Type, SubType, Offset,  Size, Flags');
-    this.partitions.forEach(partition => {
-      const size = sizeFormat === 'hex' ? `0x${partition.size.toString(16)}` : `${partition.size / 1024}K`;
-      console.log(`${partition.name}, ${partition.type}, ${partition.subtype}, 0x${partition.offset.toString(16)}, ${size}, ${partition.flags || ''}`);
-    });
-  }
 }
