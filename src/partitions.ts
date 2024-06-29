@@ -59,10 +59,12 @@ export class PartitionTable {
     this.partitions.push(partition);
   }
 
-  getTotalPartitionSize(): number {
-    return this.partitions.reduce((total, partition) => total + partition.size, 0);
+  getTotalPartitionSize(excludePartition?: Partition): number {
+    return this.partitions.reduce((total, partition) => {
+      return partition === excludePartition ? total : total + partition.size;
+    }, 0);
   }
-
+  
   getTotalMemory(): number {
     return this.flashSize - PARTITION_TABLE_SIZE
   }
