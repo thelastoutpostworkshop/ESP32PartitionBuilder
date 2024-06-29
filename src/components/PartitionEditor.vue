@@ -207,14 +207,18 @@ const generatePartitionName = (baseName: string) => {
   return `${baseName}_${index}`;
 };
 
+function showAlertMessage(title: string, message: string) {
+  alertTitle.value = title
+  alertText.value = message
+  showAlert.value = true
+}
 
 const addPartition = () => {
   if (store.partitionTables.getAvailableMemory() <= 0) {
-    alertTitle.value = "Cannot add a new partition"
-    alertText.value = "There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
-    showAlert.value = true
+    showAlertMessage("Cannot add a new partition", "There is not enough memory to add a new partition.  Remove a partition or resize an existing one.")
   }
 };
+
 const addNVSPartition = () => {
   if (store.partitionTables.getAvailableMemory() < NVS_PARTITION_SIZE_RECOMMENDED) {
     alertTitle.value = "Cannot add a NVS partition"
