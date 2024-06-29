@@ -9,7 +9,7 @@
                 <v-list-item @click="addNVSPartition">
                   NVS (Non-Volatile Storage)
                 </v-list-item>
-                <v-list-item>
+                <v-list-item @click="addOTAPartition">
                   OTA (Over The Air Updates)
                 </v-list-item>
               </v-list>
@@ -94,7 +94,7 @@
 import { ref } from 'vue';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
-  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED
+  PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED,OTA_DATA_PARTITION_SIZE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -217,6 +217,17 @@ const addNVSPartition = () => {
   } else {
     const newName = generatePartitionName();
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
+  }
+};
+
+const addOTAPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < OTA_DATA_PARTITION_SIZE) {
+    dialogTitle.value = "Cannot add OTA partitions"
+    dialogText.value = `There is not enough memory to add a OTA partition. OTA partition size must be at least ${OTA_DATA_PARTITION_SIZE} bytes.`
+    showDialog.value = true
+  } else {
+    // const newName = generatePartitionName();
+    // store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
   }
 };
 
