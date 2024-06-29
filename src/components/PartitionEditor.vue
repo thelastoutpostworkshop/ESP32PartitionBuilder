@@ -78,11 +78,11 @@
           </div>
         </v-row>
       </v-form>
-      <v-dialog v-model="showDialog" width="auto">
-        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="white" :text="dialogText"
-          :title="dialogTitle">
+      <v-dialog v-model="showAlert" width="auto">
+        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="white" :text="alertText"
+          :title="alertTitle">
           <template v-slot:actions>
-            <v-btn class="ms-auto" text="Ok" @click="showDialog = false"></v-btn>
+            <v-btn class="ms-auto" text="Ok" @click="showAlert = false"></v-btn>
           </template>
         </v-card>
       </v-dialog>
@@ -102,9 +102,9 @@ import type { Partition } from '@/types'
 
 const store = partitionStore();
 const formRef = ref();
-const showDialog = ref(false);
-const dialogText = ref("")
-const dialogTitle = ref("")
+const showAlert = ref(false);
+const alertText = ref("")
+const alertTitle = ref("")
 const fileInput = ref<HTMLInputElement | null>(null);
 
 
@@ -210,16 +210,16 @@ const generatePartitionName = (baseName: string) => {
 
 const addPartition = () => {
   if (store.partitionTables.getAvailableMemory() <= 0) {
-    dialogTitle.value = "Cannot add a new partition"
-    dialogText.value = "There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
-    showDialog.value = true
+    alertTitle.value = "Cannot add a new partition"
+    alertText.value = "There is not enough memory to add a new partition.  Remove a partition or resize an existing one."
+    showAlert.value = true
   }
 };
 const addNVSPartition = () => {
   if (store.partitionTables.getAvailableMemory() < NVS_PARTITION_SIZE_RECOMMENDED) {
-    dialogTitle.value = "Cannot add a NVS partition"
-    dialogText.value = `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`
-    showDialog.value = true
+    alertTitle.value = "Cannot add a NVS partition"
+    alertText.value = `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`
+    showAlert.value = true
   } else {
     const newName = generatePartitionName("nvs");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
@@ -229,9 +229,9 @@ const addNVSPartition = () => {
 const addOTAPartition = () => {
   const sizeNeeded = OTA_DATA_PARTITION_SIZE + OFFSET_APP_TYPE * 2
   if (store.partitionTables.getAvailableMemory() < sizeNeeded) {
-    dialogTitle.value = "Cannot add OTA partitions"
-    dialogText.value = `There is not enough memory to add a OTA partitions. You need at least ${sizeNeeded} bytes of memory available.`
-    showDialog.value = true
+    alertTitle.value = "Cannot add OTA partitions"
+    alertText.value = `There is not enough memory to add a OTA partitions. You need at least ${sizeNeeded} bytes of memory available.`
+    showAlert.value = true
   } else {
     let partitionName: string = ""
     partitionName = generatePartitionName("otadata")
@@ -291,9 +291,9 @@ const loadPartitionsFromCSV = (csv: string) => {
   const rows = csv.split('\n').filter(row => row.trim() !== '');
   const header = rows.shift(); // Remove the header row
   if (header !== '# Name,   Type, SubType, Offset,  Size, Flags') {
-    dialogTitle.value = "Invalid CSV Format";
-    dialogText.value = "The CSV file format is incorrect. Please use the correct format.";
-    showDialog.value = true;
+    alertTitle.value = "Invalid CSV Format";
+    alertText.value = "The CSV file format is incorrect. Please use the correct format.";
+    showAlert.value = true;
     return;
   }
 
@@ -301,9 +301,9 @@ const loadPartitionsFromCSV = (csv: string) => {
   for (const row of rows) {
     const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
     if (!name || !type || !subtype || !offsetHex || !sizeStr) {
-      dialogTitle.value = "Invalid CSV Data";
-      dialogText.value = "The CSV file contains invalid data. Please check the file and try again.";
-      showDialog.value = true;
+      alertTitle.value = "Invalid CSV Data";
+      alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
+      showAlert.value = true;
       return;
     }
 
