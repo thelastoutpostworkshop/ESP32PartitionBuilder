@@ -195,14 +195,18 @@ const updateSize = (partition: Partition) => {
   store.partitionTables.updatePartitionSize(partition.name, partition.size);
 };
 
-const generatePartitionName = () => {
-  const baseName = "partition";
+const generatePartitionName = (baseName: string) => {
+  if (!baseName || !store.partitionTables.getPartitions().some(p => p.name.startsWith(baseName))) {
+    return baseName;
+  }
+
   let index = 1;
   while (store.partitionTables.getPartitions().some(p => p.name === `${baseName}_${index}`)) {
     index++;
   }
   return `${baseName}_${index}`;
 };
+
 
 const addPartition = () => {
   if (store.partitionTables.getAvailableMemory() <= 0) {
@@ -217,7 +221,7 @@ const addNVSPartition = () => {
     dialogText.value = `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`
     showDialog.value = true
   } else {
-    const newName = generatePartitionName();
+    const newName = generatePartitionName("nvs");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
   }
 };
