@@ -5,7 +5,7 @@
         <v-row>
           <v-btn dense color="primary" @click="addPartition">Add Partition
             <v-menu activator="parent">
-              <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
+              <v-list v-if="store.partitionTables.getAvailableMemory() > 0" variant="outlined" style="cursor: pointer;">
                 <v-list-item>
                   <v-list-item-title @click="addNVSPartition">NVS (Non-Volatile Storage)</v-list-item-title>
                   <v-list-item-title>OTA (Over The Air Updates )</v-list-item-title>
@@ -208,8 +208,6 @@ const addPartition = () => {
   }
 };
 const addNVSPartition = () => {
-  console.log(NVS_PARTITION_SIZE_RECOMMENDED)
-  console.log(store.partitionTables.getAvailableMemory())
   if (store.partitionTables.getAvailableMemory() < NVS_PARTITION_SIZE_RECOMMENDED) {
     dialogTitle.value = "Cannot add a NVS partition"
     dialogText.value = `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`
