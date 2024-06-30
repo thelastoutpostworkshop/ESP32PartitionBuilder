@@ -9,13 +9,11 @@ export const partitionStore = defineStore('partition_store', () => {
     });
 
     const partitionTables = ref(new PartitionTable(4));
-    const partitionEdit = ref(new PartitionTable(4))
 
 
     return {
         flashSize,
         flashSizeBytes,
-        partitionTables,
-        partitionEdit
+        partitionTables
     }
 })
