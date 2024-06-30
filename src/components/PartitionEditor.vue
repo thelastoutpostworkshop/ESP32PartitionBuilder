@@ -62,8 +62,10 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
-                  :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
-                  :step="stepSize(partition)" :min="stepSize(partition)">
+                  :disabled="partition.subtype === 'ota_0' || partition.subtype === 'ota'" 
+                  :max="store.partitionTables.getTotalMemory()"
+                  @end="updateSize(partition)" dense hide-details :step="stepSize(partition)"
+                  :min="stepSize(partition)">
                   <template v-slot:prepend>
                     <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
                       @click="decrement(partition)"></v-btn>
@@ -192,11 +194,21 @@ const getSubtypes = (type: string) => {
 
 
 const updateSize = (partition: Partition) => {
-  const totalMemory = store.partitionTables.getTotalMemory() -store.partitionTables.getTotalPartitionSize()
+  const totalMemory = store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize()
   if (totalMemory < 0) {
     partition.size = store.partitionTables.getMaxPartitionSize(partition)
   }
-  store.partitionTables.updatePartitionSize(partition.name, partition.size);
+  if (partition.subtype == 'ota_0') {
+    const relatedPartitions = store.partitionTables.getPartitions().filter(p => p.subtype === 'ota_1');
+    relatedPartitions[0].size = partition.size
+  } else {
+    if (partition.subtype == 'ota_1') {
+      const relatedPartitions = store.partitionTables.getPartitions().filter(p => p.subtype === 'ota_0');
+      relatedPartitions[0].size = partition.size
+    } else {
+      store.partitionTables.updatePartitionSize(partition.name, partition.size);
+    }
+  }
 };
 
 
