@@ -1,4 +1,3 @@
-// src/partitions.ts
 import type { Partition } from '@/types';
 import {OFFSET_APP_TYPE,OFFSET_DATA_TYPE,PARTITION_TABLE_SIZE,PARTITION_APP_SUBTYPES,PARTITION_DATA_SUBTYPES,PARTITION_TYPE_APP} from '@/const'
 
@@ -9,6 +8,7 @@ type DataSubType = typeof PARTITION_DATA_SUBTYPES[number];
 
 export class PartitionTable {
   partitions: Partition[] = [];
+  newSize:number[]= []
   flashSize: number;
 
   constructor(flashSize: number) {
@@ -57,6 +57,7 @@ export class PartitionTable {
     };
 
     this.partitions.push(partition);
+    this.newSize.push(size);
   }
 
   getTotalPartitionSize(excludePartition?: Partition): number {
@@ -125,6 +126,7 @@ export class PartitionTable {
     }
 
     this.partitions.splice(index, 1);
+    this.newSize.splice(index,1);
     this.recalculateOffsets();
   }
 
