@@ -8,7 +8,6 @@ type DataSubType = typeof PARTITION_DATA_SUBTYPES[number];
 
 export class PartitionTable {
   partitions: Partition[] = [];
-  newSize: number[] = []
   flashSize: number;
 
   constructor(flashSize: number) {
@@ -56,7 +55,6 @@ export class PartitionTable {
     };
 
     this.partitions.push(partition);
-    this.newSize.push(sizeInBytes);
   }
 
   getTotalPartitionSize(excludePartition?: Partition): number {
@@ -125,7 +123,6 @@ export class PartitionTable {
     }
 
     this.partitions.splice(index, 1);
-    this.newSize.splice(index, 1);
     this.recalculateOffsets();
   }
 
