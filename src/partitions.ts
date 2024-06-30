@@ -37,8 +37,7 @@ export class PartitionTable {
     this.partitions = []
   }
 
-  addPartition(name: string, type: string, subtype: AppSubType | DataSubType, sizeInKB: number, flags: string) {
-    const size = sizeInKB * 1024; // Convert KB to bytes
+  addPartition(name: string, type: string, subtype: AppSubType | DataSubType, sizeInBytes: number, flags: string) {
     // Align the offset based on type
     let currentOffset = this.getCurrentOffset(type);
 
@@ -52,12 +51,12 @@ export class PartitionTable {
       type,
       subtype,
       offset: currentOffset,
-      size,
+      size:sizeInBytes,
       flags
     };
 
     this.partitions.push(partition);
-    this.newSize.push(size);
+    this.newSize.push(sizeInBytes);
   }
 
   getTotalPartitionSize(excludePartition?: Partition): number {
