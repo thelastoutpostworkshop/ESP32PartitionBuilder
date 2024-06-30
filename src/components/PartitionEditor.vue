@@ -61,7 +61,7 @@
             </v-row>
             <v-row dense>
               <v-col>
-                <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
+                <v-slider color="teal" v-model="store.partitionTables.newSize[index]" thumb-label label="Size"
                   :disabled="partition.subtype === 'ota_0' || partition.subtype === 'ota'" 
                   :max="store.partitionTables.getTotalMemory()"
                   @end="updateSize(partition)" dense hide-details :step="stepSize(partition)"
@@ -241,7 +241,7 @@ const addNVSPartition = () => {
     showAlertMessage("Cannot add a NVS partition", `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`)
   } else {
     const newName = generatePartitionName("nvs");
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, "")
   }
 };
 
@@ -252,11 +252,11 @@ const addOTAPartition = () => {
   } else {
     let partitionName: string = ""
     partitionName = generatePartitionName("otadata")
-    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE / 1024, "")
+    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE , "")
     partitionName = generatePartitionName("app0")
-    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE / 1024, "")
+    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE, "")
     partitionName = generatePartitionName("app1")
-    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE / 1024, "")
+    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE, "")
   }
 };
 
