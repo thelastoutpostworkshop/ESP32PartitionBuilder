@@ -23,7 +23,7 @@
         <v-row>
           <span class="pt-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
             bytes</span>
-          <div v-for="(partition, index) in store.partitionEdit.getPartitions()" :key="index" class="partition mt-4">
+          <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
             <v-row dense>
               <v-col>
                 <v-text-field v-model="partition.name" label="Name" dense
@@ -242,7 +242,6 @@ const addNVSPartition = () => {
   } else {
     const newName = generatePartitionName("nvs");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
-    store.partitionEdit.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED / 1024, "")
   }
 };
 
@@ -254,13 +253,10 @@ const addOTAPartition = () => {
     let partitionName: string = ""
     partitionName = generatePartitionName("otadata")
     store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE / 1024, "")
-    store.partitionEdit.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE / 1024, "")
     partitionName = generatePartitionName("app0")
     store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE / 1024, "")
-    store.partitionEdit.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE / 1024, "")
     partitionName = generatePartitionName("app1")
     store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE / 1024, "")
-    store.partitionEdit.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE / 1024, "")
   }
 };
 
