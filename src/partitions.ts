@@ -1,5 +1,5 @@
 import type { Partition } from '@/types';
-import {OFFSET_APP_TYPE,OFFSET_DATA_TYPE,PARTITION_TABLE_SIZE,PARTITION_APP_SUBTYPES,PARTITION_DATA_SUBTYPES,PARTITION_TYPE_APP} from '@/const'
+import { OFFSET_APP_TYPE, OFFSET_DATA_TYPE, PARTITION_TABLE_SIZE, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP } from '@/const'
 
 
 type AppSubType = typeof PARTITION_APP_SUBTYPES[number];
@@ -8,7 +8,7 @@ type DataSubType = typeof PARTITION_DATA_SUBTYPES[number];
 
 export class PartitionTable {
   partitions: Partition[] = [];
-  newSize:number[]= []
+  newSize: number[] = []
   flashSize: number;
 
   constructor(flashSize: number) {
@@ -51,7 +51,7 @@ export class PartitionTable {
       type,
       subtype,
       offset: currentOffset,
-      size:sizeInBytes,
+      size: sizeInBytes,
       flags
     };
 
@@ -64,7 +64,7 @@ export class PartitionTable {
       return partition === excludePartition ? total : total + partition.size;
     }, 0);
   }
-  
+
   getTotalMemory(): number {
     if (this.partitions.length > 0 && this.partitions[0].type === PARTITION_TYPE_APP) {
       return this.flashSize - OFFSET_APP_TYPE;
@@ -72,23 +72,23 @@ export class PartitionTable {
       return this.flashSize - PARTITION_TABLE_SIZE;
     }
   }
-  
+
   getMaxPartitionSize(partition: Partition): number {
     const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
     const alignedOffset = this.alignOffset(partition.offset, alignment);
-    
+
     let maxSize = this.flashSize - alignedOffset;
-    
+
     for (const existingPartition of this.partitions) {
       if (existingPartition.offset > partition.offset) {
         maxSize = existingPartition.offset - alignedOffset;
         break;
       }
     }
-  
+
     return maxSize;
   }
-  
+
 
   getCurrentOffset(type: string): number {
     let currentOffset = PARTITION_TABLE_SIZE; // Start after bootloader and partition table
@@ -125,7 +125,7 @@ export class PartitionTable {
     }
 
     this.partitions.splice(index, 1);
-    this.newSize.splice(index,1);
+    this.newSize.splice(index, 1);
     this.recalculateOffsets();
   }
 
@@ -134,7 +134,7 @@ export class PartitionTable {
 
     this.partitions.forEach(partition => {
       if (partition.type === PARTITION_TYPE_APP) {
-        currentOffset = this.alignOffset(currentOffset,OFFSET_APP_TYPE);
+        currentOffset = this.alignOffset(currentOffset, OFFSET_APP_TYPE);
       } else {
         currentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
       }
@@ -145,19 +145,35 @@ export class PartitionTable {
   }
 
   updatePartitionSize(name: string, newSize: number) {
-    const size = newSize; // Convert KB to bytes
     const index = this.partitions.findIndex(partition => partition.name === name);
 
     if (index === -1) {
       throw new Error(`Partition ${name} not found.`);
     }
 
+    const totalMemory = this.getTotalMemory();
+    const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
+    const availableMemory = totalMemory - otherPartitionsSize;
+
+    // If the new size is greater than available memory, proportionally reduce other partitions
+    if (newSize > availableMemory) {
+      const excessSize = newSize - availableMemory;
+      const remainingPartitions = this.partitions.filter((_, i) => i !== index);
+      const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
+
+      remainingPartitions.forEach(partition => {
+        const reduction = (partition.size / totalRemainingSize) * excessSize;
+        partition.size = Math.max(partition.size - reduction, OFFSET_DATA_TYPE); // Ensure no partition is smaller than the alignment
+      });
+    }
+
     // Update the size of the partition
-    this.partitions[index].size = size;
+    this.partitions[index].size = newSize;
 
     // Recalculate offsets
     this.recalculateOffsets();
   }
+
 
   generateTable(): Partition[] {
     return this.partitions;
