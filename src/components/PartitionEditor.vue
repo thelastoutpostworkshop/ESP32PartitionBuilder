@@ -194,7 +194,7 @@ const getSubtypes = (type: string) => {
 const updateSize = (partition: Partition) => {
   const totalMemory = store.partitionTables.getTotalMemory() -store.partitionTables.getTotalPartitionSize()
   if (totalMemory < 0) {
-    partition.size = store.partitionTables.getTotalMemory() - store.partitionTables.getTotalPartitionSize(partition)
+    partition.size = store.partitionTables.getMaxPartitionSize(partition)
   }
   store.partitionTables.updatePartitionSize(partition.name, partition.size);
 };
