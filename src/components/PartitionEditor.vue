@@ -447,7 +447,6 @@ const loadPartitionsFromCSV = (csv: string) => {
   partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags));
 
   // Adjust flash size based on total partition size
-  const sizes = [4, 8, 16, 32]; // Available flash sizes in MB
   for (const size of FLASH_SIZES) {
     if (totalSize <= size.value * 1024 * 1024) {
       store.flashSize = size.value;
