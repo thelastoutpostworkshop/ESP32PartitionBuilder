@@ -109,6 +109,16 @@
           </template>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="showOverrideDialog" width="auto">
+        <v-card max-width="400" color="white" title="Override Warnings">
+          <v-card-text>There are validation errors in the form. Do you want to proceed and download the CSV
+            anyway?</v-card-text>
+          <v-card-actions>
+            <v-btn text @click="showOverrideDialog = false">Cancel</v-btn>
+            <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
   </v-container>
 </template>
@@ -119,8 +129,8 @@ import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
-  PARTITION_SPIFFS, PARTITION_LITTLEFS,SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
-  COREDUMP_MIN_PARTITION_SIZE,PARTITION_COREDUMP,PARTITION_FACTORY,PARTITION_TEST,PHY_MIN_PARTITION_SIZE,
+  PARTITION_SPIFFS, PARTITION_LITTLEFS, SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
+  COREDUMP_MIN_PARTITION_SIZE, PARTITION_COREDUMP, PARTITION_FACTORY, PARTITION_TEST, PHY_MIN_PARTITION_SIZE,
   PARTITION_PHY
 } from '@/const';
 import { partitionStore } from '@/store'
@@ -132,6 +142,8 @@ const showAlert = ref(false);
 const alertText = ref("")
 const alertTitle = ref("")
 const fileInput = ref<HTMLInputElement | null>(null);
+const showOverrideDialog = ref(false);
+
 
 
 const partitionNameRule = (name: string, index: number) => {
@@ -205,23 +217,34 @@ const downloadCSV = async () => {
   if (formRef.value) {
     const { valid } = await formRef.value.validate();
     if (valid) {
-      const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
-      const csvContent = store.partitionTables.getPartitions().map(p => {
-        const sizeKB = Math.round(p.size / 1024) + 'K';
-        const offsetHex = '0x' + p.offset.toString(16).toUpperCase();
-        return `${p.name},${p.type},${p.subtype},${offsetHex},${sizeKB},`;
-      }).join("\n");
-      const csvData = csvHeader + csvContent;
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "partitions.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      generateCSV();
+    } else {
+      showOverrideDialog.value = true;
     }
   }
+};
+
+const confirmOverride = () => {
+  showOverrideDialog.value = false;
+  generateCSV();
+};
+
+const generateCSV = () => {
+  const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
+  const csvContent = store.partitionTables.getPartitions().map(p => {
+    const sizeKB = Math.round(p.size / 1024) + 'K';
+    const offsetHex = '0x' + p.offset.toString(16).toUpperCase();
+    return `${p.name},${p.type},${p.subtype},${offsetHex},${sizeKB},`;
+  }).join("\n");
+  const csvData = csvHeader + csvContent;
+  const blob = new Blob([csvData], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "partitions.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 const validateType = (partition: Partition) => {
