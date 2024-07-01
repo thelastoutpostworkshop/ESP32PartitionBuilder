@@ -103,10 +103,10 @@ import { ref } from 'vue';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
-  OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_DATA_MIN_PARTITION_SIZE,
+  OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
   PARTITION_SPIFFS, PARTITION_LITTLEFS,
-  SPIFFS_DATA_MIN_PARTITION_SIZE,
-  LITTLEFS_DATA_MIN_PARTITION_SIZE
+  SPIFFS_MIN_PARTITION_SIZE,
+  LITTLEFS_MIN_PARTITION_SIZE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -142,18 +142,18 @@ const partitionSizeRule = (partition: Partition) => {
       }
       break;
     case PARTITION_FAT:
-      if (partition.size < FAT_DATA_MIN_PARTITION_SIZE) {
-        return `FAT partition minimal size is ${FAT_DATA_MIN_PARTITION_SIZE} bytes.`;
+      if (partition.size < FAT_MIN_PARTITION_SIZE) {
+        return `FAT partition minimal size is ${FAT_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
     case PARTITION_SPIFFS:
-      if (partition.size < SPIFFS_DATA_MIN_PARTITION_SIZE) {
-        return `SPIFFS partition recommended  minimal size is ${SPIFFS_DATA_MIN_PARTITION_SIZE} bytes.`;
+      if (partition.size < SPIFFS_MIN_PARTITION_SIZE) {
+        return `SPIFFS partition recommended  minimal size is ${SPIFFS_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
     case PARTITION_LITTLEFS:
-      if (partition.size < LITTLEFS_DATA_MIN_PARTITION_SIZE) {
-        return `LittleFS partition recommended  minimal size is ${LITTLEFS_DATA_MIN_PARTITION_SIZE} bytes.`;
+      if (partition.size < LITTLEFS_MIN_PARTITION_SIZE) {
+        return `LittleFS partition recommended  minimal size is ${LITTLEFS_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
   }
@@ -258,27 +258,27 @@ const addNVSPartition = () => {
 };
 
 const addFATPartition = () => {
-  if (store.partitionTables.getAvailableMemory() < FAT_DATA_MIN_PARTITION_SIZE) {
-    showAlertMessage("Cannot add a FAT partition", `There is not enough memory to add a FAT partition. FAT partition size must be at least ${FAT_DATA_MIN_PARTITION_SIZE} bytes.`)
+  if (store.partitionTables.getAvailableMemory() < FAT_MIN_PARTITION_SIZE) {
+    showAlertMessage("Cannot add a FAT partition", `There is not enough memory to add a FAT partition. FAT partition size must be at least ${FAT_MIN_PARTITION_SIZE} bytes.`)
   } else {
     const newName = generatePartitionName("fat");
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_FAT, FAT_DATA_MIN_PARTITION_SIZE, "")
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_FAT, FAT_MIN_PARTITION_SIZE, "")
   }
 };
 const addSPIFFPartition = () => {
-  if (store.partitionTables.getAvailableMemory() < SPIFFS_DATA_MIN_PARTITION_SIZE) {
-    showAlertMessage("Cannot add a SPIFF partition", `There is not enough memory to add a SPIFFS partition. SPIFFS partition size must be at least ${SPIFFS_DATA_MIN_PARTITION_SIZE} bytes.`)
+  if (store.partitionTables.getAvailableMemory() < SPIFFS_MIN_PARTITION_SIZE) {
+    showAlertMessage("Cannot add a SPIFF partition", `There is not enough memory to add a SPIFFS partition. SPIFFS partition size must be at least ${SPIFFS_MIN_PARTITION_SIZE} bytes.`)
   } else {
     const newName = generatePartitionName("spiff");
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_SPIFFS, SPIFFS_DATA_MIN_PARTITION_SIZE, "")
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_SPIFFS, SPIFFS_MIN_PARTITION_SIZE, "")
   }
 };
 const addLittleFSPartition = () => {
-  if (store.partitionTables.getAvailableMemory() < LITTLEFS_DATA_MIN_PARTITION_SIZE) {
-    showAlertMessage("Cannot add a LittleFS partition", `There is not enough memory to add a LittleFS partition. LittleFS partition size must be at least ${LITTLEFS_DATA_MIN_PARTITION_SIZE} bytes.`)
+  if (store.partitionTables.getAvailableMemory() < LITTLEFS_MIN_PARTITION_SIZE) {
+    showAlertMessage("Cannot add a LittleFS partition", `There is not enough memory to add a LittleFS partition. LittleFS partition size must be at least ${LITTLEFS_MIN_PARTITION_SIZE} bytes.`)
   } else {
     const newName = generatePartitionName("littlefs");
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_LITTLEFS, LITTLEFS_DATA_MIN_PARTITION_SIZE, "")
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_LITTLEFS, LITTLEFS_MIN_PARTITION_SIZE, "")
   }
 };
 
