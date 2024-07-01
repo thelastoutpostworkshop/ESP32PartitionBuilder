@@ -18,7 +18,7 @@ export const FLASH_SIZES = [
 ];
 
 export const DISPLAY_SIZES = [
-    {value:1, text:"bytes"},
+    {value:1, text:"Bytes"},
     {value:1024, text:"Kb"},
     {value:1024*1024, text:"Mb"}
 ]
