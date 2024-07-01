@@ -163,7 +163,6 @@ export class PartitionTable {
       // console.log(`totalAvailableMemory ${totalAvailableMemory}`)
 
       newSize = Math.min(newSize, totalAvailableMemory / 2);
-      console.log(`newSize ${newSize}`)
 
       this.partitions[ota0Index].size = newSize;
       this.partitions[ota1Index].size = newSize;
