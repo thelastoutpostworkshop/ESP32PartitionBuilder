@@ -123,15 +123,24 @@ const partitionNameRule = (name: string, index: number) => {
 };
 
 const partitionSizeRule = (partition: Partition) => {
-  if (partition.subtype === PARTITION_NVS) {
-    if (partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
-      return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`;
-    }
-  }
-  if (partition.subtype === PARTITION_OTA) {
-    if (partition.size < OTA_DATA_PARTITION_SIZE) {
-      return `OTA data partition recommended size is ${OTA_DATA_PARTITION_SIZE} bytes.`;
-    }
+  switch (partition.subtype) {
+    case PARTITION_NVS:
+      if (partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
+        return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`;
+      }     
+      break;
+      case PARTITION_OTA:
+        if (partition.size < OTA_DATA_PARTITION_SIZE) {
+          return `OTA data partition recommended size is ${OTA_DATA_PARTITION_SIZE} bytes.`;
+        }
+      
+      break;
+      case PARTITION_FAT:
+        if (partition.size < FAT_DATA_MIN_PARTITION_SIZE) {
+          return `FAT partition minimal size is ${FAT_DATA_MIN_PARTITION_SIZE} bytes.`;
+        }
+      
+      break;
   }
   return true;
 };
