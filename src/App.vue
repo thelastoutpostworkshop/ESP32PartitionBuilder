@@ -11,7 +11,7 @@
         <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
       </v-btn>
       <template v-slot:extension>
-        <v-container>
+        <v-container fluid>
           <partition-visualizer></partition-visualizer>
           <div class="pb-2"> Available Memory: {{ store.partitionTables.getAvailableMemory() }}
             bytes</div>
