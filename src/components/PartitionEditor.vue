@@ -41,7 +41,7 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV</v-btn>
-          <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
+          <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
         </v-row>
         <v-row>
@@ -114,7 +114,7 @@
           <v-card-text>There are validation errors in the partitions. Do you want to proceed and download the CSV
             anyway?</v-card-text>
           <v-card-actions>
-            <v-btn  @click="showOverrideDialog = false">Cancel</v-btn>
+            <v-btn @click="showOverrideDialog = false">Cancel</v-btn>
             <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
           </v-card-actions>
         </v-card>
@@ -396,6 +396,8 @@ const handleFileUpload = (event: Event) => {
       }
     };
     reader.readAsText(file);
+    input.value = '';
+
   }
 };
 
