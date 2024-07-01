@@ -142,12 +142,8 @@ function decrement(partition: Partition) {
 }
 
 function increment(partition: Partition) {
-  const step_size = stepSize(partition)
-  if (partition.size + step_size <= store.partitionTables.getMaxPartitionSize(partition)) {
-
-    partition.size += stepSize(partition)
-    updateSize(partition)
-  }
+  partition.size += stepSize(partition)
+  updateSize(partition)
 }
 
 const getHexOffset = (offset: number): string => {
