@@ -22,7 +22,7 @@
         </v-container>
       </template>
     </v-app-bar>
-    <v-main>
+    <v-main class="mt-5">
       <v-container fluid>
         <v-row>
           <v-col>
