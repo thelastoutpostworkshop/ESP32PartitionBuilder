@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION+ ' by the Last Outpost Workshop'">
+    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION + ' by the Last Outpost Workshop'">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
@@ -9,14 +9,12 @@
         Get Help
         <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
       </v-btn>
+      <template v-slot:extension>
+        <partition-visualizer></partition-visualizer>
+      </template>
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-row>
-          <v-col>
-            <partition-visualizer></partition-visualizer>
-          </v-col>
-        </v-row>
         <v-row>
           <v-col>
             <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
