@@ -17,8 +17,8 @@
           </div>
 
           <partition-visualizer></partition-visualizer>
-          <div class=" text-h6"> Available Memory: {{ store.partitionTables.getAvailableMemory() }}
-            bytes</div>
+          <div class=" text-h6"> Available Memory: {{ store.partitionTables.getAvailableMemory() }} bytes ({{ store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
+            </div>
         </v-container>
       </template>
     </v-app-bar>
