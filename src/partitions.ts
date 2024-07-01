@@ -111,9 +111,13 @@ export class PartitionTable {
     const currentOffset = this.partitions.length > 0
       ? this.partitions[this.partitions.length - 1].offset + this.partitions[this.partitions.length - 1].size
       : PARTITION_TABLE_SIZE;
-    const avalaible = this.flashSize - this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
-    return avalaible;
+  
+    const alignedCurrentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
+    const available = Math.max(0, this.flashSize - alignedCurrentOffset);
+  
+    return available;
   }
+  
 
   removePartition(name: string) {
     const index = this.partitions.findIndex(partition => partition.name === name);
