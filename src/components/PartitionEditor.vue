@@ -54,7 +54,8 @@
             <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
           </v-btn>
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-          <v-btn color="primary" type="submit" dense :disabled="store.partitionTables.getPartitions().length == 0">Download CSV
+          <v-btn color="primary" type="submit" dense
+            :disabled="store.partitionTables.getPartitions().length == 0">Download CSV
             <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
           </v-btn>
         </v-row>
@@ -74,8 +75,9 @@
                   dense></v-select>
               </v-col>
               <v-col>
-                <v-text-field readonly v-model.number="partition.size" :label="labelDisplaySize()" dense
-                  :rules="[partitionSizeRule(partition)]"></v-text-field>
+                <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
+                  :rules="[partitionSizeRule(partition)]" :hint="hintDisplaySize(partition.size)"
+                  persistent-hint></v-text-field>
               </v-col>
               <v-col>
                 <v-text-field readonly active label="offset">
@@ -224,19 +226,18 @@ function increment(partition: Partition) {
   updateSize(partition)
 }
 
-function labelDisplaySize():string {
-  let label:string = ""
+function hintDisplaySize(size: number): string {
+  let label: string = ""
   switch (store.displaySizes) {
     case 1:
-      label = "Size (bytes)"
+      label = ""
       break;
     case 1024:
-      label = "Size (Kb)"
+      label = `${size / store.displaySizes} Kb.`
       break;
-    case 1024*1024:
-      label = "Size (Mb)"
+    case 1024 * 1024:
+      label = `${size / store.displaySizes} Mb.`
       break;
-  
     default:
       label = "Size unknown"
       break;
