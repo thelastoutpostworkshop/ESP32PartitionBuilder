@@ -24,8 +24,6 @@
           <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
         </v-row>
         <v-row>
-          <span class="pt-2">Available Memory for new partition: {{ store.partitionTables.getAvailableMemory() }}
-            bytes</span>
           <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
             <v-row dense>
               <v-col>

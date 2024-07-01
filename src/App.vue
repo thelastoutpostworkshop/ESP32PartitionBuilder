@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION + ' by the Last Outpost Workshop'">
+    <v-app-bar extension-height="90"
+      :title="'ESP32 Partition Builder v' + APP_VERSION + ' by the Last Outpost Workshop'">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
@@ -10,7 +11,11 @@
         <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
       </v-btn>
       <template v-slot:extension>
-        <partition-visualizer></partition-visualizer>
+        <v-container>
+          <partition-visualizer></partition-visualizer>
+          <div class="pb-2"> Available Memory: {{ store.partitionTables.getAvailableMemory() }}
+            bytes</div>
+        </v-container>
       </template>
     </v-app-bar>
     <v-main>
