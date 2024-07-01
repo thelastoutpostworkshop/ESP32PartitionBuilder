@@ -40,9 +40,13 @@
             </v-menu>
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV</v-btn>
+          <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
+            <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
+          </v-btn>
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-          <v-btn color="primary" type="submit" dense>Download CSV</v-btn>
+          <v-btn color="primary" type="submit" dense>Download CSV
+            <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
+          </v-btn>
         </v-row>
         <v-row>
           <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
