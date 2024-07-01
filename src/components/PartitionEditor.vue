@@ -512,7 +512,6 @@ const loadCSV = () => {
 <style scoped>
 .partition {
   border: 1px solid #ccc;
-  padding: 8px;
   width: 100%;
 }
 </style>
