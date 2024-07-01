@@ -232,9 +232,9 @@ const confirmOverride = () => {
 const generateCSV = () => {
   const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
   const csvContent = store.partitionTables.getPartitions().map(p => {
-    const sizeKB = Math.round(p.size / 1024) + 'K';
+    const sizeHex = '0x' + p.size.toString(16).toUpperCase();
     const offsetHex = '0x' + p.offset.toString(16).toUpperCase();
-    return `${p.name},${p.type},${p.subtype},${offsetHex},${sizeKB},`;
+    return `${p.name},${p.type},${p.subtype},${offsetHex},${sizeHex},`;
   }).join("\n");
   const csvData = csvHeader + csvContent;
   const blob = new Blob([csvData], { type: 'text/csv' });
