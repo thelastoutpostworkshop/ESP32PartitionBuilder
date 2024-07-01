@@ -110,11 +110,11 @@
         </v-card>
       </v-dialog>
       <v-dialog v-model="showOverrideDialog" width="auto">
-        <v-card max-width="400" color="white" title="Override Warnings">
-          <v-card-text>There are validation errors in the form. Do you want to proceed and download the CSV
+        <v-card max-width="400" color="white" title="Partition Rules Warnings">
+          <v-card-text>There are validation errors in the partitions. Do you want to proceed and download the CSV
             anyway?</v-card-text>
           <v-card-actions>
-            <v-btn text @click="showOverrideDialog = false">Cancel</v-btn>
+            <v-btn  @click="showOverrideDialog = false">Cancel</v-btn>
             <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
           </v-card-actions>
         </v-card>
