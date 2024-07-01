@@ -67,11 +67,11 @@
                   :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
               </v-col>
               <v-col>
-                <v-select v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
+                <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
                   @update:model-value="validateType(partition)"></v-select>
               </v-col>
               <v-col>
-                <v-select v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
+                <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
                   dense></v-select>
               </v-col>
               <v-col>
