@@ -12,6 +12,9 @@
                 <v-list-item @click="addOTAPartition">
                   OTA (Over The Air Updates)
                 </v-list-item>
+                <v-list-item @click="addFATPartition">
+                  FAT File System
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-btn>
@@ -62,9 +65,9 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
-                  :disabled="partition.subtype === 'ota_0'"
-                  :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
-                  :step="stepSize(partition)" :min="stepSize(partition)">
+                  :disabled="partition.subtype === 'ota_0'" :max="store.partitionTables.getTotalMemory()"
+                  @end="updateSize(partition)" dense hide-details :step="stepSize(partition)"
+                  :min="stepSize(partition)">
                   <template v-slot:prepend>
                     <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
                       @click="decrement(partition)"></v-btn>
@@ -96,7 +99,7 @@ import { ref } from 'vue';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
-  OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE
+  OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_DATA_MIN_PARTITION_SIZE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -228,6 +231,15 @@ const addNVSPartition = () => {
   } else {
     const newName = generatePartitionName("nvs");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, "")
+  }
+};
+
+const addFATPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < FAT_DATA_MIN_PARTITION_SIZE) {
+    showAlertMessage("Cannot add a FAT partition", `There is not enough memory to add a FAT partition. FAT partition size must be at least ${FAT_DATA_MIN_PARTITION_SIZE} bytes.`)
+  } else {
+    const newName = generatePartitionName("fat");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_FAT, FAT_DATA_MIN_PARTITION_SIZE, "")
   }
 };
 
