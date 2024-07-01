@@ -54,7 +54,7 @@
             <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
           </v-btn>
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-          <v-btn color="primary" type="submit" dense>Download CSV
+          <v-btn color="primary" type="submit" dense :disabled="store.partitionTables.getPartitions().length == 0">Download CSV
             <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
           </v-btn>
         </v-row>
