@@ -143,33 +143,34 @@ export class PartitionTable {
 
   updatePartitionSize(name: string, newSize: number) {
     const index = this.partitions.findIndex(partition => partition.name === name);
-
+  
     if (index === -1) {
       throw new Error(`Partition ${name} not found.`);
     }
-
+  
     const totalMemory = this.getTotalMemory();
     const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
     const availableMemory = totalMemory - otherPartitionsSize;
-
-    // If the new size is greater than available memory, proportionally reduce other partitions
+  
     if (newSize > availableMemory) {
       const excessSize = newSize - availableMemory;
       const remainingPartitions = this.partitions.filter((_, i) => i !== index);
       const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
-
+  
       remainingPartitions.forEach(partition => {
         const reduction = (partition.size / totalRemainingSize) * excessSize;
-        partition.size = Math.max(partition.size - reduction, OFFSET_DATA_TYPE); // Ensure no partition is smaller than the alignment
+        partition.size = Math.max(
+          Math.round((partition.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+          OFFSET_DATA_TYPE
+        ); // Ensure alignment and minimum size
       });
     }
-
-    // Update the size of the partition
-    this.partitions[index].size = newSize;
-
-    // Recalculate offsets
+  
+    this.partitions[index].size = Math.round(newSize / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE; // Align size
+  
     this.recalculateOffsets();
   }
+  
 
 
   generateTable(): Partition[] {
