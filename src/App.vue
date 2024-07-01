@@ -13,7 +13,7 @@
       <template v-slot:extension>
         <v-container fluid>
           <partition-visualizer></partition-visualizer>
-          <div class="pb-2"> Available Memory: {{ store.partitionTables.getAvailableMemory() }}
+          <div class="pb-2 text-h6"> Available Memory: {{ store.partitionTables.getAvailableMemory() }}
             bytes</div>
         </v-container>
       </template>
