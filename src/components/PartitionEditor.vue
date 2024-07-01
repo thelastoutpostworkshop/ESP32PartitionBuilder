@@ -24,6 +24,9 @@
                 <v-list-item @click="addLittleFSPartition">
                   LittleFS File System
                 </v-list-item>
+                <v-list-item @click="addOTADataPartition">
+                  OTA Data
+                </v-list-item>
                 <v-list-item @click="addCoreDumpPartition">
                   Core Dump
                 </v-list-item>
@@ -328,6 +331,14 @@ const addTestPartition = () => {
   } else {
     const newName = generatePartitionName("test");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_APP, PARTITION_TEST, OFFSET_APP_TYPE, "")
+  }
+};
+const addOTADataPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < OTA_DATA_PARTITION_SIZE) {
+    showAlertMessage("Cannot add an OTA Data partition", `There is not enough memory to add an OTA Data partition. Factory App partition size must be at least ${OTA_DATA_PARTITION_SIZE} bytes.`)
+  } else {
+    const newName = generatePartitionName("otadata");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, "")
   }
 };
 
