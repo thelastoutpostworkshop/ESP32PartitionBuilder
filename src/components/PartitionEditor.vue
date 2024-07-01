@@ -233,7 +233,7 @@ function hintDisplaySize(size: number): string {
       label = `${size / store.displaySizes} Kb`
       break;
     case 1024 * 1024:
-      label = `${size / store.displaySizes} Mb`
+      label = `${parseFloat((size / store.displaySizes).toFixed(5))} Mb`
       break;
     default:
       label = "Size unknown"
