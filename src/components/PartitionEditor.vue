@@ -229,14 +229,11 @@ function increment(partition: Partition) {
 function hintDisplaySize(size: number): string {
   let label: string = ""
   switch (store.displaySizes) {
-    case 1:
-      label = ""
-      break;
     case 1024:
-      label = `${size / store.displaySizes} Kb.`
+      label = `${size / store.displaySizes} Kb`
       break;
     case 1024 * 1024:
-      label = `${size / store.displaySizes} Mb.`
+      label = `${size / store.displaySizes} Mb`
       break;
     default:
       label = "Size unknown"
