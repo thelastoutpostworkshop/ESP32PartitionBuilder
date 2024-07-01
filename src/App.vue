@@ -1,7 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar extension-height="90"
-      :title="'ESP32 Partition Builder v' + APP_VERSION">
+    <v-app-bar extension-height="90" :title="'ESP32 Partition Builder v' + APP_VERSION">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
@@ -14,7 +13,9 @@
         <v-container fluid class="mb-1 ml-1">
           <div class="mb-2">
             By the Last Outpost Workshop
+            <v-btn @click="goToYoutube" color="yellow" icon="mdi-open-in-new" variant="text"></v-btn>
           </div>
+
           <partition-visualizer></partition-visualizer>
           <div class=" text-h6"> Available Memory: {{ store.partitionTables.getAvailableMemory() }}
             bytes</div>
@@ -73,6 +74,9 @@ function goToBuyMeACoffee() {
 }
 function goToRepository() {
   window.open('https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder', '_blank');
+}
+function goToYoutube() {
+  window.open('https://www.youtube.com/channel/UCnnU_HGvTr8ewpqvHe2llDw', '_blank');
 }
 
 function changeFlashSize() {
