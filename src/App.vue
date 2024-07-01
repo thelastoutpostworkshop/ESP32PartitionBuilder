@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar extension-height="90" :title="'ESP32 Partition Builder v' + APP_VERSION">
+    <v-app-bar color="primary" extension-height="130" :title="'ESP32 Partition Builder v' + APP_VERSION">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
@@ -11,7 +11,7 @@
       </v-btn>
       <template v-slot:extension>
         <v-container fluid class="mb-1 ml-1">
-          <div class="mb-2">
+          <div class="">
             By the Last Outpost Workshop
             <v-btn @click="goToYoutube" color="yellow" icon="mdi-open-in-new" variant="text"></v-btn>
           </div>
