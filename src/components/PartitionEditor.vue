@@ -21,6 +21,9 @@
                 <v-list-item @click="addLittleFSPartition">
                   LittleFS File System
                 </v-list-item>
+                <v-list-item @click="">
+                  Core Dump
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-btn>
@@ -104,9 +107,8 @@ import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
-  PARTITION_SPIFFS, PARTITION_LITTLEFS,
-  SPIFFS_MIN_PARTITION_SIZE,
-  LITTLEFS_MIN_PARTITION_SIZE
+  PARTITION_SPIFFS, PARTITION_LITTLEFS,SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
+  COREDUMP_MIN_PARTITION_SIZE,PARTITION_COREDUMP
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
