@@ -131,7 +131,8 @@ import {
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
   PARTITION_SPIFFS, PARTITION_LITTLEFS, SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
   COREDUMP_MIN_PARTITION_SIZE, PARTITION_COREDUMP, PARTITION_FACTORY, PARTITION_TEST, PHY_MIN_PARTITION_SIZE,
-  PARTITION_PHY
+  PARTITION_PHY,
+  FLASH_SIZES
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -401,6 +402,47 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
+const loadPartitionsFromCSV = (csv: string) => {
+  const rows = csv.split('\n').filter(row => row.trim() !== '');
+  const header = rows.shift(); // Remove the header row
+  if (header !== '# Name,   Type, SubType, Offset,  Size, Flags') {
+    alertTitle.value = "Invalid CSV Format";
+    alertText.value = "The CSV file format is incorrect. Please use the correct format.";
+    showAlert.value = true;
+    return;
+  }
+
+  const partitions: Partition[] = [];
+  let totalSize = 0;
+  for (const row of rows) {
+    const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
+    if (!name || !type || !subtype || !offsetHex || !sizeStr) {
+      alertTitle.value = "Invalid CSV Data";
+      alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
+      showAlert.value = true;
+      return;
+    }
+
+    const size = parseSize(sizeStr.trim()); // Convert size to bytes
+    const offset = parseInt(offsetHex.trim(), 16); // Convert hex to decimal
+    partitions.push({ name: name.trim(), type: type.trim(), subtype: subtype.trim(), size, offset, flags: flags?.trim() || '' });
+    totalSize += size;
+  }
+
+  store.partitionTables.clearPartitions();
+  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags));
+
+  // Adjust flash size based on total partition size
+  const sizes = [4, 8, 16, 32]; // Available flash sizes in MB
+  for (const size of FLASH_SIZES) {
+    if (totalSize <= size.value * 1024 * 1024) {
+      store.flashSize = size.value;
+      store.partitionTables.setFlashSize(size.value);
+      break;
+    }
+  }
+};
+
 const parseSize = (sizeStr: string): number => {
   const sizeRegex = /^(\d+)([KMB]?)$/;
   const hexRegex = /^0x[0-9a-fA-F]+$/;
@@ -424,35 +466,6 @@ const parseSize = (sizeStr: string): number => {
     default:
       return size;
   }
-};
-
-const loadPartitionsFromCSV = (csv: string) => {
-  const rows = csv.split('\n').filter(row => row.trim() !== '');
-  const header = rows.shift(); // Remove the header row
-  if (header !== '# Name,   Type, SubType, Offset,  Size, Flags') {
-    alertTitle.value = "Invalid CSV Format";
-    alertText.value = "The CSV file format is incorrect. Please use the correct format.";
-    showAlert.value = true;
-    return;
-  }
-
-  const partitions: Partition[] = [];
-  for (const row of rows) {
-    const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
-    if (!name || !type || !subtype || !offsetHex || !sizeStr) {
-      alertTitle.value = "Invalid CSV Data";
-      alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
-      showAlert.value = true;
-      return;
-    }
-
-    const size = parseSize(sizeStr.trim()); // Convert size to bytes
-    const offset = parseInt(offsetHex.trim(), 16); // Convert hex to decimal
-    partitions.push({ name: name.trim(), type: type.trim(), subtype: subtype.trim(), size, offset, flags: flags?.trim() || '' });
-  }
-
-  store.partitionTables.clearPartitions();
-  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags));
 };
 
 
