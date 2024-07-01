@@ -145,17 +145,22 @@ const partitionSizeRule = (partition: Partition) => {
       break;
     case PARTITION_FAT:
       if (partition.size < FAT_MIN_PARTITION_SIZE) {
-        return `FAT partition minimal size is ${FAT_MIN_PARTITION_SIZE} bytes.`;
+        return `FAT partition minimal recommended size is ${FAT_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
     case PARTITION_SPIFFS:
       if (partition.size < SPIFFS_MIN_PARTITION_SIZE) {
-        return `SPIFFS partition recommended  minimal size is ${SPIFFS_MIN_PARTITION_SIZE} bytes.`;
+        return `SPIFFS partition minimal recommended size is ${SPIFFS_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
     case PARTITION_LITTLEFS:
       if (partition.size < LITTLEFS_MIN_PARTITION_SIZE) {
-        return `LittleFS partition recommended  minimal size is ${LITTLEFS_MIN_PARTITION_SIZE} bytes.`;
+        return `LittleFS partition minimal recommended size is ${LITTLEFS_MIN_PARTITION_SIZE} bytes.`;
+      }
+      break;
+    case PARTITION_COREDUMP:
+      if (partition.size < COREDUMP_MIN_PARTITION_SIZE) {
+        return `Core Dump partition minimal recommended size is ${COREDUMP_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
   }
