@@ -315,7 +315,7 @@ const loadPartitionsFromCSV = (csv: string) => {
   }
 
   store.partitionTables.clearPartitions();
-  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size / 1024, partition.flags));
+  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags));
 };
 
 
