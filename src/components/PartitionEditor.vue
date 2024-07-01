@@ -15,6 +15,9 @@
                 <v-list-item @click="addFATPartition">
                   FAT File System
                 </v-list-item>
+                <v-list-item @click="addSPIFFPartition">
+                  SPIFFS File System
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-btn>
@@ -98,7 +101,8 @@ import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_DATA_MIN_PARTITION_SIZE,
-  PARTITION_SPIFFS,PARTITION_LITTLEFS
+  PARTITION_SPIFFS,PARTITION_LITTLEFS,
+  SPIFFS_DATA_MIN_PARTITION_SIZE
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -248,6 +252,14 @@ const addFATPartition = () => {
   } else {
     const newName = generatePartitionName("fat");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_FAT, FAT_DATA_MIN_PARTITION_SIZE, "")
+  }
+};
+const addSPIFFPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < SPIFFS_DATA_MIN_PARTITION_SIZE) {
+    showAlertMessage("Cannot add a SPIFF partition", `There is not enough memory to add a SPIFFS partition. SPIFFS partition size must be at least ${SPIFFS_DATA_MIN_PARTITION_SIZE} bytes.`)
+  } else {
+    const newName = generatePartitionName("spiff");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_SPIFFS, SPIFFS_DATA_MIN_PARTITION_SIZE, "")
   }
 };
 
