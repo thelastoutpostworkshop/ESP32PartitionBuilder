@@ -21,7 +21,7 @@
                 <v-list-item @click="addLittleFSPartition">
                   LittleFS File System
                 </v-list-item>
-                <v-list-item @click="">
+                <v-list-item @click="addCoreDumpPartition">
                   Core Dump
                 </v-list-item>
               </v-list>
@@ -281,6 +281,14 @@ const addLittleFSPartition = () => {
   } else {
     const newName = generatePartitionName("littlefs");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_LITTLEFS, LITTLEFS_MIN_PARTITION_SIZE, "")
+  }
+};
+const addCoreDumpPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < COREDUMP_MIN_PARTITION_SIZE) {
+    showAlertMessage("Cannot add a Core Dump partition", `There is not enough memory to add a Core Dump partition. Core Dump partition size must be at least ${COREDUMP_MIN_PARTITION_SIZE} bytes.`)
+  } else {
+    const newName = generatePartitionName("coredump");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_COREDUMP, COREDUMP_MIN_PARTITION_SIZE, "")
   }
 };
 
