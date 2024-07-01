@@ -62,7 +62,7 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
-                  :disabled="partition.subtype === 'ota_0' || partition.subtype === 'ota'"
+                  :disabled="partition.subtype === 'ota_0'"
                   :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
                   :step="stepSize(partition)" :min="stepSize(partition)">
                   <template v-slot:prepend>
@@ -123,6 +123,11 @@ const partitionSizeRule = (partition: Partition) => {
   if (partition.subtype === PARTITION_NVS) {
     if (partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
       return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`;
+    }
+  }
+  if (partition.subtype === PARTITION_OTA) {
+    if (partition.size < OTA_DATA_PARTITION_SIZE) {
+      return `OTA data partition recommended size is ${OTA_DATA_PARTITION_SIZE} bytes.`;
     }
   }
   return true;
