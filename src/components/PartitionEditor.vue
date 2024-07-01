@@ -2,7 +2,7 @@
   <v-container>
     <v-container class="mb-2">
       <v-form ref="formRef" @submit.prevent="downloadCSV">
-        <v-row>
+        <v-row align="center">
           <v-btn color="primary" @click="addPartition">Add Partition
             <v-menu activator="parent">
               <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
