@@ -175,8 +175,13 @@ export class PartitionTable {
     this.recalculateOffsets();
   }
   
-
-
+  hasOTAPartitions(): boolean {
+    const hasOTAData = this.partitions.some(p => p.type === 'data' && p.subtype === 'ota');
+    const hasOTA0 = this.partitions.some(p => p.type === 'app' && p.subtype === 'ota_0');
+    const hasOTA1 = this.partitions.some(p => p.type === 'app' && p.subtype === 'ota_1');
+    return hasOTAData && hasOTA0 && hasOTA1;
+  }
+  
   generateTable(): Partition[] {
     return this.partitions;
   }
