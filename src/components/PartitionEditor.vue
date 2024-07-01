@@ -39,6 +39,16 @@
               </v-list>
             </v-menu>
           </v-btn>
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text">
+                <v-icon color="red-darken-4">
+                  mdi-trash-can
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Delete all Partitions</span>
+          </v-tooltip>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
             <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
