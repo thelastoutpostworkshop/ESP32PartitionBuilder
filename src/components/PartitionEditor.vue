@@ -183,7 +183,7 @@ function stepSize(partition: Partition): number {
 
 function decrement(partition: Partition) {
   const step_size = stepSize(partition)
-  if (partition.size - step_size >= 0) {
+  if (partition.size - step_size > 0) {
     partition.size -= step_size
     updateSize(partition)
   }
