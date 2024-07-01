@@ -27,6 +27,9 @@
                 <v-list-item @click="addCoreDumpPartition">
                   Core Dump
                 </v-list-item>
+                <v-list-item @click="addTestPartition">
+                  Test App
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-btn>
@@ -111,7 +114,7 @@ import {
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
   PARTITION_SPIFFS, PARTITION_LITTLEFS,SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
-  COREDUMP_MIN_PARTITION_SIZE,PARTITION_COREDUMP,PARTITION_FACTORY
+  COREDUMP_MIN_PARTITION_SIZE,PARTITION_COREDUMP,PARTITION_FACTORY,PARTITION_TEST
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -305,6 +308,14 @@ const addFactoryPartition = () => {
   } else {
     const newName = generatePartitionName("factory");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_APP, PARTITION_FACTORY, OFFSET_APP_TYPE, "")
+  }
+};
+const addTestPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < OFFSET_APP_TYPE) {
+    showAlertMessage("Cannot add a Test App partition", `There is not enough memory to add a Test App partition. Factory App partition size must be at least ${OFFSET_APP_TYPE} bytes.`)
+  } else {
+    const newName = generatePartitionName("test");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_APP, PARTITION_TEST, OFFSET_APP_TYPE, "")
   }
 };
 
