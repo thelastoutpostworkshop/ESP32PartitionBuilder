@@ -10,11 +10,26 @@ export const partitionStore = defineStore('partition_store', () => {
     const displaySizes = ref(1024);
     const partitionTables = ref(new PartitionTable(4));
 
+    function hintDisplaySize(size: number): string {
+        let label: string = ""
+        switch (displaySizes.value) {
+          case 1024:
+            label = `${size / displaySizes.value} Kb`
+            break;
+          case 1024 * 1024:
+            label = `${parseFloat((size / displaySizes.value).toFixed(5))} Mb`
+            break;
+          default:
+            label = "Size unknown"
+            break;
+        }
+        return label
+      }
 
     return {
         flashSize,
         flashSizeBytes,
         partitionTables,
-        displaySizes
+        displaySizes,hintDisplaySize
     }
 })
