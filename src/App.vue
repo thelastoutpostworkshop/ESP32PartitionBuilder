@@ -33,6 +33,10 @@
             <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text"
               label="Flash Size" dense hide-details @update:model-value="changeFlashSize"></v-select>
           </v-col>
+          <v-col>
+            <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
+              label="Show Size in" dense hide-details @update:model-value="changeDisplaySize"></v-select>
+          </v-col>
         </v-row>
         <v-row>
           <v-col>
@@ -53,7 +57,7 @@ import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { FLASH_SIZES, APP_VERSION } from '@/const';
+import { FLASH_SIZES, APP_VERSION, DISPLAY_SIZES } from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
