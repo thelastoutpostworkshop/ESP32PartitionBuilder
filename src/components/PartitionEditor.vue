@@ -151,6 +151,11 @@ const partitionSizeRule = (partition: Partition) => {
         return `SPIFFS partition recommended  minimal size is ${SPIFFS_DATA_MIN_PARTITION_SIZE} bytes.`;
       }
       break;
+    case PARTITION_LITTLEFS:
+      if (partition.size < LITTLEFS_DATA_MIN_PARTITION_SIZE) {
+        return `LittleFS partition recommended  minimal size is ${LITTLEFS_DATA_MIN_PARTITION_SIZE} bytes.`;
+      }
+      break;
   }
   return true;
 };
