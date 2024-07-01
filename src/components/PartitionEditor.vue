@@ -74,7 +74,7 @@
                   dense></v-select>
               </v-col>
               <v-col>
-                <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
+                <v-text-field readonly v-model.number="partition.size" :label="labelDisplaySize()" dense
                   :rules="[partitionSizeRule(partition)]"></v-text-field>
               </v-col>
               <v-col>
@@ -222,6 +222,26 @@ function decrement(partition: Partition) {
 function increment(partition: Partition) {
   partition.size += stepSize(partition)
   updateSize(partition)
+}
+
+function labelDisplaySize():string {
+  let label:string = ""
+  switch (store.displaySizes) {
+    case 1:
+      label = "Size (bytes)"
+      break;
+    case 1024:
+      label = "Size (Kb)"
+      break;
+    case 1024*1024:
+      label = "Size (Mb)"
+      break;
+  
+    default:
+      label = "Size unknown"
+      break;
+  }
+  return label
 }
 
 const getHexOffset = (offset: number): string => {
