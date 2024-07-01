@@ -38,7 +38,6 @@ function getColor(index: number): string {
   width: 100%;
   height: 50px;
   border: 1px solid #ccc;
-  margin-bottom: 20px;
 }
 
 .partition-segment {
