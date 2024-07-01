@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION">
+    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION+ ' by the Last Outpost Workshop'">
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
