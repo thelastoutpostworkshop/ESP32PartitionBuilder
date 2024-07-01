@@ -6,6 +6,7 @@ export const NVS_PARTITION_SIZE_RECOMMENDED = 0x3000
 export const OTA_DATA_PARTITION_SIZE = 0x2000
 export const FAT_DATA_MIN_PARTITION_SIZE = 528 * 1024
 export const SPIFFS_DATA_MIN_PARTITION_SIZE = 192 * 1024
+export const LITTLEFS_DATA_MIN_PARTITION_SIZE = 128 * 1024
 
 export const FLASH_SIZES = [
     { value: 4, text: '4 MB' },
