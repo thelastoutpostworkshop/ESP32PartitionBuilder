@@ -12,6 +12,9 @@
                 <v-list-item @click="addOTAPartition">
                   OTA (Over The Air Updates)
                 </v-list-item>
+                <v-list-item @click="addFactoryPartition">
+                  Factory App
+                </v-list-item>
                 <v-list-item @click="addFATPartition">
                   FAT File System
                 </v-list-item>
@@ -108,7 +111,7 @@ import {
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
   PARTITION_SPIFFS, PARTITION_LITTLEFS,SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
-  COREDUMP_MIN_PARTITION_SIZE,PARTITION_COREDUMP
+  COREDUMP_MIN_PARTITION_SIZE,PARTITION_COREDUMP,PARTITION_FACTORY
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -294,6 +297,14 @@ const addCoreDumpPartition = () => {
   } else {
     const newName = generatePartitionName("coredump");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_COREDUMP, COREDUMP_MIN_PARTITION_SIZE, "")
+  }
+};
+const addFactoryPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < OFFSET_APP_TYPE) {
+    showAlertMessage("Cannot add a Factory App partition", `There is not enough memory to add a Factory App partition. Factory App partition size must be at least ${OFFSET_APP_TYPE} bytes.`)
+  } else {
+    const newName = generatePartitionName("factory");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_APP, PARTITION_FACTORY, OFFSET_APP_TYPE, "")
   }
 };
 
