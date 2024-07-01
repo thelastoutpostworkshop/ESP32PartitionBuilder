@@ -156,10 +156,11 @@ export class PartitionTable {
       const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
       const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
   
-      const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize(this.partitions[ota0Index]);
+      const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[ota0Index]) + this.partitions[ota1Index].size;
+      const totalAvailableMemory = this.getTotalMemory() - otherPartitionsSize;
       console.log(totalAvailableMemory)
+  
       newSize = Math.min(newSize, totalAvailableMemory / 2);
-      console.log(newSize)
   
       this.partitions[ota0Index].size = newSize;
       this.partitions[ota1Index].size = newSize;
@@ -190,10 +191,6 @@ export class PartitionTable {
     this.recalculateOffsets();
   }
   
-
-
-
-
   hasOTAPartitions(): boolean {
     const hasOTAData = this.partitions.some(p => p.type === 'data' && p.subtype === 'ota');
     const hasOTA0 = this.partitions.some(p => p.type === 'app' && p.subtype === 'ota_0');
