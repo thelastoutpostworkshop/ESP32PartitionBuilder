@@ -16,6 +16,12 @@ export const FLASH_SIZES = [
     { value: 16, text: '16 MB' },
     { value: 32, text: '32 MB' }
 ];
+
+export const DISPLAY_SIZES = [
+    {value:1, text:"bytes"},
+    {value:1024, text:"Kb"},
+    {value:1024*1024, text:"Mb"}
+]
 export const PARTITION_TYPE_APP = "app"
 export const PARTITION_TYPE_DATA = "data"
 export const PARTITION_NVS = "nvs"
