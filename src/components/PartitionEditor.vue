@@ -189,7 +189,7 @@ const getSubtypes = (type: string) => {
 
 
 const updateSize = (partition: Partition) => {
-  store.partitionTables.updatePartitionSize(partition.name, partition.size);
+  store.partitionTables.updatePartitionSize(partition, partition.size);
 };
 
 

@@ -111,13 +111,13 @@ export class PartitionTable {
     const currentOffset = this.partitions.length > 0
       ? this.partitions[this.partitions.length - 1].offset + this.partitions[this.partitions.length - 1].size
       : PARTITION_TABLE_SIZE;
-  
+
     const alignedCurrentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
     const available = Math.max(0, this.flashSize - alignedCurrentOffset);
-  
+
     return available;
   }
-  
+
 
   removePartition(name: string) {
     const index = this.partitions.findIndex(partition => partition.name === name);
@@ -145,11 +145,26 @@ export class PartitionTable {
     });
   }
 
-  updatePartitionSize(name: string, newSize: number) {
-    const index = this.partitions.findIndex(partition => partition.name === name);
+  updatePartitionSize(partition: Partition, newSize: number) {
+    const index = this.partitions.findIndex(p => p.name === partition.name);
   
     if (index === -1) {
-      throw new Error(`Partition ${name} not found.`);
+      throw new Error(`Partition ${partition.name} not found.`);
+    }
+  
+    if ((partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && this.hasOTAPartitions()) {
+      const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
+      const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
+  
+      const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize(this.partitions[ota0Index]);
+      console.log(totalAvailableMemory)
+      newSize = Math.min(newSize, totalAvailableMemory / 2);
+      console.log(newSize)
+  
+      this.partitions[ota0Index].size = newSize;
+      this.partitions[ota1Index].size = newSize;
+      this.recalculateOffsets();
+      return;
     }
   
     const totalMemory = this.getTotalMemory();
@@ -161,27 +176,31 @@ export class PartitionTable {
       const remainingPartitions = this.partitions.filter((_, i) => i !== index);
       const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
   
-      remainingPartitions.forEach(partition => {
-        const reduction = (partition.size / totalRemainingSize) * excessSize;
-        partition.size = Math.max(
-          Math.round((partition.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+      remainingPartitions.forEach(p => {
+        const reduction = (p.size / totalRemainingSize) * excessSize;
+        p.size = Math.max(
+          Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
           OFFSET_DATA_TYPE
-        ); // Ensure alignment and minimum size
+        );
       });
     }
   
-    this.partitions[index].size = Math.round(newSize / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE; // Align size
+    this.partitions[index].size = Math.round(newSize / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE;
   
     this.recalculateOffsets();
   }
   
+
+
+
+
   hasOTAPartitions(): boolean {
     const hasOTAData = this.partitions.some(p => p.type === 'data' && p.subtype === 'ota');
     const hasOTA0 = this.partitions.some(p => p.type === 'app' && p.subtype === 'ota_0');
     const hasOTA1 = this.partitions.some(p => p.type === 'app' && p.subtype === 'ota_1');
     return hasOTAData && hasOTA0 && hasOTA1;
   }
-  
+
   generateTable(): Partition[] {
     return this.partitions;
   }
