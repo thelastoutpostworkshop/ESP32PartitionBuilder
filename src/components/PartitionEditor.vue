@@ -100,7 +100,7 @@
             <v-row dense>
               <v-col>
                 <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
-                  :disabled="partition.subtype === 'ota_0'" :max="store.partitionTables.getTotalMemory()"
+                  :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()" :max="store.partitionTables.getTotalMemory()"
                   @end="updateSize(partition)" dense hide-details :step="stepSize(partition)"
                   :min="stepSize(partition)">
                   <template v-slot:prepend>
