@@ -31,7 +31,7 @@ export const esp32Partitions: PartitionSet[] = [
     name: 'Single factory app, no OTA)',
     partitions: [
       { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x5000, offset: 0, flags: "" },
-      { name: 'factory', type: 'app', subtype: 'factory', size: 0x3FB000, offset: 0, flags: "" },
+      { name: 'factory', type: 'app', subtype: 'factory', size: 0x3F0000, offset: 0, flags: "" },
     ]
   },
 ];
