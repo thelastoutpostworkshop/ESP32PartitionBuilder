@@ -153,38 +153,37 @@ export class PartitionTable {
 
   updatePartitionSize(partition: Partition, newSize: number) {
     const index = this.partitions.findIndex(p => p.name === partition.name);
-
+  
     if (index === -1) {
       throw new Error(`Partition ${partition.name} not found.`);
     }
-
+  
+    const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+    newSize = Math.round(newSize / alignment) * alignment; // Ensure alignment
+  
     if ((partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && this.hasOTAPartitions()) {
       const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
       const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-
-      // const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[ota0Index]) + this.partitions[ota1Index].size;
+  
       const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize() + this.partitions[ota0Index].size + this.partitions[ota1Index].size;
-      // console.log(`ota_0 size ${this.partitions[ota0Index].size}`)
-      // console.log(`ota_1 size ${this.partitions[ota1Index].size}`)
-      // console.log(`totalAvailableMemory ${totalAvailableMemory}`)
-
-      newSize = Math.min(newSize, totalAvailableMemory / 2);
-
+  
+      newSize = Math.min(newSize, Math.floor(totalAvailableMemory / (2 * alignment)) * alignment);
+  
       this.partitions[ota0Index].size = newSize;
       this.partitions[ota1Index].size = newSize;
       this.recalculateOffsets();
       return;
     }
-
+  
     const totalMemory = this.getTotalMemory();
     const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
     const availableMemory = totalMemory - otherPartitionsSize;
-
+  
     if (newSize > availableMemory) {
       const excessSize = newSize - availableMemory;
       const remainingPartitions = this.partitions.filter((_, i) => i !== index);
       const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
-
+  
       remainingPartitions.forEach(p => {
         const reduction = (p.size / totalRemainingSize) * excessSize;
         p.size = Math.max(
@@ -193,11 +192,11 @@ export class PartitionTable {
         );
       });
     }
-
-    this.partitions[index].size = Math.round(newSize / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE;
-
+  
+    this.partitions[index].size = newSize;
     this.recalculateOffsets();
   }
+  
   
 
   hasOTAPartitions(): boolean {
