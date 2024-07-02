@@ -1,5 +1,10 @@
 import type { Partition } from '@/types';
-import { OFFSET_APP_TYPE, OFFSET_DATA_TYPE, PARTITION_TABLE_SIZE, PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP } from '@/const'
+import {
+  OFFSET_APP_TYPE, OFFSET_DATA_TYPE, PARTITION_TABLE_SIZE,
+  PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP, PARTITION_NVS,
+  NVS_PARTITION_SIZE_RECOMMENDED, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, PARTITION_COREDUMP,
+  COREDUMP_MIN_PARTITION_SIZE
+} from '@/const'
 
 
 type AppSubType = typeof PARTITION_APP_SUBTYPES[number];
@@ -145,53 +150,70 @@ export class PartitionTable {
     });
   }
 
+
   updatePartitionSize(partition: Partition, newSize: number) {
     const index = this.partitions.findIndex(p => p.name === partition.name);
-
+  
     if (index === -1) {
       throw new Error(`Partition ${partition.name} not found.`);
     }
-
+  
     if ((partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && this.hasOTAPartitions()) {
       const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
       const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-
-      // const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[ota0Index]) + this.partitions[ota1Index].size;
+  
       const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize() + this.partitions[ota0Index].size + this.partitions[ota1Index].size;
-      // console.log(`ota_0 size ${this.partitions[ota0Index].size}`)
-      // console.log(`ota_1 size ${this.partitions[ota1Index].size}`)
-      // console.log(`totalAvailableMemory ${totalAvailableMemory}`)
-
       newSize = Math.min(newSize, totalAvailableMemory / 2);
-
-      this.partitions[ota0Index].size = newSize;
-      this.partitions[ota1Index].size = newSize;
+  
+      this.partitions[ota0Index].size = Math.round(newSize / OFFSET_APP_TYPE) * OFFSET_APP_TYPE;
+      this.partitions[ota1Index].size = Math.round(newSize / OFFSET_APP_TYPE) * OFFSET_APP_TYPE;
       this.recalculateOffsets();
       return;
     }
-
+  
     const totalMemory = this.getTotalMemory();
     const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
     const availableMemory = totalMemory - otherPartitionsSize;
-
+  
     if (newSize > availableMemory) {
       const excessSize = newSize - availableMemory;
       const remainingPartitions = this.partitions.filter((_, i) => i !== index);
       const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
-
+  
       remainingPartitions.forEach(p => {
-        const reduction = (p.size / totalRemainingSize) * excessSize;
-        p.size = Math.max(
-          Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
-          OFFSET_DATA_TYPE
-        );
+        if (p.subtype === PARTITION_NVS && p.size > NVS_PARTITION_SIZE_RECOMMENDED) {
+          const reduction = (p.size / totalRemainingSize) * excessSize;
+          p.size = Math.max(
+            Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+            NVS_PARTITION_SIZE_RECOMMENDED
+          );
+        } else if (p.subtype === PARTITION_OTA && p.size > OTA_DATA_PARTITION_SIZE) {
+          const reduction = (p.size / totalRemainingSize) * excessSize;
+          p.size = Math.max(
+            Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+            OTA_DATA_PARTITION_SIZE
+          );
+        } else if (p.subtype === PARTITION_COREDUMP && p.size > COREDUMP_MIN_PARTITION_SIZE) {
+          const reduction = (p.size / totalRemainingSize) * excessSize;
+          p.size = Math.max(
+            Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+            COREDUMP_MIN_PARTITION_SIZE
+          );
+        } else if ((p.subtype === 'ota_0' || p.subtype === 'ota_1') && p.size > 0) {
+          const reduction = (p.size / totalRemainingSize) * excessSize;
+          p.size = Math.max(
+            Math.round((p.size - reduction) / OFFSET_APP_TYPE) * OFFSET_APP_TYPE,
+            OFFSET_APP_TYPE
+          );
+        }
       });
     }
-
+  
     this.partitions[index].size = Math.round(newSize / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE;
-
+  
     this.recalculateOffsets();
   }
+  
 
   hasOTAPartitions(): boolean {
     const hasOTAData = this.partitions.some(p => p.type === 'data' && p.subtype === 'ota');
