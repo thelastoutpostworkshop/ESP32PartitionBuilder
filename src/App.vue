@@ -36,27 +36,8 @@
       <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
         label="Show Hint Size in" dense hide-details></v-select>
     </v-navigation-drawer>
-    <v-main class="mt-5">
-      <v-container fluid>
-        <v-row>
-          <v-col>
-
-          </v-col>
-          <v-col>
-          </v-col>
-          <v-col>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <partition-editor></partition-editor>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col class="text-center">
-          </v-col>
-        </v-row>
-      </v-container>
+    <v-main>
+      <partition-editor></partition-editor>
     </v-main>
   </v-app>
 </template>
