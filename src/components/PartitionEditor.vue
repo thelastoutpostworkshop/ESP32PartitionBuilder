@@ -210,7 +210,11 @@ const partitionSizeRule = (partition: Partition) => {
 };
 
 function stepSize(partition: Partition): number {
-  return OFFSET_DATA_TYPE
+  if(partition.subtype === PARTITION_TYPE_DATA) {
+    return OFFSET_DATA_TYPE
+  } else {
+    return OFFSET_APP_TYPE
+  }
 }
 
 function decrement(partition: Partition) {
