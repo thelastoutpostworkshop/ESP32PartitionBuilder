@@ -153,51 +153,79 @@ export class PartitionTable {
 
   updatePartitionSize(partition: Partition, newSize: number) {
     const index = this.partitions.findIndex(p => p.name === partition.name);
-  
+
     if (index === -1) {
-      throw new Error(`Partition ${partition.name} not found.`);
+        throw new Error(`Partition ${partition.name} not found.`);
     }
-  
+
     const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
     newSize = Math.round(newSize / alignment) * alignment; // Ensure alignment
-  
+
     if ((partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && this.hasOTAPartitions()) {
-      const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
-      const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-  
-      const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize() + this.partitions[ota0Index].size + this.partitions[ota1Index].size;
-  
-      newSize = Math.min(newSize, Math.floor(totalAvailableMemory / (2 * alignment)) * alignment);
-  
-      this.partitions[ota0Index].size = newSize;
-      this.partitions[ota1Index].size = newSize;
-      this.recalculateOffsets();
-      return;
+        const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
+        const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
+
+        const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize() + this.partitions[ota0Index].size + this.partitions[ota1Index].size;
+
+        newSize = Math.min(newSize, Math.floor(totalAvailableMemory / (2 * alignment)) * alignment);
+
+        this.partitions[ota0Index].size = newSize;
+        this.partitions[ota1Index].size = newSize;
+        this.recalculateOffsets();
+        return;
     }
-  
+
     const totalMemory = this.getTotalMemory();
     const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
     const availableMemory = totalMemory - otherPartitionsSize;
-  
+
     if (newSize > availableMemory) {
-      const excessSize = newSize - availableMemory;
-      const remainingPartitions = this.partitions.filter((_, i) => i !== index);
-      const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
-  
-      remainingPartitions.forEach(p => {
-        const reduction = (p.size / totalRemainingSize) * excessSize;
-        p.size = Math.max(
-          Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
-          OFFSET_DATA_TYPE
-        );
-      });
+        const excessSize = newSize - availableMemory;
+        const remainingPartitions = this.partitions.filter((_, i) => i !== index);
+        const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
+
+        remainingPartitions.forEach(p => {
+            if (p.subtype !== PARTITION_NVS && p.subtype !== PARTITION_OTA && p.subtype !== PARTITION_COREDUMP) {
+                const reduction = (p.size / totalRemainingSize) * excessSize;
+                p.size = Math.max(
+                    Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+                    OFFSET_DATA_TYPE
+                );
+            } else {
+                if (p.size > this.getRecommendedSize(p.subtype)) {
+                    const reduction = Math.min((p.size / totalRemainingSize) * excessSize, p.size - this.getRecommendedSize(p.subtype));
+                    p.size = Math.max(
+                        Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+                        this.getRecommendedSize(p.subtype)
+                    );
+                }
+            }
+        });
     }
-  
+
     this.partitions[index].size = newSize;
     this.recalculateOffsets();
+
+    const finalTotalSize = this.getTotalPartitionSize();
+    if (finalTotalSize > this.flashSize) {
+        throw new Error(`Partitions exceed the available flash memory.`);
+    }
+}
+
+  
+  getRecommendedSize(subtype: string): number {
+    switch (subtype) {
+      case PARTITION_NVS:
+        return NVS_PARTITION_SIZE_RECOMMENDED;
+      case PARTITION_OTA:
+        return OTA_DATA_PARTITION_SIZE;
+      case PARTITION_COREDUMP:
+        return COREDUMP_MIN_PARTITION_SIZE;
+      default:
+        return OFFSET_DATA_TYPE;
+    }
   }
-  
-  
+    
 
   hasOTAPartitions(): boolean {
     const hasOTAData = this.partitions.some(p => p.type === 'data' && p.subtype === 'ota');
