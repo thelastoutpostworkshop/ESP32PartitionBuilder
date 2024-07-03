@@ -17,25 +17,34 @@
           </div>
 
           <partition-visualizer></partition-visualizer>
-          <div class=" text-h6"> Available Memory: {{ store.partitionTables.getAvailableMemory() }} bytes ({{ store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
-            </div>
         </v-container>
       </template>
     </v-app-bar>
+    <v-navigation-drawer color="" permanent>
+      <div class="pa-4">
+        <div> Available Memory:
+        </div>
+        <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
+          store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
+        </div>
+      </div>
+
+      <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
+        label="Built-in partitions" dense hide-details></v-select>
+      <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
+        dense hide-details @update:model-value="changeFlashSize"></v-select>
+      <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
+        label="Show Hint Size in" dense hide-details></v-select>
+    </v-navigation-drawer>
     <v-main class="mt-5">
       <v-container fluid>
         <v-row>
           <v-col>
-            <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
-              label="Built-in partitions" dense hide-details></v-select>
+
           </v-col>
           <v-col>
-            <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text"
-              label="Flash Size" dense hide-details @update:model-value="changeFlashSize"></v-select>
           </v-col>
           <v-col>
-            <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
-              label="Show Hint Size in" dense hide-details></v-select>
           </v-col>
         </v-row>
         <v-row>
