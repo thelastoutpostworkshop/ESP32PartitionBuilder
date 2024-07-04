@@ -1,6 +1,10 @@
 <template>
   <v-app>
     <v-app-bar extension-height="120" :title="'ESP32 Partition Builder v' + APP_VERSION">
+      <div class="text-caption">
+        By the Last Outpost Workshop
+      </div>
+      <v-btn @click="goToYoutube" color="yellow" icon="mdi-open-in-new" variant="text"></v-btn>
       <v-btn color="yellow" @click="goToBuyMeACoffee">
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
@@ -11,11 +15,6 @@
       </v-btn>
       <template v-slot:extension>
         <v-container fluid class="mb-1 ml-1">
-          <div class="">
-            By the Last Outpost Workshop
-            <v-btn @click="goToYoutube" color="yellow" icon="mdi-open-in-new" variant="text"></v-btn>
-          </div>
-
           <partition-visualizer></partition-visualizer>
         </v-container>
       </template>
@@ -28,7 +27,6 @@
           store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
         </div>
       </div>
-
       <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
         label="Built-in partitions" dense hide-details></v-select>
       <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
