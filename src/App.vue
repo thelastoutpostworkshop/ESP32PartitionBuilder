@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar extension-height="120" :title="'ESP32 Partition Builder v' + APP_VERSION">
+    <v-app-bar  :title="'ESP32 Partition Builder v' + APP_VERSION">
       <div class="text-caption">
         By the Last Outpost Workshop
       </div>
@@ -19,7 +19,7 @@
         </v-container>
       </template>
     </v-app-bar>
-    <v-navigation-drawer color="" permanent>
+    <v-navigation-drawer permanent>
       <div class="pa-4">
         <div> Available Memory:
         </div>
