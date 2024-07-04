@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-form ref="formRef" @submit.prevent="downloadCSV">
-      <v-app-bar location="top" permanent >
+      <v-app-bar location="top" permanent>
         <v-btn color="primary" @click="addPartition">Add Partition
           <v-menu activator="parent">
             <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
@@ -38,6 +38,16 @@
             </v-list>
           </v-menu>
         </v-btn>
+        <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
+          <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
+        </v-btn>
+        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
+        <v-btn color="primary" type="submit" dense
+          :disabled="store.partitionTables.getPartitions().length == 0">Download
+          CSV
+          <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
+        </v-btn>
+        <v-spacer></v-spacer>
         <v-tooltip location="top">
           <template v-slot:activator="{ props }">
             <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text">
@@ -48,15 +58,6 @@
           </template>
           <span>Delete all Partitions</span>
         </v-tooltip>
-        <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
-          <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
-        </v-btn>
-        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-        <v-btn color="primary" type="submit" dense
-          :disabled="store.partitionTables.getPartitions().length == 0">Download
-          CSV
-          <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
-        </v-btn>
       </v-app-bar>
       <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
         <v-row dense>
