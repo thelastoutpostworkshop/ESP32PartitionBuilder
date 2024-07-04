@@ -20,7 +20,7 @@
       </template>
     </v-app-bar>
     <v-navigation-drawer permanent>
-      <div class="pa-4 text-green">
+      <div :class="store.partitionTables.getAvailableMemory() > 0 ? 'pa-4 text-green' : 'pa-4 text-red'">
         <div> Available Memory:
         </div>
         <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{

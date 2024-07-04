@@ -207,7 +207,7 @@ const partitionSizeRule = (partition: Partition) => {
 };
 
 function stepSize(partition: Partition): number {
-  if (partition.subtype === PARTITION_TYPE_DATA) {
+  if (partition.type === PARTITION_TYPE_DATA) {
     return OFFSET_DATA_TYPE
   } else {
     return OFFSET_APP_TYPE
