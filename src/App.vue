@@ -20,7 +20,7 @@
       </template>
     </v-app-bar>
     <v-navigation-drawer permanent>
-      <div class="pa-4">
+      <div class="pa-4 text-green">
         <div> Available Memory:
         </div>
         <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
