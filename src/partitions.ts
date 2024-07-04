@@ -205,11 +205,6 @@ export class PartitionTable {
 
     this.partitions[index].size = newSize;
     this.recalculateOffsets();
-
-    const finalTotalSize = this.getTotalPartitionSize();
-    if (finalTotalSize > this.flashSize) {
-        throw new Error(`Partitions exceed the available flash memory.`);
-    }
 }
 
   
