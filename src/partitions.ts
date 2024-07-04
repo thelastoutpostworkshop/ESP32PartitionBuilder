@@ -118,7 +118,7 @@ export class PartitionTable {
       : PARTITION_TABLE_SIZE;
 
     const alignedCurrentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
-    const available = Math.max(0, this.flashSize - alignedCurrentOffset);
+    const available = this.flashSize - alignedCurrentOffset;
 
     return available;
   }
