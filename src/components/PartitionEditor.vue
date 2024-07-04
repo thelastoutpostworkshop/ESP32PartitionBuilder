@@ -1,141 +1,137 @@
 <template>
   <v-container>
-    <v-container class="mb-2">
-      <v-form ref="formRef" @submit.prevent="downloadCSV">
-        <v-row align="center">
-          <v-btn color="primary" @click="addPartition">Add Partition
-            <v-menu activator="parent">
-              <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
-                <v-list-item @click="addNVSPartition">
-                  NVS (Non-Volatile Storage)
-                </v-list-item>
-                <v-list-item @click="addOTAPartition">
-                  OTA (Over The Air Updates)
-                </v-list-item>
-                <v-list-item @click="addFactoryPartition">
-                  Factory App
-                </v-list-item>
-                <v-list-item @click="addFATPartition">
-                  FAT File System
-                </v-list-item>
-                <v-list-item @click="addSPIFFPartition">
-                  SPIFFS File System
-                </v-list-item>
-                <v-list-item @click="addLittleFSPartition">
-                  LittleFS File System
-                </v-list-item>
-                <v-list-item @click="addOTADataPartition">
-                  OTA Data
-                </v-list-item>
-                <v-list-item @click="addCoreDumpPartition">
-                  Core Dump
-                </v-list-item>
-                <v-list-item @click="addTestPartition">
-                  Test App
-                </v-list-item>
-                <v-list-item @click="addPhyPartition">
-                  PHY Initialisation Data
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-btn>
-          <v-tooltip location="top">
-            <template v-slot:activator="{ props }">
-              <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text">
-                <v-icon color="red-darken-4">
-                  mdi-trash-can
-                </v-icon>
-              </v-btn>
-            </template>
-            <span>Delete all Partitions</span>
-          </v-tooltip>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
-            <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
-          </v-btn>
-          <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-          <v-btn color="primary" type="submit" dense
-            :disabled="store.partitionTables.getPartitions().length == 0">Download CSV
-            <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
-          </v-btn>
-        </v-row>
-        <v-row>
-          <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
-            <v-row dense>
-              <v-col>
-                <v-text-field v-model="partition.name" label="Name" dense
-                  :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
-              </v-col>
-              <v-col>
-                <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
-                  @update:model-value="validateType(partition)"></v-select>
-              </v-col>
-              <v-col>
-                <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
-                  dense></v-select>
-              </v-col>
-              <v-col>
-                <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
-                  :rules="[partitionSizeRule(partition)]" :hint="store.hintDisplaySize(partition.size)"
-                  persistent-hint></v-text-field>
-              </v-col>
-              <v-col>
-                <v-text-field readonly active label="offset">
-                  {{ getHexOffset(partition.offset) }}
-                </v-text-field>
-              </v-col>
-              <v-col cols="auto">
-                <v-tooltip location="top">
-                  <template v-slot:activator="{ props }">
-                    <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
-                      <v-icon color="red-darken-4">
-                        mdi-trash-can
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Delete Partition</span>
-                </v-tooltip>
-              </v-col>
-            </v-row>
-            <v-row dense>
-              <v-col>
-                <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
-                  :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()" :max="store.partitionTables.getTotalMemory()"
-                  @end="updateSize(partition)" dense hide-details :step="stepSize(partition)"
-                  :min="stepSize(partition)">
-                  <template v-slot:prepend>
-                    <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
-                      @click="decrement(partition)"></v-btn>
-                  </template>
-                  <template v-slot:append>
-                    <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
-                      @click="increment(partition)"></v-btn>
-                  </template>
-                </v-slider>
-              </v-col>
-            </v-row>
-          </div>
-        </v-row>
-      </v-form>
-      <v-dialog v-model="showAlert" width="auto">
-        <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="white" :text="alertText"
-          :title="alertTitle">
-          <template v-slot:actions>
-            <v-btn class="ms-auto" text="Ok" @click="showAlert = false"></v-btn>
+    <v-form ref="formRef" @submit.prevent="downloadCSV">
+      <v-app-bar location="top" permanent >
+        <v-btn color="primary" @click="addPartition">Add Partition
+          <v-menu activator="parent">
+            <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
+              <v-list-item @click="addNVSPartition">
+                NVS (Non-Volatile Storage)
+              </v-list-item>
+              <v-list-item @click="addOTAPartition">
+                OTA (Over The Air Updates)
+              </v-list-item>
+              <v-list-item @click="addFactoryPartition">
+                Factory App
+              </v-list-item>
+              <v-list-item @click="addFATPartition">
+                FAT File System
+              </v-list-item>
+              <v-list-item @click="addSPIFFPartition">
+                SPIFFS File System
+              </v-list-item>
+              <v-list-item @click="addLittleFSPartition">
+                LittleFS File System
+              </v-list-item>
+              <v-list-item @click="addOTADataPartition">
+                OTA Data
+              </v-list-item>
+              <v-list-item @click="addCoreDumpPartition">
+                Core Dump
+              </v-list-item>
+              <v-list-item @click="addTestPartition">
+                Test App
+              </v-list-item>
+              <v-list-item @click="addPhyPartition">
+                PHY Initialisation Data
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-btn>
+        <v-tooltip location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text">
+              <v-icon color="red-darken-4">
+                mdi-trash-can
+              </v-icon>
+            </v-btn>
           </template>
-        </v-card>
-      </v-dialog>
-      <v-dialog v-model="showOverrideDialog" width="auto">
-        <v-card max-width="400" color="white" title="Partition Rules Warnings">
-          <v-card-text>There are validation errors in the partitions. Do you want to proceed and download the CSV
-            anyway?</v-card-text>
-          <v-card-actions>
-            <v-btn @click="showOverrideDialog = false">Cancel</v-btn>
-            <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-container>
+          <span>Delete all Partitions</span>
+        </v-tooltip>
+        <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
+          <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
+        </v-btn>
+        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
+        <v-btn color="primary" type="submit" dense
+          :disabled="store.partitionTables.getPartitions().length == 0">Download
+          CSV
+          <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
+        </v-btn>
+      </v-app-bar>
+      <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
+        <v-row dense>
+          <v-col>
+            <v-text-field v-model="partition.name" label="Name" dense
+              :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
+          </v-col>
+          <v-col>
+            <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
+              @update:model-value="validateType(partition)"></v-select>
+          </v-col>
+          <v-col>
+            <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
+              dense></v-select>
+          </v-col>
+          <v-col>
+            <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
+              :rules="[partitionSizeRule(partition)]" :hint="store.hintDisplaySize(partition.size)"
+              persistent-hint></v-text-field>
+          </v-col>
+          <v-col>
+            <v-text-field readonly active label="offset">
+              {{ getHexOffset(partition.offset) }}
+            </v-text-field>
+          </v-col>
+          <v-col cols="auto">
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+                  <v-icon color="red-darken-4">
+                    mdi-trash-can
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Delete Partition</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col>
+            <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
+              :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
+              :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
+              :step="stepSize(partition)" :min="stepSize(partition)">
+              <template v-slot:prepend>
+                <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
+                  @click="decrement(partition)"></v-btn>
+              </template>
+              <template v-slot:append>
+                <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
+                  @click="increment(partition)"></v-btn>
+              </template>
+            </v-slider>
+          </v-col>
+        </v-row>
+      </div>
+    </v-form>
+    <v-dialog v-model="showAlert" width="auto">
+      <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="white" :text="alertText"
+        :title="alertTitle">
+        <template v-slot:actions>
+          <v-btn class="ms-auto" text="Ok" @click="showAlert = false"></v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showOverrideDialog" width="auto">
+      <v-card max-width="400" color="white" title="Partition Rules Warnings">
+        <v-card-text>There are validation errors in the partitions. Do you want to proceed and download the CSV
+          anyway?</v-card-text>
+        <v-card-actions>
+          <v-btn @click="showOverrideDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -210,7 +206,7 @@ const partitionSizeRule = (partition: Partition) => {
 };
 
 function stepSize(partition: Partition): number {
-  if(partition.subtype === PARTITION_TYPE_DATA) {
+  if (partition.subtype === PARTITION_TYPE_DATA) {
     return OFFSET_DATA_TYPE
   } else {
     return OFFSET_APP_TYPE

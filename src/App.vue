@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar  :title="'ESP32 Partition Builder v' + APP_VERSION">
+    <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION">
       <div class="text-caption">
         By the Last Outpost Workshop
       </div>
@@ -34,7 +34,7 @@
       <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
         label="Show Hint Size in" dense hide-details></v-select>
     </v-navigation-drawer>
-    <v-main>
+    <v-main class="d-flex align-top">
       <partition-editor></partition-editor>
     </v-main>
   </v-app>
