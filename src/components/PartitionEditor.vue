@@ -425,11 +425,21 @@ const reclaimMemory = (partition: Partition) => {
 };
 
 const resizeToFit = (partition: Partition) => {
-  const resize = partition.size + store.partitionTables.getAvailableMemory()
-  if (resize <= 0) {
-    showAlertMessage("Cannot resize the partition", `The partition is not large enough to remove ${ store.partitionTables.getAvailableMemory()} bytes (${store.hintDisplaySize( store.partitionTables.getAvailableMemory())}).`)
+  let resize: number
+  const resizeOnOta:boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
+  if (resizeOnOta) {
+    resize = partition.size * 2 + store.partitionTables.getAvailableMemory()
   } else {
-    store.partitionTables.updatePartitionSize(partition, resize);
+    resize = partition.size + store.partitionTables.getAvailableMemory()
+  }
+  if (resize <= 0) {
+    showAlertMessage("Cannot resize the partition", `The partition is not large enough to remove ${store.partitionTables.getAvailableMemory()} bytes (${store.hintDisplaySize(store.partitionTables.getAvailableMemory())}).`)
+  } else {
+    if(resizeOnOta) {
+      store.partitionTables.updatePartitionSize(partition, Math.round(resize/2));
+    } else {
+      store.partitionTables.updatePartitionSize(partition, resize);
+    }
   }
 };
 
