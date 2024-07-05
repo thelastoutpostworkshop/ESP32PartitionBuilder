@@ -437,6 +437,9 @@ const resizeToFit = (partition: Partition) => {
   } else {
     if(resizeOnOta) {
       store.partitionTables.updatePartitionSize(partition, Math.round(resize/2));
+      if(store.partitionTables.getAvailableMemory() < 0) {
+        store.partitionTables.updatePartitionSize(partition, partition.size+store.partitionTables.getAvailableMemory());
+      }
     } else {
       store.partitionTables.updatePartitionSize(partition, resize);
     }
