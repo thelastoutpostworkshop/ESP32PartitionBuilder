@@ -103,7 +103,8 @@
           <template v-slot:prepend>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="resizeToFit(partition)" variant="text">
+                <v-btn icon v-bind="props" @click="resizeToFit(partition)" variant="text" 
+                :disabled="store.partitionTables.getAvailableMemory() >= 0">
                   <v-icon color="blue">
                     mdi-arrow-left-bold
                   </v-icon>
@@ -119,7 +120,8 @@
               @click="increment(partition)"></v-btn>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text">
+                <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text"
+                :disabled="store.partitionTables.getAvailableMemory() <= 0">
                   <v-icon color="blue">
                     mdi-arrow-right-bold
                   </v-icon>
