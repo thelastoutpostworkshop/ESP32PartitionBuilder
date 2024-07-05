@@ -103,13 +103,13 @@
           <template v-slot:prepend>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+                <v-btn icon v-bind="props" @click="resizeToFit(partition)" variant="text">
                   <v-icon color="blue">
                     mdi-arrow-left-bold
                   </v-icon>
                 </v-btn>
               </template>
-              <span>Delete Partition</span>
+              <span>Resize to fit</span>
             </v-tooltip>
             <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
               @click="decrement(partition)"></v-btn>
@@ -119,13 +119,13 @@
               @click="increment(partition)"></v-btn>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+                <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text">
                   <v-icon color="blue">
                     mdi-arrow-right-bold
                   </v-icon>
                 </v-btn>
               </template>
-              <span>Delete Partition</span>
+              <span>Reclaim Memory</span>
             </v-tooltip>
           </template>
         </v-slider>
@@ -416,6 +416,14 @@ const addOTAPartition = () => {
 
 const removePartition = (partition: Partition) => {
   store.partitionTables.removePartition(partition.name)
+};
+
+const reclaimMemory = (partition: Partition) => {
+  store.partitionTables.updatePartitionSize(partition, partition.size+store.partitionTables.getAvailableMemory());
+};
+
+const resizeToFit = (partition: Partition) => {
+  store.partitionTables.updatePartitionSize(partition, partition.size+store.partitionTables.getAvailableMemory());
 };
 
 const handleFileUpload = (event: Event) => {

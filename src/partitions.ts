@@ -152,11 +152,11 @@ export class PartitionTable {
 
 
   updatePartitionSize(partition: Partition, newSize: number) {
-    const index = this.partitions.findIndex(p => p.name === partition.name);
+    // const index = this.partitions.findIndex(p => p.name === partition.name);
 
-    if (index === -1) {
-        throw new Error(`Partition ${partition.name} not found.`);
-    }
+    // if (index === -1) {
+    //     throw new Error(`Partition ${partition.name} not found.`);
+    // }
 
     const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
     newSize = Math.round(newSize / alignment) * alignment; // Ensure alignment
@@ -165,9 +165,9 @@ export class PartitionTable {
         const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
         const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
 
-        const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize() + this.partitions[ota0Index].size + this.partitions[ota1Index].size;
+        // const totalAvailableMemory = this.getTotalMemory() - this.getTotalPartitionSize() + this.partitions[ota0Index].size + this.partitions[ota1Index].size;
 
-        newSize = Math.min(newSize, Math.floor(totalAvailableMemory / (2 * alignment)) * alignment);
+        // newSize = Math.min(newSize, Math.floor(totalAvailableMemory / (2 * alignment)) * alignment);
 
         this.partitions[ota0Index].size = newSize;
         this.partitions[ota1Index].size = newSize;
@@ -175,35 +175,35 @@ export class PartitionTable {
         return;
     }
 
-    const totalMemory = this.getTotalMemory();
-    const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
-    const availableMemory = totalMemory - otherPartitionsSize;
+    // const totalMemory = this.getTotalMemory();
+    // const otherPartitionsSize = this.getTotalPartitionSize(this.partitions[index]);
+    // const availableMemory = totalMemory - otherPartitionsSize;
 
-    if (newSize > availableMemory) {
-        const excessSize = newSize - availableMemory;
-        const remainingPartitions = this.partitions.filter((_, i) => i !== index);
-        const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
+    // if (newSize > availableMemory) {
+    //     const excessSize = newSize - availableMemory;
+    //     const remainingPartitions = this.partitions.filter((_, i) => i !== index);
+    //     const totalRemainingSize = remainingPartitions.reduce((sum, p) => sum + p.size, 0);
 
-        remainingPartitions.forEach(p => {
-            if (p.subtype !== PARTITION_NVS && p.subtype !== PARTITION_OTA && p.subtype !== PARTITION_COREDUMP) {
-                const reduction = (p.size / totalRemainingSize) * excessSize;
-                p.size = Math.max(
-                    Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
-                    OFFSET_DATA_TYPE
-                );
-            } else {
-                if (p.size > this.getRecommendedSize(p.subtype)) {
-                    const reduction = Math.min((p.size / totalRemainingSize) * excessSize, p.size - this.getRecommendedSize(p.subtype));
-                    p.size = Math.max(
-                        Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
-                        this.getRecommendedSize(p.subtype)
-                    );
-                }
-            }
-        });
-    }
+    //     remainingPartitions.forEach(p => {
+    //         if (p.subtype !== PARTITION_NVS && p.subtype !== PARTITION_OTA && p.subtype !== PARTITION_COREDUMP) {
+    //             const reduction = (p.size / totalRemainingSize) * excessSize;
+    //             p.size = Math.max(
+    //                 Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+    //                 OFFSET_DATA_TYPE
+    //             );
+    //         } else {
+    //             if (p.size > this.getRecommendedSize(p.subtype)) {
+    //                 const reduction = Math.min((p.size / totalRemainingSize) * excessSize, p.size - this.getRecommendedSize(p.subtype));
+    //                 p.size = Math.max(
+    //                     Math.round((p.size - reduction) / OFFSET_DATA_TYPE) * OFFSET_DATA_TYPE,
+    //                     this.getRecommendedSize(p.subtype)
+    //                 );
+    //             }
+    //         }
+    //     });
+    // }
 
-    this.partitions[index].size = newSize;
+    partition.size = newSize;
     this.recalculateOffsets();
 }
 
