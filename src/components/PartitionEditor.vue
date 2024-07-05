@@ -96,23 +96,19 @@
             </v-tooltip>
           </v-col>
         </v-row>
-        <v-row dense>
-          <v-col>
-            <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
-              :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
-              :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
-              :step="stepSize(partition)" :min="stepSize(partition)">
-              <template v-slot:prepend>
-                <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
-                  @click="decrement(partition)"></v-btn>
-              </template>
-              <template v-slot:append>
-                <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
-                  @click="increment(partition)"></v-btn>
-              </template>
-            </v-slider>
-          </v-col>
-        </v-row>
+        <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
+          :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
+          :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
+          :step="stepSize(partition)" :min="stepSize(partition)">
+          <template v-slot:prepend>
+            <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
+              @click="decrement(partition)"></v-btn>
+          </template>
+          <template v-slot:append>
+            <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
+              @click="increment(partition)"></v-btn>
+          </template>
+        </v-slider>
       </div>
     </v-form>
     <v-dialog v-model="showAlert" width="auto">
