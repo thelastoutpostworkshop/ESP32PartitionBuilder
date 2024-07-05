@@ -62,24 +62,24 @@
       <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
         <v-row dense>
           <v-col>
-            <v-text-field v-model="partition.name" label="Name" dense
+            <v-text-field v-model="partition.name" label="Name"  density="compact"
               :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
           </v-col>
           <v-col>
-            <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" dense hide-details
+            <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type"  density="compact" hide-details
               @update:model-value="validateType(partition)"></v-select>
           </v-col>
           <v-col>
-            <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
+            <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"  density="compact"
               dense></v-select>
           </v-col>
           <v-col>
-            <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" dense
+            <v-text-field readonly v-model.number="partition.size" label="Size (bytes)"  density="compact"
               :rules="[partitionSizeRule(partition)]" :hint="store.hintDisplaySize(partition.size)"
               persistent-hint></v-text-field>
           </v-col>
           <v-col>
-            <v-text-field readonly active label="offset">
+            <v-text-field readonly active label="offset" density="compact">
               {{ getHexOffset(partition.offset) }}
             </v-text-field>
           </v-col>
