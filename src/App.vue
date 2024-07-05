@@ -20,7 +20,7 @@
       </template>
     </v-app-bar>
     <v-navigation-drawer permanent>
-      <div :class="store.partitionTables.getAvailableMemory() > 0 ? 'pa-4 text-green' : 'pa-4 text-red'">
+      <div :class="availableMemoryColor()">
         <div> Available Memory:
         </div>
         <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
@@ -60,6 +60,16 @@ const partitionOptions = esp32Partitions.map(set => ({
 watch(selectedPartitionSet, () => {
   loadPartitions();
 });
+
+function availableMemoryColor(): string {
+  if (store.partitionTables.getAvailableMemory() == 0) {
+    return 'pa-4 text-green'
+  }
+  if (store.partitionTables.getAvailableMemory() > 0) {
+    return 'pa-4 text-yellow'
+  }
+  return 'pa-4 text-red'
+}
 
 function goToBuyMeACoffee() {
   window.open('https://www.buymeacoffee.com/thelastoutpostworkshop', '_blank');
