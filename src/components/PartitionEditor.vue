@@ -103,8 +103,8 @@
           <template v-slot:prepend>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="resizeToFit(partition)" variant="text" 
-                :disabled="store.partitionTables.getAvailableMemory() >= 0">
+                <v-btn icon v-bind="props" @click="resizeToFit(partition)" variant="text"
+                  :disabled="store.partitionTables.getAvailableMemory() >= 0">
                   <v-icon color="blue">
                     mdi-arrow-left-bold
                   </v-icon>
@@ -121,7 +121,7 @@
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
                 <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text"
-                :disabled="store.partitionTables.getAvailableMemory() <= 0">
+                  :disabled="store.partitionTables.getAvailableMemory() <= 0">
                   <v-icon color="blue">
                     mdi-arrow-right-bold
                   </v-icon>
@@ -421,11 +421,16 @@ const removePartition = (partition: Partition) => {
 };
 
 const reclaimMemory = (partition: Partition) => {
-  store.partitionTables.updatePartitionSize(partition, partition.size+store.partitionTables.getAvailableMemory());
+  store.partitionTables.updatePartitionSize(partition, partition.size + store.partitionTables.getAvailableMemory());
 };
 
 const resizeToFit = (partition: Partition) => {
-  store.partitionTables.updatePartitionSize(partition, partition.size+store.partitionTables.getAvailableMemory());
+  const resize = partition.size + store.partitionTables.getAvailableMemory()
+  if (resize <= 0) {
+    showAlertMessage("Cannot resize the partition", `The partition is not large enough to remove ${ store.partitionTables.getAvailableMemory()} bytes (${store.hintDisplaySize( store.partitionTables.getAvailableMemory())}).`)
+  } else {
+    store.partitionTables.updatePartitionSize(partition, resize);
+  }
 };
 
 const handleFileUpload = (event: Event) => {
