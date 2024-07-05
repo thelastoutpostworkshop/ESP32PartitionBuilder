@@ -96,6 +96,26 @@
             </v-tooltip>
           </v-col>
         </v-row>
+        <v-tooltip location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+              <v-icon color="blue" class="ml-10">
+                mdi-arrow-left-bold
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>Delete Partition</span>
+        </v-tooltip>
+        <v-tooltip location="top">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+              <v-icon color="blue">
+                mdi-arrow-right-bold
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>Delete Partition</span>
+        </v-tooltip>
         <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
           :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
           :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
