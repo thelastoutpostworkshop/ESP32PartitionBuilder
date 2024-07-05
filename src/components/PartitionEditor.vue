@@ -62,19 +62,19 @@
       <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
         <v-row dense>
           <v-col>
-            <v-text-field v-model="partition.name" label="Name"  density="compact"
+            <v-text-field v-model="partition.name" label="Name" density="compact"
               :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
           </v-col>
           <v-col>
-            <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type"  density="compact" hide-details
-              @update:model-value="validateType(partition)"></v-select>
+            <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" density="compact"
+              hide-details @update:model-value="validateType(partition)"></v-select>
           </v-col>
           <v-col>
-            <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"  density="compact"
-              dense></v-select>
+            <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
+              density="compact" dense></v-select>
           </v-col>
           <v-col>
-            <v-text-field readonly v-model.number="partition.size" label="Size (bytes)"  density="compact"
+            <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" density="compact"
               :rules="[partitionSizeRule(partition)]" :hint="store.hintDisplaySize(partition.size)"
               persistent-hint></v-text-field>
           </v-col>
@@ -96,37 +96,37 @@
             </v-tooltip>
           </v-col>
         </v-row>
-        <v-tooltip location="top">
-          <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
-              <v-icon color="blue" class="ml-10">
-                mdi-arrow-left-bold
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Delete Partition</span>
-        </v-tooltip>
-        <v-tooltip location="top">
-          <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
-              <v-icon color="blue">
-                mdi-arrow-right-bold
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>Delete Partition</span>
-        </v-tooltip>
         <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
           :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
           :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
           :step="stepSize(partition)" :min="stepSize(partition)">
           <template v-slot:prepend>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+                  <v-icon color="blue">
+                    mdi-arrow-left-bold
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Delete Partition</span>
+            </v-tooltip>
             <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
               @click="decrement(partition)"></v-btn>
           </template>
           <template v-slot:append>
             <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
               @click="increment(partition)"></v-btn>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+                  <v-icon color="blue">
+                    mdi-arrow-right-bold
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Delete Partition</span>
+            </v-tooltip>
           </template>
         </v-slider>
       </div>
