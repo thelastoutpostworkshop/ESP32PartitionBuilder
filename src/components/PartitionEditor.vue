@@ -131,8 +131,8 @@
             </v-tooltip>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="reszeToRecommendedValue(partition)" variant="text"
-                  :disabled="false">
+                <v-btn icon v-bind="props" @click="reszeToRecommendedValue(partition)" variant="text" 
+                :disabled="!partitionNotRecommendedSize(partition)">
                   <v-icon color="blue">
                     mdi-check-underline
                   </v-icon>
@@ -200,24 +200,51 @@ const partitionNameRule = (name: string, index: number) => {
   }
 };
 
-function reszeToRecommendedValue(partition:Partition) {
+function partitionNotRecommendedSize(partition: Partition): boolean {
+  let recommendeSize: boolean
+  switch (partition.subtype) {
+    case PARTITION_NVS:
+      recommendeSize = partition.size < NVS_PARTITION_SIZE_RECOMMENDED
+      break;
+    case PARTITION_OTA:
+      recommendeSize = partition.size != OTA_DATA_PARTITION_SIZE
+      break;
+    case PARTITION_FAT:
+      recommendeSize = partition.size < FAT_MIN_PARTITION_SIZE
+      break;
+    case PARTITION_SPIFFS:
+      recommendeSize = partition.size < SPIFFS_MIN_PARTITION_SIZE
+      break;
+    case PARTITION_LITTLEFS:
+      recommendeSize = partition.size < LITTLEFS_MIN_PARTITION_SIZE
+      break;
+    case PARTITION_COREDUMP:
+      recommendeSize = partition.size < COREDUMP_MIN_PARTITION_SIZE
+      break;
+    default:
+      recommendeSize = false;
+      break;
+  }
+  return recommendeSize
+}
+function reszeToRecommendedValue(partition: Partition) {
   switch (partition.subtype) {
     case PARTITION_NVS:
       partition.size = NVS_PARTITION_SIZE_RECOMMENDED
       break;
-      case PARTITION_OTA:
+    case PARTITION_OTA:
       partition.size = OTA_DATA_PARTITION_SIZE
       break;
-      case PARTITION_FAT:
+    case PARTITION_FAT:
       partition.size = FAT_MIN_PARTITION_SIZE
       break;
-      case PARTITION_SPIFFS:
+    case PARTITION_SPIFFS:
       partition.size = SPIFFS_MIN_PARTITION_SIZE
       break;
-      case PARTITION_LITTLEFS:
+    case PARTITION_LITTLEFS:
       partition.size = LITTLEFS_MIN_PARTITION_SIZE
       break;
-      case PARTITION_COREDUMP:
+    case PARTITION_COREDUMP:
       partition.size = COREDUMP_MIN_PARTITION_SIZE
       break;
   }
