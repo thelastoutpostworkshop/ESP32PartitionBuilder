@@ -395,25 +395,31 @@ const addTestPartition = () => {
 const addOTADataPartition = () => {
   if (store.partitionTables.getAvailableMemory() < OTA_DATA_PARTITION_SIZE) {
     showAlertMessage("Cannot add an OTA Data partition", `There is not enough memory to add an OTA Data partition. Factory App partition size must be at least ${OTA_DATA_PARTITION_SIZE} bytes (${store.hintDisplaySize(OTA_DATA_PARTITION_SIZE)}).`)
-  } else {
-    const newName = generatePartitionName("otadata");
-    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, "")
+    return
   }
+  if (store.partitionTables.hasSubtype(PARTITION_OTA)) {
+    showAlertMessage("Cannot add OTA Data partitions", `Only one OTA Data partition is permitted`)
+    return
+  }
+  const newName = generatePartitionName("otadata");
+  store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, "")
+
 };
 
 const addOTAPartition = () => {
   const sizeNeeded = OTA_DATA_PARTITION_SIZE + OFFSET_APP_TYPE * 2
   if (store.partitionTables.getAvailableMemory() < sizeNeeded) {
     showAlertMessage("Cannot add OTA partitions", `There is not enough memory to add a OTA partitions. You need at least ${sizeNeeded} bytes of memory available (${store.hintDisplaySize(sizeNeeded)}).`)
-  } else {
-    let partitionName: string = ""
-    partitionName = generatePartitionName("otadata")
-    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, "")
-    partitionName = generatePartitionName("app0")
-    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE, "")
-    partitionName = generatePartitionName("app1")
-    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE, "")
+    return
   }
+  let partitionName: string = ""
+  partitionName = generatePartitionName("otadata")
+  store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, "")
+  partitionName = generatePartitionName("app0")
+  store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_0", OFFSET_APP_TYPE, "")
+  partitionName = generatePartitionName("app1")
+  store.partitionTables.addPartition(partitionName, PARTITION_TYPE_APP, "ota_1", OFFSET_APP_TYPE, "")
+
 };
 
 const removePartition = (partition: Partition) => {
@@ -442,7 +448,7 @@ const resizeToFit = (partition: Partition) => {
   } else {
     resize = partition.size + store.partitionTables.getAvailableMemory()
   }
-  if (resize <= 0 ||(partition.type === PARTITION_TYPE_APP && partition.size <= OFFSET_APP_TYPE)) {
+  if (resize <= 0 || (partition.type === PARTITION_TYPE_APP && partition.size <= OFFSET_APP_TYPE)) {
     showAlertMessage("Cannot resize the partition", `The partition is not large enough to remove ${store.partitionTables.getAvailableMemory()} bytes (${store.hintDisplaySize(store.partitionTables.getAvailableMemory())}).`)
   } else {
     if (resizeOnOta) {

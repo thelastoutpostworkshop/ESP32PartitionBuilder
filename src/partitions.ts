@@ -181,6 +181,9 @@ export class PartitionTable {
     }
   }
     
+  hasSubtype(subtype:string):boolean {
+    return this.partitions.some(p => p.subtype === subtype)
+  }
 
   hasOTAPartitions(): boolean {
     const hasOTAData = this.partitions.some(p => p.type === 'data' && p.subtype === 'ota');
