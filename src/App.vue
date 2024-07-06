@@ -33,6 +33,10 @@
         dense hide-details @update:model-value="changeFlashSize"></v-select>
       <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
         label="Show Hint Size in" dense hide-details></v-select>
+      <div v-if="store.partitionTables.hasOTAPartitions()" class="pl-2 pt-4">
+        <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
+        Over the air update capability
+      </div>
     </v-navigation-drawer>
     <v-main class="d-flex align-top">
       <partition-editor></partition-editor>
