@@ -421,12 +421,22 @@ const removePartition = (partition: Partition) => {
 };
 
 const reclaimMemory = (partition: Partition) => {
-  store.partitionTables.updatePartitionSize(partition, partition.size + store.partitionTables.getAvailableMemory());
+  let resize: number
+  const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
+  if (resizeOnOta) {
+    resize = partition.size + store.partitionTables.getAvailableMemory() / 2
+  } else {
+    resize = partition.size + store.partitionTables.getAvailableMemory()
+  }
+  store.partitionTables.updatePartitionSize(partition, resize);
+  if (store.partitionTables.getAvailableMemory() < 0) {
+    store.partitionTables.updatePartitionSize(partition, partition.size + store.partitionTables.getAvailableMemory());
+  }
 };
 
 const resizeToFit = (partition: Partition) => {
   let resize: number
-  const resizeOnOta:boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
+  const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
   if (resizeOnOta) {
     resize = partition.size * 2 + store.partitionTables.getAvailableMemory()
   } else {
@@ -435,10 +445,10 @@ const resizeToFit = (partition: Partition) => {
   if (resize <= 0) {
     showAlertMessage("Cannot resize the partition", `The partition is not large enough to remove ${store.partitionTables.getAvailableMemory()} bytes (${store.hintDisplaySize(store.partitionTables.getAvailableMemory())}).`)
   } else {
-    if(resizeOnOta) {
-      store.partitionTables.updatePartitionSize(partition, Math.round(resize/2));
-      if(store.partitionTables.getAvailableMemory() < 0) {
-        store.partitionTables.updatePartitionSize(partition, partition.size+store.partitionTables.getAvailableMemory());
+    if (resizeOnOta) {
+      store.partitionTables.updatePartitionSize(partition, Math.round(resize / 2));
+      if (store.partitionTables.getAvailableMemory() < 0) {
+        store.partitionTables.updatePartitionSize(partition, partition.size + store.partitionTables.getAvailableMemory());
       }
     } else {
       store.partitionTables.updatePartitionSize(partition, resize);
