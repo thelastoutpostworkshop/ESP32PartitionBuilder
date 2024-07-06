@@ -196,8 +196,8 @@ const partitionSizeRule = (partition: Partition) => {
       }
       break;
     case PARTITION_OTA:
-      if (partition.size < OTA_DATA_PARTITION_SIZE) {
-        return `OTA data partition recommended size is ${OTA_DATA_PARTITION_SIZE} bytes.`;
+      if (partition.size != OTA_DATA_PARTITION_SIZE) {
+        return `OTA data partition size must be ${OTA_DATA_PARTITION_SIZE} bytes.`;
       }
       break;
     case PARTITION_FAT:
