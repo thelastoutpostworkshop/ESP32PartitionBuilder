@@ -192,32 +192,32 @@ const partitionSizeRule = (partition: Partition) => {
   switch (partition.subtype) {
     case PARTITION_NVS:
       if (partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
-        return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes.`;
+        return `NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes. (${store.hintDisplaySize(NVS_PARTITION_SIZE_RECOMMENDED)})`;
       }
       break;
     case PARTITION_OTA:
       if (partition.size != OTA_DATA_PARTITION_SIZE) {
-        return `OTA data partition size must be ${OTA_DATA_PARTITION_SIZE} bytes.`;
+        return `OTA data partition size must be ${OTA_DATA_PARTITION_SIZE} bytes. (${store.hintDisplaySize(OTA_DATA_PARTITION_SIZE)})`;
       }
       break;
     case PARTITION_FAT:
       if (partition.size < FAT_MIN_PARTITION_SIZE) {
-        return `FAT partition minimal recommended size is ${FAT_MIN_PARTITION_SIZE} bytes.`;
+        return `FAT partition minimal recommended size is ${FAT_MIN_PARTITION_SIZE} bytes. (${store.hintDisplaySize(FAT_MIN_PARTITION_SIZE)})`;
       }
       break;
     case PARTITION_SPIFFS:
       if (partition.size < SPIFFS_MIN_PARTITION_SIZE) {
-        return `SPIFFS partition minimal recommended size is ${SPIFFS_MIN_PARTITION_SIZE} bytes.`;
+        return `SPIFFS partition minimal recommended size is ${SPIFFS_MIN_PARTITION_SIZE} bytes. (${store.hintDisplaySize(SPIFFS_MIN_PARTITION_SIZE)})`;
       }
       break;
     case PARTITION_LITTLEFS:
       if (partition.size < LITTLEFS_MIN_PARTITION_SIZE) {
-        return `LittleFS partition minimal recommended size is ${LITTLEFS_MIN_PARTITION_SIZE} bytes.`;
+        return `LittleFS partition minimal recommended size is ${LITTLEFS_MIN_PARTITION_SIZE} bytes. (${store.hintDisplaySize(LITTLEFS_MIN_PARTITION_SIZE)})`;
       }
       break;
     case PARTITION_COREDUMP:
       if (partition.size < COREDUMP_MIN_PARTITION_SIZE) {
-        return `Core Dump partition minimal recommended size is ${COREDUMP_MIN_PARTITION_SIZE} bytes.`;
+        return `Core Dump partition minimal recommended size is ${COREDUMP_MIN_PARTITION_SIZE} bytes. (${store.hintDisplaySize(COREDUMP_MIN_PARTITION_SIZE)})`;
       }
       break;
   }
