@@ -131,8 +131,8 @@
             </v-tooltip>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text"
-                  :disabled="store.partitionTables.getAvailableMemory() <= 0">
+                <v-btn icon v-bind="props" @click="reszeToRecommendedValue(partition)" variant="text"
+                  :disabled="false">
                   <v-icon color="blue">
                     mdi-check-underline
                   </v-icon>
@@ -199,6 +199,29 @@ const partitionNameRule = (name: string, index: number) => {
     return true
   }
 };
+
+function reszeToRecommendedValue(partition:Partition) {
+  switch (partition.subtype) {
+    case PARTITION_NVS:
+      partition.size = NVS_PARTITION_SIZE_RECOMMENDED
+      break;
+      case PARTITION_OTA:
+      partition.size = OTA_DATA_PARTITION_SIZE
+      break;
+      case PARTITION_FAT:
+      partition.size = FAT_MIN_PARTITION_SIZE
+      break;
+      case PARTITION_SPIFFS:
+      partition.size = SPIFFS_MIN_PARTITION_SIZE
+      break;
+      case PARTITION_LITTLEFS:
+      partition.size = LITTLEFS_MIN_PARTITION_SIZE
+      break;
+      case PARTITION_COREDUMP:
+      partition.size = COREDUMP_MIN_PARTITION_SIZE
+      break;
+  }
+}
 
 const partitionSizeRule = (partition: Partition) => {
   switch (partition.subtype) {
