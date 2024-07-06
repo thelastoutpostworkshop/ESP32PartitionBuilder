@@ -442,7 +442,7 @@ const resizeToFit = (partition: Partition) => {
   } else {
     resize = partition.size + store.partitionTables.getAvailableMemory()
   }
-  if (resize <= 0) {
+  if (resize <= 0 ||(partition.type === PARTITION_TYPE_APP && partition.size <= OFFSET_APP_TYPE)) {
     showAlertMessage("Cannot resize the partition", `The partition is not large enough to remove ${store.partitionTables.getAvailableMemory()} bytes (${store.hintDisplaySize(store.partitionTables.getAvailableMemory())}).`)
   } else {
     if (resizeOnOta) {
