@@ -254,7 +254,19 @@ const downloadCSV = async () => {
   if (formRef.value) {
     const { valid } = await formRef.value.validate();
     if (valid) {
-      generateCSV();
+      if (store.partitionTables.getAvailableMemory() < 0) {
+        dialogText.value = "Partitions memory exceed flash memory capacity. Do you want to proceed and download the CSV anyway?"
+        dialogTitle.value = "Memory Warnings"
+        showOverrideDialog.value = true;
+      } else {
+        if (store.partitionTables.getAvailableMemory() > 0) {
+          dialogText.value = "You have memory left avalaible in your flash memory. Do you want to proceed and download the CSV anyway?"
+          dialogTitle.value = "Memory Warnings"
+          showOverrideDialog.value = true;
+        } else {
+          generateCSV();
+        }
+      }
     } else {
       dialogText.value = "There are validation errors in the partitions. Do you want to proceed and download the CSV anyway?"
       dialogTitle.value = "Partition Rules Warnings"
