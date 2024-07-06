@@ -142,9 +142,8 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="showOverrideDialog" width="auto">
-      <v-card max-width="400" color="white" title="Partition Rules Warnings">
-        <v-card-text>There are validation errors in the partitions. Do you want to proceed and download the CSV
-          anyway?</v-card-text>
+      <v-card max-width="400" color="white" :title="dialogTitle">
+        <v-card-text>{{ dialogText }}</v-card-text>
         <v-card-actions>
           <v-btn @click="showOverrideDialog = false">Cancel</v-btn>
           <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
@@ -173,6 +172,8 @@ const formRef = ref();
 const showAlert = ref(false);
 const alertText = ref("")
 const alertTitle = ref("")
+const dialogText = ref("")
+const dialogTitle = ref("")
 const fileInput = ref<HTMLInputElement | null>(null);
 const showOverrideDialog = ref(false);
 
@@ -255,6 +256,8 @@ const downloadCSV = async () => {
     if (valid) {
       generateCSV();
     } else {
+      dialogText.value = "There are validation errors in the partitions. Do you want to proceed and download the CSV anyway?"
+      dialogTitle.value = "Partition Rules Warnings"
       showOverrideDialog.value = true;
     }
   }
