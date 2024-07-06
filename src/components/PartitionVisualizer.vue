@@ -26,9 +26,9 @@ const partitionSegments = computed(() => {
     const freeSpacePercentage = (freeSpace / flashSizeBytes) * 100;
 
     segments.push({
-      name: 'Offset table',
+      name: '',
       width: `${freeSpacePercentage}%`,
-      color: 'black',
+      color: 'red',
       title: `Offset table: ${freeSpace} bytes`
     });
   }
@@ -64,6 +64,6 @@ function getColor(index: number): string {
   color: black;
   text-align: center;
   overflow: hidden;
-  cursor: pointer; 
+  cursor: default; 
 }
 </style>
