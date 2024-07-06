@@ -26,17 +26,17 @@ const partitionSegments = computed(() => {
     const freeSpacePercentage = (freeSpace / flashSizeBytes) * 100;
 
     segments.push({
-      name: 'Free Space',
+      name: 'Offset table',
       width: `${freeSpacePercentage}%`,
-      color: 'lightgray',
-      title: `Free Space: ${freeSpace} bytes`
+      color: 'black',
+      title: `Offset table: ${freeSpace} bytes`
     });
   }
 
   partitions.forEach((partition, index) => {
     const width = (partition.size / flashSizeBytes * 100) + '%';
     const color = getColor(index);
-    const title = `${partition.name}: ${partition.size} bytes`;
+    const title = `${partition.name}: ${partition.size} bytes (${store.hintDisplaySize(partition.size)})`;
     segments.push({ width, color, title, name: partition.name });
   });
 
