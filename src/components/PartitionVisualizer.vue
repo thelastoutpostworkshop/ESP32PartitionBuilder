@@ -64,5 +64,6 @@ function getColor(index: number): string {
   color: black;
   text-align: center;
   overflow: hidden;
+  cursor: pointer; 
 }
 </style>
