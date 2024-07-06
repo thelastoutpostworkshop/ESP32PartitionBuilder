@@ -129,6 +129,17 @@
               </template>
               <span>Reclaim Memory</span>
             </v-tooltip>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text"
+                  :disabled="store.partitionTables.getAvailableMemory() <= 0">
+                  <v-icon color="blue">
+                    mdi-check-underline
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Resize to recommended value</span>
+            </v-tooltip>
           </template>
         </v-slider>
       </div>
