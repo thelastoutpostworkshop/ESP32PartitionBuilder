@@ -10,26 +10,43 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type PropType } from 'vue';
+import { computed } from 'vue';
 import { partitionStore } from '@/store'
-
 
 const store = partitionStore();
 
 const partitionSegments = computed(() => {
-  return store.partitionTables.getPartitions().map((partition, index) => {
-    const width = (partition.size / store.flashSizeBytes * 100) + '%';
+  const partitions = store.partitionTables.getPartitions();
+  const flashSizeBytes = store.flashSizeBytes;
+  const segments = [];
+  
+  if (partitions.length > 0) {
+    const firstPartitionOffset = partitions[0].offset;
+    const freeSpace = firstPartitionOffset;
+    const freeSpacePercentage = (freeSpace / flashSizeBytes) * 100;
+
+    segments.push({
+      name: 'Free Space',
+      width: `${freeSpacePercentage}%`,
+      color: 'lightgray',
+      title: `Free Space: ${freeSpace} bytes`
+    });
+  }
+
+  partitions.forEach((partition, index) => {
+    const width = (partition.size / flashSizeBytes * 100) + '%';
     const color = getColor(index);
     const title = `${partition.name}: ${partition.size} bytes`;
-    return { width, color, title, name: partition.name };
+    segments.push({ width, color, title, name: partition.name });
   });
+
+  return segments;
 });
 
 function getColor(index: number): string {
   const colors = ['#ff9999', '#99ccff', '#99ff99', '#ffcc99', '#ccccff'];
   return colors[index % colors.length];
 }
-
 </script>
 
 <style scoped>
