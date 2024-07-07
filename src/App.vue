@@ -21,8 +21,7 @@
     </v-app-bar>
     <v-navigation-drawer permanent>
       <div :class="availableMemoryColor()">
-        <div> Available Memory:
-        </div>
+        <div>Available Flash Memory:</div>
         <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
           store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
         </div>
