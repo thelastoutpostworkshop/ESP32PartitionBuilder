@@ -1,6 +1,6 @@
 # ESP32 Partition Builder Web Application
 
-The web application is[here](https://thelastoutpostworkshop.github.io/microcontroller_devkit/esp32partitionbuilder/).
+The web application is [here](https://thelastoutpostworkshop.github.io/microcontroller_devkit/esp32partitionbuilder/).
 
 ## Recommended IDE Setup
 
