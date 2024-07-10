@@ -50,7 +50,8 @@
         <v-spacer></v-spacer>
         <v-tooltip location="top">
           <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text">
+            <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text"
+              :disabled="store.partitionTables.getPartitions().length == 0">
               <v-icon color="red-darken-4">
                 mdi-trash-can
               </v-icon>
@@ -131,8 +132,8 @@
             </v-tooltip>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="reszeToRecommendedValue(partition)" variant="text" 
-                :disabled="!partitionNotRecommendedSize(partition)">
+                <v-btn icon v-bind="props" @click="reszeToRecommendedValue(partition)" variant="text"
+                  :disabled="!partitionNotRecommendedSize(partition)">
                   <v-icon color="blue">
                     mdi-check-underline
                   </v-icon>
