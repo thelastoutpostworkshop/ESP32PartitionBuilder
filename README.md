@@ -2,6 +2,9 @@
 
 The web application is [here](https://thelastoutpostworkshop.github.io/microcontroller_devkit/esp32partitionbuilder/).
 
+## Youtube Tutorial
+[<img src="https://github.com/thelastoutpostworkshop/images/blob/main/Custom%20Partitions.png" width="300">](https://youtu.be/EuHxodrye6E)
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
