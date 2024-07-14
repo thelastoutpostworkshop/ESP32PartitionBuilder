@@ -81,7 +81,7 @@ function goToRepository() {
   window.open('https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder', '_blank');
 }
 function goToYoutube() {
-  window.open('https://www.youtube.com/channel/UCnnU_HGvTr8ewpqvHe2llDw', '_blank');
+  window.open('https://youtu.be/EuHxodrye6E', '_blank');
 }
 
 function changeFlashSize() {
