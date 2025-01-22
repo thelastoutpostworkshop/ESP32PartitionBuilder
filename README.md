@@ -16,7 +16,9 @@ To fix this, you have to edit the Espressif boards.txt file, which is normally l
 
 This is a very large file and you need to search for your specific board and change the line (here for the ESP32S3 Dev Module) :<br>`esp32s3.menu.PartitionScheme.custom.upload.maximum_size=16777216`<br>
 to<br>`esp32s3.menu.PartitionScheme.custom.upload.maximum_size=4194304`<br>
-for a microcontroller with 4MB flash memory
+for a microcontroller with 4MB flash memory.
+
+> When boards are updated by the IDE or you uninstall and reinstall it, you will have to redo your changes.
 
 ## Contributors
 
