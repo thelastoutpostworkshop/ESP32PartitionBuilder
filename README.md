@@ -14,7 +14,7 @@ By default many of the custom paritions in boards definition have a 16MB max upl
 
 To fix this, you have to edit the Espressif boards.txt file, which is normally located in <br>`[your drive]\[your name]\AppData\Local\Arduino15\packages\esp32\hardware\esp32\[esp32 core version]`
 
-This is a very large file and you need to search for your specific board and change the line (here for the ESP32S3 Dev Module) :<br>`esp32s3.menu.PartitionScheme.custom.upload.maximum_size=16777216`
+This is a very large file and you need to search for your specific board and change the line (here for the ESP32S3 Dev Module) :<br>`esp32s3.menu.PartitionScheme.custom.upload.maximum_size=16777216`<br>
 to<br>`esp32s3.menu.PartitionScheme.custom.upload.maximum_size=4194304`<br>
 for a microcontroller with 4MB flash memory
 
