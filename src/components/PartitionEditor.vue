@@ -557,9 +557,9 @@ const handleFileUpload = (event: Event) => {
 };
 
 const loadPartitionsFromCSV = (csv: string) => {
-  const rows = csv.split('\n').filter(row => row.trim() !== '');
+  const rows = csv.replaceAll(/[ \t\r]+/g, '').split('\n').filter(row => row !== '');
   const header = rows.shift(); // Remove the header row
-  if (header !== '# Name,   Type, SubType, Offset,  Size, Flags') {
+  if (header !== '#Name,Type,SubType,Offset,Size,Flags') {
     alertTitle.value = "Invalid CSV Format";
     alertText.value = "The CSV file format is incorrect. Please use the correct format.";
     showAlert.value = true;
@@ -577,9 +577,9 @@ const loadPartitionsFromCSV = (csv: string) => {
       return;
     }
 
-    const size = parseSize(sizeStr.trim()); // Convert size to bytes
-    const offset = parseInt(offsetHex.trim(), 16); // Convert hex to decimal
-    partitions.push({ name: name.trim(), type: type.trim(), subtype: subtype.trim(), size, offset, flags: flags?.trim() || '' });
+    const size = parseSize(sizeStr); // Convert size to bytes
+    const offset = parseInt(offsetHex, 16); // Convert hex to decimal
+    partitions.push({ name: name, type: type, subtype: subtype, size, offset, flags: flags || '' });
     totalSize += size;
   }
 
