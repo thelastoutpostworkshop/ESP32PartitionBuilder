@@ -557,9 +557,10 @@ const handleFileUpload = (event: Event) => {
 };
 
 const loadPartitionsFromCSV = (csv: string) => {
-  const rows = csv.replaceAll(/[ \t\r]+/g, '').split('\n').filter(row => row !== '');
+  const validHeader = '#Name,Type,SubType,Offset,Size,Flags';
+  const rows = csv.replaceAll(/[ \t\r]+/g, '').split('\n').filter(row => row === validHeader || (row !== '' && !row.startsWith('#')));
   const header = rows.shift(); // Remove the header row
-  if (header !== '#Name,Type,SubType,Offset,Size,Flags') {
+  if (header !== validHeader || rows.length === 0) {
     alertTitle.value = "Invalid CSV Format";
     alertText.value = "The CSV file format is incorrect. Please use the correct format.";
     showAlert.value = true;
