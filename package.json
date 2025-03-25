@@ -12,19 +12,19 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "pinia": "^2.1.7",
+    "pinia": "^3.0.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
     "vuetify": "^3.6.9"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.12.5",
+    "@types/node": "^22.13.13",
     "@vitejs/plugin-vue": "^5.0.4",
-    "@vue/tsconfig": "^0.5.1",
-    "npm-run-all2": "^6.1.2",
+    "@vue/tsconfig": "^0.7.0",
+    "npm-run-all2": "^7.0.2",
     "typescript": "^5.5.2",
-    "vite": "^5.2.8",
+    "vite": "^6.2.3",
     "vue-tsc": "^2.0.11"
   }
 }
