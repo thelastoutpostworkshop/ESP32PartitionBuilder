@@ -174,6 +174,7 @@ import {
   PARTITION_SPIFFS, PARTITION_LITTLEFS, SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
   COREDUMP_MIN_PARTITION_SIZE, PARTITION_COREDUMP, PARTITION_FACTORY, PARTITION_TEST, PHY_MIN_PARTITION_SIZE,
   PARTITION_PHY,
+  PARTITION_TABLE_SIZE,
   FLASH_SIZES
 } from '@/const';
 import { partitionStore } from '@/store'
@@ -567,11 +568,13 @@ const loadPartitionsFromCSV = (csv: string) => {
     return;
   }
 
+  const alignOffset = (offset: number, alignment: number): number => Math.ceil(offset / alignment) * alignment;
   const partitions: Partition[] = [];
   let totalSize = 0;
+  let nextOffset = PARTITION_TABLE_SIZE;
   for (const row of rows) {
     const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
-    if (!name || !type || !subtype || !offsetHex || !sizeStr) {
+    if (!name || !type || !subtype || !sizeStr) {
       alertTitle.value = "Invalid CSV Data";
       alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
       showAlert.value = true;
@@ -579,7 +582,24 @@ const loadPartitionsFromCSV = (csv: string) => {
     }
 
     const size = parseSize(sizeStr); // Convert size to bytes
-    const offset = parseInt(offsetHex, 16); // Convert hex to decimal
+    const alignment = type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+    let offset: number;
+
+    if (offsetHex) {
+      offset = parseInt(offsetHex, 16); // Convert hex to decimal
+      if (Number.isNaN(offset)) {
+        alertTitle.value = "Invalid CSV Data";
+        alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
+        showAlert.value = true;
+        return;
+      }
+      nextOffset = offset + size;
+    } else {
+      nextOffset = alignOffset(nextOffset, alignment);
+      offset = nextOffset;
+      nextOffset += size;
+    }
+
     partitions.push({ name: name, type: type, subtype: subtype, size, offset, flags: flags || '' });
     totalSize += size;
   }
