@@ -69,11 +69,11 @@ export class PartitionTable {
   }
 
   getTotalMemory(): number {
-    if (this.partitions.length > 0 && this.partitions[0].type === PARTITION_TYPE_APP) {
+    const firstPartition = this.partitions[0];
+    if (firstPartition && firstPartition.type === PARTITION_TYPE_APP) {
       return this.flashSize - OFFSET_APP_TYPE;
-    } else {
-      return this.flashSize - PARTITION_TABLE_SIZE;
     }
+    return this.flashSize - PARTITION_TABLE_SIZE;
   }
 
   getMaxPartitionSize(partition: Partition): number {
@@ -98,7 +98,9 @@ export class PartitionTable {
 
     if (this.partitions.length > 0) {
       const lastPartition = this.partitions[this.partitions.length - 1];
-      currentOffset = lastPartition.offset + lastPartition.size;
+      if (lastPartition) {
+        currentOffset = lastPartition.offset + lastPartition.size;
+      }
     }
 
     if (type === PARTITION_TYPE_APP) {
@@ -113,8 +115,9 @@ export class PartitionTable {
   }
 
   getAvailableMemory(): number {
-    const currentOffset = this.partitions.length > 0
-      ? this.partitions[this.partitions.length - 1].offset + this.partitions[this.partitions.length - 1].size
+    const lastPartition = this.partitions[this.partitions.length - 1];
+    const currentOffset = lastPartition
+      ? lastPartition.offset + lastPartition.size
       : PARTITION_TABLE_SIZE;
 
     const alignedCurrentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
@@ -156,16 +159,22 @@ export class PartitionTable {
     newSize = Math.round(newSize / alignment) * alignment; // Ensure alignment
 
     if ((partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && this.hasOTAPartitions()) {
-        const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
-        const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-        this.partitions[ota0Index].size = newSize;
-        this.partitions[ota1Index].size = newSize;
-        this.recalculateOffsets();
-        return;
+      const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
+      const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
+      if (ota0Index !== -1 && ota1Index !== -1) {
+        const ota0Partition = this.partitions[ota0Index];
+        const ota1Partition = this.partitions[ota1Index];
+        if (ota0Partition && ota1Partition) {
+          ota0Partition.size = newSize;
+          ota1Partition.size = newSize;
+          this.recalculateOffsets();
+          return;
+        }
+      }
     }
     partition.size = newSize;
     this.recalculateOffsets();
-}
+  }
 
   
   getRecommendedSize(subtype: string): number {

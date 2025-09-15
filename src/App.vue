@@ -53,7 +53,9 @@ import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
 
-const selectedPartitionSet = ref(esp32Partitions[0].name);
+const firstPartitionSet = esp32Partitions[0];
+const defaultPartitionName = firstPartitionSet ? firstPartitionSet.name : '';
+const selectedPartitionSet = ref(defaultPartitionName);
 
 const partitionOptions = esp32Partitions.map(set => ({
   text: set.name,

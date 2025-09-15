@@ -362,7 +362,11 @@ const generateCSV = () => {
 };
 
 const validateType = (partition: Partition) => {
-  partition.subtype = getSubtypes(partition.type)[0];
+  const subtypes = getSubtypes(partition.type);
+  const nextSubtype = subtypes[0];
+  if (nextSubtype) {
+    partition.subtype = nextSubtype;
+  }
   store.partitionTables.recalculateOffsets()
 };
 
@@ -630,8 +634,8 @@ const parseSize = (sizeStr: string): number => {
     throw new Error(`Invalid size format: ${sizeStr}`);
   }
 
-  const size = parseInt(match[1], 10);
-  const unit = match[2];
+  const [, value = '', unit = ''] = match;
+  const size = parseInt(value, 10);
   switch (unit) {
     case 'K':
       return size * 1024;

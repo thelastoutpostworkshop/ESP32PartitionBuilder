@@ -21,18 +21,20 @@ const partitionSegments = computed(() => {
   const segments = [];
   
   if (partitions.length > 0) {
-    const firstPartitionOffset = partitions[0].offset;
-    const freeSpace = firstPartitionOffset;
-    const freeSpacePercentage = (freeSpace / flashSizeBytes) * 100;
-
-    segments.push({
-      name: '',
-      width: `${freeSpacePercentage}%`,
-      color: 'red',
-      title: `Offset table: ${freeSpace} bytes`
-    });
+    const firstPartition = partitions[0];
+    if (firstPartition) {
+      const firstPartitionOffset = firstPartition.offset;
+      const freeSpace = firstPartitionOffset;
+      const freeSpacePercentage = (freeSpace / flashSizeBytes) * 100;
+      
+      segments.push({
+        name: '',
+        width: `${freeSpacePercentage}%`,
+        color: 'red',
+        title: `Offset table: ${freeSpace} bytes`
+      });
+    }
   }
-
   partitions.forEach((partition, index) => {
     const width = (partition.size / flashSizeBytes * 100) + '%';
     const color = getColor(index);
@@ -44,8 +46,11 @@ const partitionSegments = computed(() => {
 });
 
 function getColor(index: number): string {
-  const colors = ['#ff9999', '#99ccff', '#99ff99', '#ffcc99', '#ccccff'];
-  return colors[index % colors.length];
+  const fallbackColor = '#ff9999';
+  const colors: string[] = [fallbackColor, '#99ccff', '#99ff99', '#ffcc99', '#ccccff'];
+  const colorIndex = index % colors.length;
+  const color = colors[colorIndex];
+  return color ?? fallbackColor;
 }
 </script>
 
