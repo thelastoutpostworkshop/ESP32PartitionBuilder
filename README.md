@@ -7,7 +7,10 @@ The web application is [here](https://thelastoutpostworkshop.github.io/microcont
 
 
 ## Troubleshooting
-When using a custum partition, you may need to adjust the maximum upload size in your boards definition.  
+
+> Do not forget to set the flash size correctly in the board options in the Arduino IDE or Arduino Workshop Extension for Visual Studio Code.
+
+If for some reason the flash size is not avalaible in the board options you may need to adjust the maximum upload size in your boards definition.  
 The IDE has no way to read the custom partition, see this [issue](https://github.com/espressif/arduino-esp32/issues/9831). 
 
 By default many of the custom paritions in boards definition have a 16MB max upload size, so if your board has less than 16MB flash memory, for example 4MB is typical, the compiler will report a wrong space occupied by your sketch.
