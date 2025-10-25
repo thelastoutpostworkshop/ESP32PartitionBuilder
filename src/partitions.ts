@@ -3,7 +3,7 @@ import {
   OFFSET_APP_TYPE, OFFSET_DATA_TYPE, PARTITION_TABLE_SIZE,
   PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP, PARTITION_NVS,
   NVS_PARTITION_SIZE_RECOMMENDED, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, PARTITION_COREDUMP,
-  COREDUMP_MIN_PARTITION_SIZE
+  COREDUMP_MIN_PARTITION_SIZE, OTADATA_REQUIRED_OFFSET
 } from '@/const'
 
 
@@ -60,6 +60,7 @@ export class PartitionTable {
     };
 
     this.partitions.push(partition);
+    this.recalculateOffsets();
   }
 
   getTotalPartitionSize(excludePartition?: Partition): number {
@@ -139,9 +140,60 @@ export class PartitionTable {
   }
 
   recalculateOffsets() {
+    const otadataIndex = this.partitions.findIndex(partition => partition.subtype === PARTITION_OTA);
+
+    if (otadataIndex !== -1) {
+      const otadataPartition = this.partitions[otadataIndex]!;
+      const before = this.partitions.slice(0, otadataIndex);
+      const after = this.partitions.slice(otadataIndex + 1);
+      const beforeKeep: Partition[] = [];
+      const movedPartitions: Partition[] = [];
+      let previewOffset = PARTITION_TABLE_SIZE;
+
+      for (const partition of before) {
+        const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+        previewOffset = this.alignOffset(previewOffset, alignment);
+        const endOffset = previewOffset + partition.size;
+
+        if (endOffset <= OTADATA_REQUIRED_OFFSET) {
+          beforeKeep.push(partition);
+          previewOffset = endOffset;
+        } else {
+          movedPartitions.push(partition);
+        }
+      }
+
+      const isOtaAppPartition = (partition: Partition) =>
+        partition.type === PARTITION_TYPE_APP && typeof partition.subtype === 'string' && partition.subtype.startsWith('ota_');
+
+      const otaAppPartitions = after.filter(isOtaAppPartition);
+      const otherAfterPartitions = after.filter(partition => !isOtaAppPartition(partition));
+
+      const newOrder = [
+        ...beforeKeep,
+        otadataPartition,
+        ...otaAppPartitions,
+        ...otherAfterPartitions,
+        ...movedPartitions
+      ];
+
+      const orderChanged = newOrder.length !== this.partitions.length
+        || newOrder.some((partition, index) => partition !== this.partitions[index]);
+
+      if (orderChanged) {
+        this.partitions.splice(0, this.partitions.length, ...newOrder);
+      }
+    }
+
     let currentOffset = PARTITION_TABLE_SIZE;
 
     this.partitions.forEach(partition => {
+      if (partition.subtype === PARTITION_OTA) {
+        partition.offset = OTADATA_REQUIRED_OFFSET;
+        currentOffset = partition.offset + partition.size;
+        return;
+      }
+
       if (partition.type === PARTITION_TYPE_APP) {
         currentOffset = this.alignOffset(currentOffset, OFFSET_APP_TYPE);
       } else {

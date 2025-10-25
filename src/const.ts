@@ -4,6 +4,7 @@ export const OFFSET_DATA_TYPE = 0x1000
 export const PARTITION_TABLE_SIZE = 0x9000; // 36KB reserved for the partition table
 export const NVS_PARTITION_SIZE_RECOMMENDED = 0x3000
 export const OTA_DATA_PARTITION_SIZE = 0x2000
+export const OTADATA_REQUIRED_OFFSET = 0xE000
 export const FAT_MIN_PARTITION_SIZE = 528 * 1024
 export const SPIFFS_MIN_PARTITION_SIZE = 192 * 1024
 export const LITTLEFS_MIN_PARTITION_SIZE = 128 * 1024
