@@ -10,7 +10,7 @@ The web application is [here](https://thelastoutpostworkshop.github.io/microcont
 
 > Do not forget to set the flash size correctly in the board options in the Arduino IDE or Arduino Workshop Extension for Visual Studio Code.
 
-> If you use Wi-Fi, BLE, or Preferences → an NVS partition is mandatory
+> If you use Wi-Fi, BLE, or Preferences API → an NVS partition is mandatory
 
 If for some reason the flash size is not avalaible in the board options you may need to adjust the maximum upload size in your boards definition.  
 The IDE has no way to read the custom partition, see this [issue](https://github.com/espressif/arduino-esp32/issues/9831). 

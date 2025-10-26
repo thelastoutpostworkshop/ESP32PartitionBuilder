@@ -5,9 +5,14 @@
         <v-btn color="primary" @click="addPartition">Add Partition
           <v-menu activator="parent">
             <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
-              <v-list-item @click="addNVSPartition">
-                NVS (Non-Volatile Storage)
-              </v-list-item>
+              <v-tooltip location="end">
+                <template #activator="{ props }">
+                  <v-list-item v-bind="props" @click="addNVSPartition">
+                    NVS (Non-Volatile Storage)
+                  </v-list-item>
+                </template>
+                <span>Required when using Wi-Fi, BLE, or Preferences APIs.</span>
+              </v-tooltip>
               <v-list-item @click="addOTAPartition">
                 OTA (Over The Air Updates)
               </v-list-item>
