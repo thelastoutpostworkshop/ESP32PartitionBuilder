@@ -32,10 +32,22 @@
         dense hide-details @update:model-value="changeFlashSize"></v-select>
       <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
         label="Show Hint Size in" dense hide-details></v-select>
-      <div v-if="store.partitionTables.hasOTAPartitions()" class="pl-2 pt-4">
+      <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
         <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
         Over the air update capability
       </div>
+      <v-alert
+        v-else-if="store.partitionTables.hasOTAPartitions()"
+        type="warning"
+        density="comfortable"
+        border="start"
+        class="ma-3 mt-4"
+        variant="outlined"
+        icon="mdi-alert"
+      >
+        <div class="font-weight-medium">NVS partition required</div>
+        <div class="text-body-2">Add an NVS partition to restore Over the Air update capability.</div>
+      </v-alert>
     </v-navigation-drawer>
     <v-main class="d-flex align-top">
       <partition-editor></partition-editor>
@@ -48,7 +60,7 @@ import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { FLASH_SIZES, APP_VERSION, DISPLAY_SIZES } from '@/const';
+import { FLASH_SIZES, APP_VERSION, DISPLAY_SIZES, PARTITION_NVS } from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
