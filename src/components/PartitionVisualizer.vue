@@ -14,6 +14,7 @@
 import { computed } from 'vue';
 import type { Partition } from '@/types';
 import { partitionStore } from '@/store';
+import { getAccessibleTextColor, getPartitionBaseColor, lightenColor } from '@/partitionColors';
 
 type SegmentKind = 'partition' | 'reserved' | 'free';
 
@@ -29,27 +30,6 @@ interface PartitionSegment {
 
 const store = partitionStore();
 
-const COLOR_BY_SUBTYPE: Record<string, string> = {
-  factory: '#f8b26a',
-  ota_0: '#7cc576',
-  ota_1: '#58a55b',
-  ota_2: '#499550',
-  ota: '#8d6be6',
-  nvs: '#4dd0e1',
-  fat: '#7986cb',
-  spiffs: '#64b5f6',
-  littlefs: '#81d4fa',
-  coredump: '#ef9a9a',
-  phy: '#aed581',
-  test: '#f48fb1'
-};
-
-const COLOR_BY_TYPE: Record<string, string> = {
-  app: '#4caf50',
-  data: '#2196f3'
-};
-
-const FALLBACK_COLOR = '#6c757d';
 const RESERVED_COLOR = '#37474f';
 const FREE_COLOR = '#455a64';
 
@@ -98,7 +78,7 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
     const length = partition.size;
     const percentage = (length / flashSize) * 100;
     const width = formatWidth(percentage);
-    const baseColor = getPartitionColor(partition, index);
+    const baseColor = getPartitionBaseColor(partition, index);
     const start = partition.offset;
     const end = start + length;
 
@@ -124,15 +104,6 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
   return segments;
 });
 
-function getPartitionColor(partition: Partition, index: number): string {
-  return COLOR_BY_SUBTYPE[partition.subtype] ?? COLOR_BY_TYPE[partition.type] ?? generatePaletteColor(index) ?? FALLBACK_COLOR;
-}
-
-function generatePaletteColor(index: number): string {
-  const palette = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
-  return palette[index % palette.length] ?? FALLBACK_COLOR;
-}
-
 function buildSegmentStyle(baseColor: string, width: string): Record<string, string> {
   const gradientStart = lightenColor(baseColor, 0.35);
   const gradientEnd = lightenColor(baseColor, -0.05);
@@ -141,7 +112,7 @@ function buildSegmentStyle(baseColor: string, width: string): Record<string, str
     width,
     flexBasis: width,
     background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
-    color: getTextColor(baseColor),
+    color: getAccessibleTextColor(baseColor),
     boxShadow: `inset 0 0 0 1px ${borderColor}`
   };
 }
@@ -152,44 +123,6 @@ function formatWidth(percentage: number): string {
 
 function formatHex(value: number): string {
   return `0x${value.toString(16).toUpperCase().padStart(6, '0')}`;
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  let normalized = hex.replace('#', '');
-  if (normalized.length === 3) {
-    normalized = normalized.split('').map(char => char + char).join('');
-  }
-  if (normalized.length !== 6) {
-    return { r: 108, g: 117, b: 125 };
-  }
-  const numeric = parseInt(normalized, 16);
-  return {
-    r: (numeric >> 16) & 255,
-    g: (numeric >> 8) & 255,
-    b: numeric & 255
-  };
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return `#${[r, g, b].map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
-}
-
-function lightenColor(hex: string, amount: number): string {
-  const { r, g, b } = hexToRgb(hex);
-  if (amount >= 0) {
-    const mix = (channel: number) => Math.round(channel + (255 - channel) * Math.min(amount, 1));
-    return rgbToHex(mix(r), mix(g), mix(b));
-  } else {
-    const factor = 1 + Math.max(amount, -1);
-    const mix = (channel: number) => Math.round(channel * factor);
-    return rgbToHex(mix(r), mix(g), mix(b));
-  }
-}
-
-function getTextColor(hex: string): string {
-  const { r, g, b } = hexToRgb(hex);
-  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return luminance > 0.6 ? '#1f2933' : '#f8f9fa';
 }
 </script>
 

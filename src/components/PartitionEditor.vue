@@ -65,7 +65,15 @@
           <span>Delete all Partitions</span>
         </v-tooltip>
       </v-app-bar>
-      <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index" class="partition mt-4">
+      <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index"
+        class="partition mt-4" :style="partitionStyle(partition, index)">
+        <div class="partition__tag">
+          <div class="partition__label">
+            <span class="partition__dot"></span>
+            <span class="partition__tag-text">{{ partition.type }} / {{ partition.subtype }}</span>
+          </div>
+          <span class="partition__size">{{ store.hintDisplaySize(partition.size) }}</span>
+        </div>
         <v-row dense>
           <v-col>
             <v-text-field v-model="partition.name" label="Name" density="compact"
@@ -102,7 +110,8 @@
             </v-tooltip>
           </v-col>
         </v-row>
-        <v-slider color="teal" v-model="partition.size" thumb-label label="Size"
+        <v-slider :color="partitionAccentColor(partition, index)"
+          :track-color="partitionAccentTrackColor(partition, index)" v-model="partition.size" thumb-label label="Size"
           :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
           :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
           :step="stepSize(partition)" :min="stepSize(partition)">
@@ -184,6 +193,7 @@ import {
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
+import { getAccessibleTextColor, getPartitionBaseColor, lightenColor } from '@/partitionColors';
 
 const store = partitionStore();
 const formRef = ref();
@@ -194,6 +204,25 @@ const dialogText = ref("")
 const dialogTitle = ref("")
 const fileInput = ref<HTMLInputElement | null>(null);
 const showOverrideDialog = ref(false);
+
+const partitionStyle = (partition: Partition, index: number) => {
+  const baseColor = getPartitionBaseColor(partition, index);
+  return {
+    '--partition-accent-color': baseColor,
+    '--partition-accent-light': lightenColor(baseColor, 0.45),
+    '--partition-accent-dark': lightenColor(baseColor, -0.2),
+    '--partition-tag-background': lightenColor(baseColor, 0.25),
+    '--partition-text-contrast': getAccessibleTextColor(baseColor)
+  };
+};
+
+const partitionAccentColor = (partition: Partition, index: number) => {
+  return getPartitionBaseColor(partition, index);
+};
+
+const partitionAccentTrackColor = (partition: Partition, index: number) => {
+  return lightenColor(getPartitionBaseColor(partition, index), 0.65);
+};
 
 
 
@@ -683,7 +712,84 @@ const loadCSV = () => {
 
 <style scoped>
 .partition {
-  border: 1px solid #ccc;
+  position: relative;
   width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  padding: 18px 20px 22px 22px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.82));
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.partition::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(to bottom,
+      var(--partition-accent-light, rgba(59, 130, 246, 0.75)),
+      var(--partition-accent-color, rgba(59, 130, 246, 0.95)));
+  border-radius: 14px 0 0 14px;
+}
+
+.partition:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.35);
+}
+
+.partition__tag {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg,
+      var(--partition-tag-background, rgba(255, 255, 255, 0.08)),
+      rgba(255, 255, 255, 0.03));
+  color: var(--partition-text-contrast, #e2e8f0);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.partition__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.partition__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--partition-accent-color, rgba(59, 130, 246, 0.85));
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.partition__tag-text {
+  white-space: nowrap;
+}
+
+.partition__size {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.partition :deep(.v-field--variant-filled .v-field__overlay) {
+  background-color: rgba(15, 23, 42, 0.35);
+}
+
+.partition :deep(.v-field--variant-filled .v-field__outline) {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.partition :deep(.v-slider-track__fill),
+.partition :deep(.v-slider-track__background) {
+  border-radius: 999px;
 }
 </style>
