@@ -1,7 +1,7 @@
 import type { Partition } from '@/types';
 import {
   OFFSET_APP_TYPE, OFFSET_DATA_TYPE, PARTITION_TABLE_SIZE,
-  PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP, PARTITION_NVS,
+  PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP, PARTITION_NVS, PARTITION_TYPE_DATA,
   NVS_PARTITION_SIZE_RECOMMENDED, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, PARTITION_COREDUMP,
   COREDUMP_MIN_PARTITION_SIZE, OTADATA_REQUIRED_OFFSET
 } from '@/const'
@@ -105,6 +105,7 @@ export class PartitionTable {
     }
 
     if (type === PARTITION_TYPE_APP) {
+      currentOffset = Math.max(currentOffset, OFFSET_APP_TYPE);
       return this.alignOffset(currentOffset, OFFSET_APP_TYPE);
     } else {
       return this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
@@ -185,6 +186,54 @@ export class PartitionTable {
       }
     }
 
+    const firstAppIndex = this.partitions.findIndex(partition => partition.type === PARTITION_TYPE_APP);
+
+    if (firstAppIndex > 0) {
+      const beforeApp = this.partitions.slice(0, firstAppIndex);
+      const afterApp = this.partitions.slice(firstAppIndex);
+      const beforeKeep: Partition[] = [];
+      const movedBeforeApp: Partition[] = [];
+      let previewOffset = PARTITION_TABLE_SIZE;
+
+      for (const partition of beforeApp) {
+        if (partition.subtype === PARTITION_OTA) {
+          beforeKeep.push(partition);
+          previewOffset = OTADATA_REQUIRED_OFFSET + partition.size;
+          continue;
+        }
+
+        const isAppPartition = partition.type === PARTITION_TYPE_APP;
+        const alignment = isAppPartition ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+        const baseline = isAppPartition ? Math.max(previewOffset, OFFSET_APP_TYPE) : previewOffset;
+        const alignedOffset = this.alignOffset(baseline, alignment);
+        const endOffset = alignedOffset + partition.size;
+
+        if (isAppPartition || partition.type !== PARTITION_TYPE_DATA || endOffset <= OFFSET_APP_TYPE) {
+          beforeKeep.push(partition);
+          previewOffset = endOffset;
+        } else {
+          movedBeforeApp.push(partition);
+        }
+      }
+
+      const firstNonAppIndex = afterApp.findIndex(partition => partition.type !== PARTITION_TYPE_APP);
+      const afterWithMoved = firstNonAppIndex === -1
+        ? [...afterApp, ...movedBeforeApp]
+        : [
+            ...afterApp.slice(0, firstNonAppIndex),
+            ...movedBeforeApp,
+            ...afterApp.slice(firstNonAppIndex)
+          ];
+
+      const newOrder = [...beforeKeep, ...afterWithMoved];
+      const orderChanged = newOrder.length !== this.partitions.length
+        || newOrder.some((partition, index) => partition !== this.partitions[index]);
+
+      if (orderChanged) {
+        this.partitions.splice(0, this.partitions.length, ...newOrder);
+      }
+    }
+
     let currentOffset = PARTITION_TABLE_SIZE;
 
     this.partitions.forEach(partition => {
@@ -195,6 +244,7 @@ export class PartitionTable {
       }
 
       if (partition.type === PARTITION_TYPE_APP) {
+        currentOffset = Math.max(currentOffset, OFFSET_APP_TYPE);
         currentOffset = this.alignOffset(currentOffset, OFFSET_APP_TYPE);
       } else {
         currentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);

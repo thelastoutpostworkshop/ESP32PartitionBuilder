@@ -586,7 +586,8 @@ const loadPartitionsFromCSV = (csv: string) => {
     }
 
     const size = parseSize(sizeStr); // Convert size to bytes
-    const alignment = type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+    const isAppPartition = type === PARTITION_TYPE_APP;
+    const alignment = isAppPartition ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
     let offset: number;
 
     if (offsetHex) {
@@ -597,8 +598,19 @@ const loadPartitionsFromCSV = (csv: string) => {
         showAlert.value = true;
         return;
       }
+      if (isAppPartition) {
+        if (offset < OFFSET_APP_TYPE || offset % OFFSET_APP_TYPE !== 0) {
+          alertTitle.value = "Invalid App Offset";
+          alertText.value = `App partitions must start at ${getHexOffset(OFFSET_APP_TYPE)} or higher and use ${getHexOffset(OFFSET_APP_TYPE)} alignment.`;
+          showAlert.value = true;
+          return;
+        }
+      }
       nextOffset = offset + size;
     } else {
+      if (isAppPartition) {
+        nextOffset = Math.max(nextOffset, OFFSET_APP_TYPE);
+      }
       nextOffset = alignOffset(nextOffset, alignment);
       offset = nextOffset;
       nextOffset += size;
