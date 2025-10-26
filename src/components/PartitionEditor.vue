@@ -489,12 +489,20 @@ const addOTADataPartition = () => {
 };
 
 const addOTAPartition = () => {
-  const sizeNeeded = OTA_DATA_PARTITION_SIZE + OFFSET_APP_TYPE * 2
+  const needsNvs = !store.partitionTables.hasSubtype(PARTITION_NVS)
+  const sizeNeeded = OTA_DATA_PARTITION_SIZE + OFFSET_APP_TYPE * 2 + (needsNvs ? NVS_PARTITION_SIZE_RECOMMENDED : 0)
   if (store.partitionTables.getAvailableMemory() < sizeNeeded) {
-    showAlertMessage("Cannot add OTA partitions", `There is not enough memory to add a OTA partitions. You need at least ${sizeNeeded} bytes of memory available (${store.hintDisplaySize(sizeNeeded)}).`)
+    const requirementMessage = needsNvs
+      ? `You need at least ${sizeNeeded} bytes available (${store.hintDisplaySize(sizeNeeded)}) for OTA Data, two OTA App slots, and an NVS partition.`
+      : `You need at least ${sizeNeeded} bytes available (${store.hintDisplaySize(sizeNeeded)}) for OTA Data and two OTA App slots.`
+    showAlertMessage("Cannot add OTA partitions", `There is not enough memory to add OTA support. ${requirementMessage}`)
     return
   }
   let partitionName: string = ""
+  if (needsNvs) {
+    partitionName = generatePartitionName("nvs")
+    store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, "")
+  }
   partitionName = generatePartitionName("otadata")
   store.partitionTables.addPartition(partitionName, PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, "")
   partitionName = generatePartitionName("app0")
