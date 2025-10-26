@@ -551,17 +551,15 @@ const removePartition = (partition: Partition) => {
 };
 
 const reclaimMemory = (partition: Partition) => {
-  let resize: number
-  const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
-  if (resizeOnOta) {
-    resize = partition.size + store.partitionTables.getAvailableMemory() / 2
-  } else {
-    resize = partition.size + store.partitionTables.getAvailableMemory()
+  const available = store.partitionTables.getAvailableMemory();
+  if (available <= 0) {
+    return;
   }
-  store.partitionTables.updatePartitionSize(partition, resize);
-  if (store.partitionTables.getAvailableMemory() < 0) {
-    store.partitionTables.updatePartitionSize(partition, partition.size + store.partitionTables.getAvailableMemory());
-  }
+  const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions();
+  const targetSize = resizeOnOta
+    ? partition.size + Math.floor(available / 2)
+    : partition.size + available;
+  store.partitionTables.updatePartitionSize(partition, targetSize);
 };
 
 const resizeToFit = (partition: Partition) => {

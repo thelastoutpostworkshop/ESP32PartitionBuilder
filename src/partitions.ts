@@ -258,23 +258,51 @@ export class PartitionTable {
 
   updatePartitionSize(partition: Partition, newSize: number) {
     const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
-    newSize = Math.round(newSize / alignment) * alignment; // Ensure alignment
+    const minSize = alignment;
+    const maxPossible = Math.max(minSize, Math.floor((this.flashSize - partition.offset) / alignment) * alignment);
+    let target = Math.min(Math.max(newSize, minSize), maxPossible);
+    target = Math.floor(target / alignment) * alignment;
 
-    if ((partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && this.hasOTAPartitions()) {
-      const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
-      const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-      if (ota0Index !== -1 && ota1Index !== -1) {
+    if (target < minSize) {
+      target = minSize;
+    }
+
+    const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
+    const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
+    const isOtaPair = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && ota0Index !== -1 && ota1Index !== -1;
+
+    const originalSizes = this.partitions.map(p => p.size);
+    const attemptResize = (candidateSize: number): boolean => {
+      if (isOtaPair) {
         const ota0Partition = this.partitions[ota0Index];
         const ota1Partition = this.partitions[ota1Index];
-        if (ota0Partition && ota1Partition) {
-          ota0Partition.size = newSize;
-          ota1Partition.size = newSize;
-          this.recalculateOffsets();
-          return;
+        if (!ota0Partition || !ota1Partition) {
+          return false;
         }
+        ota0Partition.size = candidateSize;
+        ota1Partition.size = candidateSize;
+      } else {
+        partition.size = candidateSize;
       }
+      this.recalculateOffsets();
+      return this.getAvailableMemory() >= 0;
+    };
+
+    let candidate = target;
+    while (candidate >= minSize) {
+      if (attemptResize(candidate)) {
+        return;
+      }
+      candidate -= alignment;
     }
-    partition.size = newSize;
+
+    // Revert if no candidate fits
+    this.partitions.forEach((p, index) => {
+      const originalSize = originalSizes[index];
+      if (typeof originalSize === 'number') {
+        p.size = originalSize;
+      }
+    });
     this.recalculateOffsets();
   }
 
