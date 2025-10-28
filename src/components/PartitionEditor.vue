@@ -464,7 +464,7 @@ const addSPIFFPartition = () => {
   if (store.partitionTables.getAvailableMemory() < SPIFFS_MIN_PARTITION_SIZE) {
     showAlertMessage("Cannot add a SPIFF partition", `There is not enough memory to add a SPIFFS partition. SPIFFS partition size must be at least ${SPIFFS_MIN_PARTITION_SIZE} bytes (${store.hintDisplaySize(SPIFFS_MIN_PARTITION_SIZE)}).`)
   } else {
-    const newName = generatePartitionName("spiff");
+    const newName = generatePartitionName("spiffs");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_SPIFFS, SPIFFS_MIN_PARTITION_SIZE, "")
   }
 };
