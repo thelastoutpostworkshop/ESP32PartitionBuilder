@@ -30,6 +30,28 @@
         label="Built-in partitions" dense hide-details></v-select>
       <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
         dense hide-details @update:model-value="changeFlashSize"></v-select>
+      <v-select
+        v-model="store.partitionTableOffset"
+        :items="PARTITION_TABLE_OFFSET_OPTIONS"
+        item-value="value"
+        item-title="text"
+        label="Partition Table Offset"
+        dense
+        hide-details
+        @update:model-value="changePartitionTableOffset"
+      ></v-select>
+      <v-text-field
+        v-model="partitionTableOffsetText"
+        label="Custom Offset (hex)"
+        density="compact"
+        hide-details="auto"
+        persistent-hint
+        hint="Must align to 0x1000; leave CSV offsets blank to auto-align"
+        :rules="[customOffsetRule]"
+        append-inner-icon="mdi-check"
+        @click:append-inner="applyCustomPartitionTableOffset(partitionTableOffsetText)"
+        @change="applyCustomPartitionTableOffset($event)"
+      ></v-text-field>
       <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
         label="Show Hint Size in" dense hide-details></v-select>
       <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
@@ -60,7 +82,15 @@ import { ref, watch } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { FLASH_SIZES, APP_VERSION, DISPLAY_SIZES, PARTITION_NVS } from '@/const';
+import {
+  FLASH_SIZES,
+  APP_VERSION,
+  DISPLAY_SIZES,
+  PARTITION_NVS,
+  PARTITION_TABLE_OFFSET_OPTIONS,
+  OFFSET_DATA_TYPE,
+  PARTITION_TABLE_SIZE
+} from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
@@ -68,6 +98,7 @@ const store = partitionStore();
 const firstPartitionSet = esp32Partitions[0];
 const defaultPartitionName = firstPartitionSet ? firstPartitionSet.name : '';
 const selectedPartitionSet = ref(defaultPartitionName);
+const partitionTableOffsetText = ref(formatHex(store.partitionTableOffset));
 
 const partitionOptions = esp32Partitions.map(set => ({
   text: set.name,
@@ -76,6 +107,10 @@ const partitionOptions = esp32Partitions.map(set => ({
 
 watch(selectedPartitionSet, () => {
   loadPartitions();
+});
+
+watch(() => store.partitionTableOffset, (val) => {
+  partitionTableOffsetText.value = formatHex(val);
 });
 
 function availableMemoryColor(): string {
@@ -100,6 +135,49 @@ function goToYoutube() {
 
 function changeFlashSize() {
   store.partitionTables.setFlashSize(store.flashSize)
+}
+
+function changePartitionTableOffset(offset: number) {
+  store.setPartitionTableOffset(offset);
+}
+
+function applyCustomPartitionTableOffset(value: string) {
+  const parsed = parseOffset(value);
+  if (parsed === null) {
+    return;
+  }
+  const ruleResult = customOffsetRule(value);
+  if (ruleResult !== true) {
+    return;
+  }
+  store.setPartitionTableOffset(parsed);
+  partitionTableOffsetText.value = formatHex(parsed);
+}
+
+function parseOffset(value: string): number | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  const cleaned = trimmed.toLowerCase().startsWith('0x') ? trimmed : `0x${trimmed}`;
+  const parsed = parseInt(cleaned, 16);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function formatHex(value: number): string {
+  return `0x${value.toString(16).toUpperCase()}`;
+}
+
+function customOffsetRule(value: string): true | string {
+  const parsed = parseOffset(value);
+  if (parsed === null) {
+    return 'Enter a hex offset, e.g. 0x8000';
+  }
+  if (parsed % OFFSET_DATA_TYPE !== 0) {
+    return 'Must align to 0x1000';
+  }
+  if ((parsed + PARTITION_TABLE_SIZE) >= store.flashSizeBytes) {
+    return 'Offset too large for flash size';
+  }
+  return true;
 }
 
 function loadPartitions() {

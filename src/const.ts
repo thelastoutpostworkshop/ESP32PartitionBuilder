@@ -1,10 +1,11 @@
 export const APP_VERSION = "1.1.4"
 export const OFFSET_APP_TYPE = 0x10000
 export const OFFSET_DATA_TYPE = 0x1000
-export const PARTITION_TABLE_SIZE = 0x9000; // 36KB reserved for the partition table
+export const PARTITION_TABLE_SIZE = 0x1000 // 4KB partition table size
+export const PARTITION_TABLE_OFFSET_DEFAULT = 0x8000
+export const OTADATA_OFFSET_FROM_PARTITION_TABLE = 0x6000 // Default otadata sits 0x6000 after the partition table offset
 export const NVS_PARTITION_SIZE_RECOMMENDED = 0x3000
 export const OTA_DATA_PARTITION_SIZE = 0x2000
-export const OTADATA_REQUIRED_OFFSET = 0xE000
 export const FAT_MIN_PARTITION_SIZE = 528 * 1024
 export const SPIFFS_MIN_PARTITION_SIZE = 192 * 1024
 export const LITTLEFS_MIN_PARTITION_SIZE = 128 * 1024
@@ -17,6 +18,11 @@ export const FLASH_SIZES = [
     { value: 16, text: '16 MB' },
     { value: 32, text: '32 MB' }
 ];
+
+export const PARTITION_TABLE_OFFSET_OPTIONS = [
+    { value: PARTITION_TABLE_OFFSET_DEFAULT, text: '0x8000 (Default)' },
+    { value: 0x18000, text: '0x18000 (Large bootloader)' }
+]
 
 export const DISPLAY_SIZES = [
     {value:1024, text:"Kilobytes (Kb)"},

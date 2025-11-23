@@ -13,12 +13,12 @@ The web application is [here](https://thelastoutpostworkshop.github.io/microcont
 
 > Do not forget to set the flash size correctly in the board options in the Arduino IDE or Arduino Workshop Extension for Visual Studio Code.
 
-> If you use Wi-Fi, BLE, or Preferences API → an NVS partition is mandatory
+> If you use Wi-Fi, BLE, or Preferences API an NVS partition is mandatory
 
-If for some reason the flash size is not avalaible in the board options you may need to adjust the maximum upload size in your boards definition.  
+If for some reason the flash size is not available in the board options you may need to adjust the maximum upload size in your boards definition.  
 The IDE has no way to read the custom partition, see this [issue](https://github.com/espressif/arduino-esp32/issues/9831). 
 
-By default many of the custom paritions in boards definition have a 16MB max upload size, so if your board has less than 16MB flash memory, for example 4MB is typical, the compiler will report a wrong space occupied by your sketch.
+By default many of the custom partitions in boards definition have a 16MB max upload size, so if your board has less than 16MB flash memory, for example 4MB is typical, the compiler will report a wrong space occupied by your sketch.
 
 To fix this, you have to edit the Espressif boards.txt file, which is normally located in <br>`[your drive]\[your name]\AppData\Local\Arduino15\packages\esp32\hardware\esp32\[esp32 core version]`
 
@@ -27,6 +27,10 @@ to<br>`esp32s3.menu.PartitionScheme.custom.upload.maximum_size=4194304`<br>
 for a microcontroller with 4MB flash memory.
 
 > When boards are updated by the IDE or you uninstall and reinstall it, you will have to redo your changes.
+
+### Partition table offset / large bootloaders
+
+Use the “Partition Table Offset” control in the sidebar (0x8000 by default; 0x18000 for larger bootloaders). The app will realign partitions automatically—leave offsets blank in CSV files to have them adapt. Remember to build both bootloader and app with the same `PARTITION_TABLE_OFFSET` in `sdkconfig`, and keep the value a multiple of 0x1000.
 
 ## Contributors
 

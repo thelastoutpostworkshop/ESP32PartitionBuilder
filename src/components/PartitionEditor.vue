@@ -188,7 +188,6 @@ import {
   PARTITION_SPIFFS, PARTITION_LITTLEFS, SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
   COREDUMP_MIN_PARTITION_SIZE, PARTITION_COREDUMP, PARTITION_FACTORY, PARTITION_TEST, PHY_MIN_PARTITION_SIZE,
   PARTITION_PHY,
-  PARTITION_TABLE_SIZE,
   FLASH_SIZES
 } from '@/const';
 import { partitionStore } from '@/store'
@@ -615,7 +614,8 @@ const loadPartitionsFromCSV = (csv: string) => {
   const alignOffset = (offset: number, alignment: number): number => Math.ceil(offset / alignment) * alignment;
   const partitions: Partition[] = [];
   let totalSize = 0;
-  let nextOffset = PARTITION_TABLE_SIZE;
+  const baseOffset = store.partitionTables.getPartitionTableBaseOffset();
+  let nextOffset = baseOffset;
   for (const row of rows) {
     const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
     if (!name || !type || !subtype || !sizeStr) {
@@ -638,6 +638,18 @@ const loadPartitionsFromCSV = (csv: string) => {
         showAlert.value = true;
         return;
       }
+      if (offset < baseOffset) {
+        alertTitle.value = "Invalid Offset";
+        alertText.value = `Partition offsets must start at or after ${getHexOffset(baseOffset)}.`;
+        showAlert.value = true;
+        return;
+      }
+      if (offset % alignment !== 0) {
+        alertTitle.value = "Invalid Offset Alignment";
+        alertText.value = `Partition offsets must align to ${getHexOffset(alignment)}.`;
+        showAlert.value = true;
+        return;
+      }
       if (isAppPartition) {
         if (offset < OFFSET_APP_TYPE || offset % OFFSET_APP_TYPE !== 0) {
           alertTitle.value = "Invalid App Offset";
@@ -651,6 +663,7 @@ const loadPartitionsFromCSV = (csv: string) => {
       if (isAppPartition) {
         nextOffset = Math.max(nextOffset, OFFSET_APP_TYPE);
       }
+      nextOffset = Math.max(nextOffset, baseOffset);
       nextOffset = alignOffset(nextOffset, alignment);
       offset = nextOffset;
       nextOffset += size;
