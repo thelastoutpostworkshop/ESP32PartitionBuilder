@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION">
       <div class="text-caption">
-        By the Last Outpost Workshop
+        Tutorial
       </div>
       <v-btn @click="goToYoutube" color="yellow" icon="mdi-open-in-new" variant="text"></v-btn>
       <v-btn color="yellow" @click="goToBuyMeACoffee">
