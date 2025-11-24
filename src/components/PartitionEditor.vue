@@ -188,6 +188,7 @@ import {
   PARTITION_SPIFFS, PARTITION_LITTLEFS, SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
   COREDUMP_MIN_PARTITION_SIZE, PARTITION_COREDUMP, PARTITION_FACTORY, PARTITION_TEST, PHY_MIN_PARTITION_SIZE,
   PARTITION_PHY,
+  PARTITION_TABLE_SIZE,
   FLASH_SIZES
 } from '@/const';
 import { partitionStore } from '@/store'
@@ -612,6 +613,20 @@ const loadPartitionsFromCSV = (csv: string) => {
   }
 
   const alignOffset = (offset: number, alignment: number): number => Math.ceil(offset / alignment) * alignment;
+  const alignDown = (offset: number, alignment: number): number => Math.floor(offset / alignment) * alignment;
+  const suggestPartitionTableOffset = (parts: Partition[]): number => {
+    const appOffsets = parts.filter(p => p.type === PARTITION_TYPE_APP).map(p => p.offset);
+    if (appOffsets.length > 0) {
+      const minApp = Math.min(...appOffsets);
+      if (minApp >= OFFSET_APP_TYPE) {
+        const candidate = minApp - (OFFSET_APP_TYPE / 2); // keep 0x8000 gap like default/large bootloader
+        return Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE));
+      }
+    }
+    const minOffset = Math.min(...parts.map(p => p.offset));
+    const candidate = minOffset - PARTITION_TABLE_SIZE;
+    return Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE));
+  };
   const partitions: Partition[] = [];
   let totalSize = 0;
   const baseOffset = store.partitionTables.getPartitionTableBaseOffset();
@@ -669,12 +684,14 @@ const loadPartitionsFromCSV = (csv: string) => {
       nextOffset += size;
     }
 
-    partitions.push({ name: name, type: type, subtype: subtype, size, offset, flags: flags || '' });
+    partitions.push({ name: name, type: type, subtype: subtype, size, offset, flags: flags || '', fixedOffset: Boolean(offsetHex) });
     totalSize += size;
   }
 
   store.partitionTables.clearPartitions();
-  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags));
+  const suggestedOffset = suggestPartitionTableOffset(partitions);
+  store.setPartitionTableOffset(suggestedOffset);
+  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags, partition.offset, partition.fixedOffset ?? false));
 
   // Adjust flash size based on total partition size
   for (const size of FLASH_SIZES) {

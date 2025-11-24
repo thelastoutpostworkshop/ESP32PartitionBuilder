@@ -41,6 +41,11 @@ export class PartitionTable {
       throw new Error('Partition table offset must be aligned to 0x1000.');
     }
     this.partitionTableOffset = newOffset;
+    const baseOffset = this.getPartitionTableBaseOffset();
+    const violating = this.partitions.find(p => p.fixedOffset && p.offset < baseOffset);
+    if (violating) {
+      throw new Error(`Partition ${violating.name} is before the partition table base ${baseOffset.toString(16)}`);
+    }
     this.recalculateOffsets();
 
     while (this.getAvailableMemory() < 0) {
@@ -68,22 +73,23 @@ export class PartitionTable {
     return this.partitionTableOffset + OTADATA_OFFSET_FROM_PARTITION_TABLE;
   }
 
-  addPartition(name: string, type: string, subtype: AppSubType | DataSubType, sizeInBytes: number, flags: string) {
-    // Align the offset based on type
-    let currentOffset = this.getCurrentOffset(type);
-
-    // // Check if the partition fits within the flash memory
-    // if (currentOffset + size > this.flashSize) {
-    //   throw new Error(`Partition ${name} exceeds the flash memory size of ${this.flashSize} bytes.`);
-    // }
-
+  addPartition(
+    name: string,
+    type: string,
+    subtype: AppSubType | DataSubType,
+    sizeInBytes: number,
+    flags: string,
+    offset?: number,
+    fixedOffset: boolean = false
+  ) {
     const partition: Partition = {
       name,
       type,
       subtype,
-      offset: currentOffset,
+      offset: offset ?? this.getCurrentOffset(type),
       size: sizeInBytes,
-      flags
+      flags,
+      fixedOffset
     };
 
     this.partitions.push(partition);
@@ -124,20 +130,15 @@ export class PartitionTable {
 
 
   getCurrentOffset(type: string): number {
-    let currentOffset = this.getPartitionTableBaseOffset(); // Start after bootloader and partition table
-
-    if (this.partitions.length > 0) {
-      const lastPartition = this.partitions[this.partitions.length - 1];
-      if (lastPartition) {
-        currentOffset = lastPartition.offset + lastPartition.size;
-      }
-    }
+    const base = this.getPartitionTableBaseOffset();
+    const maxEnd = this.partitions.reduce((max, p) => Math.max(max, p.offset + p.size), base);
+    let currentOffset = maxEnd;
 
     if (type === PARTITION_TYPE_APP) {
-      currentOffset = Math.max(currentOffset, OFFSET_APP_TYPE, this.getPartitionTableBaseOffset());
+      currentOffset = Math.max(currentOffset, OFFSET_APP_TYPE, base);
       return this.alignOffset(currentOffset, OFFSET_APP_TYPE);
     } else {
-      currentOffset = Math.max(currentOffset, this.getPartitionTableBaseOffset());
+      currentOffset = Math.max(currentOffset, base);
       return this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
     }
   }
@@ -147,13 +148,9 @@ export class PartitionTable {
   }
 
   getAvailableMemory(): number {
-    const lastPartition = this.partitions[this.partitions.length - 1];
-    let currentOffset = lastPartition
-      ? lastPartition.offset + lastPartition.size
-      : this.getPartitionTableBaseOffset();
-
-    currentOffset = Math.max(currentOffset, this.getPartitionTableBaseOffset());
-
+    const base = this.getPartitionTableBaseOffset();
+    const maxEnd = this.partitions.reduce((max, p) => Math.max(max, p.offset + p.size), base);
+    const currentOffset = Math.max(maxEnd, base);
     const alignedCurrentOffset = this.alignOffset(currentOffset, OFFSET_DATA_TYPE);
     const available = this.flashSize - alignedCurrentOffset;
 
@@ -175,6 +172,12 @@ export class PartitionTable {
   recalculateOffsets() {
     const baseOffset = this.getPartitionTableBaseOffset();
     const otadataRequiredOffset = this.getOtadataRequiredOffset();
+
+    const hasFixedOffsets = this.partitions.some(p => p.fixedOffset);
+    if (hasFixedOffsets) {
+      this.partitions.sort((a, b) => a.offset - b.offset);
+      return;
+    }
 
     const otadataIndex = this.partitions.findIndex(partition => partition.subtype === PARTITION_OTA);
 
