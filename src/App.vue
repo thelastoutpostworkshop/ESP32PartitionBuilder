@@ -74,11 +74,17 @@
     <v-main class="d-flex align-top">
       <partition-editor></partition-editor>
     </v-main>
+    <v-snackbar v-model="showUrlNotification" location="top">
+      {{ urlNotificationText }}
+      <template #actions>
+        <v-btn text @click="showUrlNotification = false">Close</v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, inject, type Ref } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
@@ -94,6 +100,22 @@ import {
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
+const urlPartitionMessage = inject<Ref<string | null> | null>('urlPartitionMessage', null);
+const urlNotificationText = ref('');
+const showUrlNotification = ref(false);
+
+if (urlPartitionMessage) {
+  watch(
+    urlPartitionMessage,
+    (message) => {
+      if (message) {
+        urlNotificationText.value = message;
+        showUrlNotification.value = true;
+      }
+    },
+    { immediate: true }
+  );
+}
 
 const firstPartitionSet = esp32Partitions[0];
 const defaultPartitionName = firstPartitionSet ? firstPartitionSet.name : '';

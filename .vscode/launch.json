@@ -8,7 +8,7 @@
       "name": "Launch Vite in Chrome",
       "type": "pwa-chrome",
       "request": "launch",
-      "url": "http://localhost:5173",
+      "url": "http://localhost:5173?partitions=base64:IyBOYW1lLCAgIFR5cGUsIFN1YlR5cGUsIE9mZnNldCwgIFNpemUsIEZsYWdzCm52cyxkYXRhLG52cywweDkwMDAsMHg1MDAwLApvdGFkYXRhLGRhdGEsb3RhLDB4RTAwMCwweDIwMDAsCmFwcDAsYXBwLG90YV8wLDB4MTAwMDAsMHgxNDAwMDAsCmFwcDEsYXBwLG90YV8xLDB4MTUwMDAwLDB4MTQwMDAwLApmYXQsZGF0YSxmYXQsMHgyOTAwMDAsMHgxNjAwMDAsCmNvcmVkdW1wLGRhdGEsY29yZWR1bXAsMHgzRjAwMDAsMHgxMDAwMCwK",
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
