@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run type-check && vite build",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build --force"
+    "typecheck": "vue-tsc --build --force"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
