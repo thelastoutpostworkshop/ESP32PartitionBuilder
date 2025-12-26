@@ -1,4 +1,4 @@
-export const APP_VERSION = "1.1.7"
+export const APP_VERSION = "1.1.9"
 export const OFFSET_APP_TYPE = 0x10000
 export const OFFSET_DATA_TYPE = 0x1000
 export const PARTITION_TABLE_SIZE = 0x1000 // 4KB partition table size
