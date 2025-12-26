@@ -48,7 +48,9 @@ if (resolvedFlashSize) {
 const csvPayload = getPartitionCsvFromUrl()
 if (csvPayload) {
   console.debug('partition payload decoded from URL', csvPayload)
-  const error = loadPartitionsFromCsv(csvPayload, store)
+  const error = loadPartitionsFromCsv(csvPayload, store, {
+    forceFlashSize: resolvedFlashSize ?? undefined
+  })
   if (error) {
     urlPartitionMessage.value = `${error.title}: ${error.text}`
     console.warn('Failed to load partitions from URL:', error.title, error.text)

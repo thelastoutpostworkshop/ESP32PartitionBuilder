@@ -2,4 +2,4 @@
 
 ## 1.2.0
 
-- Add shared CSV partition loader and URL loader helper so the app can hydrate from `?partitions=`. 
+- The app now accepts a URL for flash size and partitions info for integration with ESPConnect and the Arduino Maker Workshop extension for VSCode. 

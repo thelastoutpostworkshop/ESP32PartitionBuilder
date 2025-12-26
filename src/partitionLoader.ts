@@ -16,7 +16,15 @@ export interface PartitionLoadError {
   text: string;
 }
 
-export function loadPartitionsFromCsv(csv: string, store: PartitionStore): PartitionLoadError | null {
+export interface PartitionLoadOptions {
+  forceFlashSize?: number;
+}
+
+export function loadPartitionsFromCsv(
+  csv: string,
+  store: PartitionStore,
+  options?: PartitionLoadOptions
+): PartitionLoadError | null {
   const validHeader = /#+Name,Type,SubType,Offset,Size(,Flags)?/;
   const rows = csv
     .replaceAll(/[ \t\r]+/g, '')
@@ -128,11 +136,16 @@ export function loadPartitionsFromCsv(csv: string, store: PartitionStore): Parti
     );
   });
 
-  for (const size of FLASH_SIZES) {
-    if (totalSize <= size.value * 1024 * 1024) {
-      store.flashSize = size.value;
-      store.partitionTables.setFlashSize(size.value);
-      break;
+  if (options?.forceFlashSize) {
+    store.flashSize = options.forceFlashSize;
+    store.partitionTables.setFlashSize(options.forceFlashSize);
+  } else {
+    for (const size of FLASH_SIZES) {
+      if (totalSize <= size.value * 1024 * 1024) {
+        store.flashSize = size.value;
+        store.partitionTables.setFlashSize(size.value);
+        break;
+      }
     }
   }
 
