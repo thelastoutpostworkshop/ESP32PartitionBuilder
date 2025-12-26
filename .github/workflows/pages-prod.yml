@@ -49,3 +49,12 @@ jobs:
           keep_files: true
           enable_jekyll: false
           commit_message: "Deploy production ${{ github.ref_name }}"
+      - name: Create release for tag
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Changelog:
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
