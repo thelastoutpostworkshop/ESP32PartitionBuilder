@@ -1,6 +1,6 @@
 # ESP32 Partition Builder Web Application
 
-The web application is [here](https://thelastoutpostworkshop.github.io/microcontroller_devkit/esp32partitionbuilder/).
+The web application is [here](https://thelastoutpostworkshop.github.io/ESP32PartitionBuilder/).
 
 ## Youtube Tutorial
 [<img src="https://github.com/thelastoutpostworkshop/images/blob/main/Custom%20Partitions.png" width="300">](https://youtu.be/EuHxodrye6E)
