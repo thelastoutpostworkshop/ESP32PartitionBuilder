@@ -32,3 +32,22 @@ export function getPartitionCsvFromUrl(): string | null {
     return decodeBase64(payload);
   }
 }
+
+export function getFlashSizeFromUrl(): number | null {
+  if (!isBrowser) {
+    return null;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const flashParam = params.get('flash');
+  if (!flashParam) {
+    return null;
+  }
+
+  const parsed = parseInt(flashParam, 10);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
