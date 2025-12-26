@@ -13,5 +13,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  base: "/microcontroller_devkit/esp32partitionbuilder/"
+  base: process.env.NODE_ENV === 'production' ? '/ESP32PartitionBuilder/' : '/',
 })

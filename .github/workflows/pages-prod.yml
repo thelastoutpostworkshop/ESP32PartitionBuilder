@@ -1,0 +1,51 @@
+name: Deploy Production to GitHub Pages
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: pages-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-prod:
+    name: Build & deploy production (tag)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Safety check
+      - name: Assert build output exists
+        run: test -f dist/index.html
+
+      # Deploy dist/ to gh-pages root
+      - name: Deploy to gh-pages (production)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: main
+          publish_dir: ./dist
+          keep_files: true
+          enable_jekyll: false
+          commit_message: "Deploy production ${{ github.ref_name }}"
