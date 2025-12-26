@@ -181,6 +181,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { loadPartitionsFromCsv } from '@/partitionLoader';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
@@ -602,129 +603,9 @@ const handleFileUpload = (event: Event) => {
 };
 
 const loadPartitionsFromCSV = (csv: string) => {
-  const validHeader = /#+Name,Type,SubType,Offset,Size(,Flags)?/;
-  const rows = csv.replaceAll(/[ \t\r]+/g, '').split('\n').filter(row => validHeader.test(row) || (row !== '' && !row.startsWith('#')));
-  const header = rows.shift() || ''; // Remove the header row
-  if (!validHeader.test(header) || rows.length === 0) {
-    alertTitle.value = "Invalid CSV Format";
-    alertText.value = "The CSV file format is incorrect. Please use the correct format.";
-    showAlert.value = true;
-    return;
-  }
-
-  const alignOffset = (offset: number, alignment: number): number => Math.ceil(offset / alignment) * alignment;
-  const alignDown = (offset: number, alignment: number): number => Math.floor(offset / alignment) * alignment;
-  const suggestPartitionTableOffset = (parts: Partition[]): number => {
-    const appOffsets = parts.filter(p => p.type === PARTITION_TYPE_APP).map(p => p.offset);
-    if (appOffsets.length > 0) {
-      const minApp = Math.min(...appOffsets);
-      if (minApp >= OFFSET_APP_TYPE) {
-        const candidate = minApp - (OFFSET_APP_TYPE / 2); // keep 0x8000 gap like default/large bootloader
-        return Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE));
-      }
-    }
-    const minOffset = Math.min(...parts.map(p => p.offset));
-    const candidate = minOffset - PARTITION_TABLE_SIZE;
-    return Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE));
-  };
-  const partitions: Partition[] = [];
-  let totalSize = 0;
-  const baseOffset = store.partitionTables.getPartitionTableBaseOffset();
-  let nextOffset = baseOffset;
-  for (const row of rows) {
-    const [name, type, subtype, offsetHex, sizeStr, flags] = row.split(',');
-    if (!name || !type || !subtype || !sizeStr) {
-      alertTitle.value = "Invalid CSV Data";
-      alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
-      showAlert.value = true;
-      return;
-    }
-
-    const size = parseSize(sizeStr); // Convert size to bytes
-    const isAppPartition = type === PARTITION_TYPE_APP;
-    const alignment = isAppPartition ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
-    let offset: number;
-
-    if (offsetHex) {
-      offset = parseInt(offsetHex, 16); // Convert hex to decimal
-      if (Number.isNaN(offset)) {
-        alertTitle.value = "Invalid CSV Data";
-        alertText.value = "The CSV file contains invalid data. Please check the file and try again.";
-        showAlert.value = true;
-        return;
-      }
-      if (offset < baseOffset) {
-        alertTitle.value = "Invalid Offset";
-        alertText.value = `Partition offsets must start at or after ${getHexOffset(baseOffset)}.`;
-        showAlert.value = true;
-        return;
-      }
-      if (offset % alignment !== 0) {
-        alertTitle.value = "Invalid Offset Alignment";
-        alertText.value = `Partition offsets must align to ${getHexOffset(alignment)}.`;
-        showAlert.value = true;
-        return;
-      }
-      if (isAppPartition) {
-        if (offset < OFFSET_APP_TYPE || offset % OFFSET_APP_TYPE !== 0) {
-          alertTitle.value = "Invalid App Offset";
-          alertText.value = `App partitions must start at ${getHexOffset(OFFSET_APP_TYPE)} or higher and use ${getHexOffset(OFFSET_APP_TYPE)} alignment.`;
-          showAlert.value = true;
-          return;
-        }
-      }
-      nextOffset = offset + size;
-    } else {
-      if (isAppPartition) {
-        nextOffset = Math.max(nextOffset, OFFSET_APP_TYPE);
-      }
-      nextOffset = Math.max(nextOffset, baseOffset);
-      nextOffset = alignOffset(nextOffset, alignment);
-      offset = nextOffset;
-      nextOffset += size;
-    }
-
-    partitions.push({ name: name, type: type, subtype: subtype, size, offset, flags: flags || '', fixedOffset: Boolean(offsetHex) });
-    totalSize += size;
-  }
-
-  store.partitionTables.clearPartitions();
-  const suggestedOffset = suggestPartitionTableOffset(partitions);
-  store.setPartitionTableOffset(suggestedOffset);
-  partitions.forEach(partition => store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, partition.flags, partition.offset, partition.fixedOffset ?? false));
-
-  // Adjust flash size based on total partition size
-  for (const size of FLASH_SIZES) {
-    if (totalSize <= size.value * 1024 * 1024) {
-      store.flashSize = size.value;
-      store.partitionTables.setFlashSize(size.value);
-      break;
-    }
-  }
-};
-
-const parseSize = (sizeStr: string): number => {
-  const sizeRegex = /^(\d+)([KMB]?)$/;
-  const hexRegex = /^0x[0-9a-fA-F]+$/;
-
-  if (hexRegex.test(sizeStr)) {
-    return parseInt(sizeStr, 16); // Parse as hex
-  }
-
-  const match = sizeStr.match(sizeRegex);
-  if (!match) {
-    throw new Error(`Invalid size format: ${sizeStr}`);
-  }
-
-  const [, value = '', unit = ''] = match;
-  const size = parseInt(value, 10);
-  switch (unit) {
-    case 'K':
-      return size * 1024;
-    case 'M':
-      return size * 1024 * 1024;
-    default:
-      return size;
+  const error = loadPartitionsFromCsv(csv, store);
+  if (error) {
+    showAlertMessage(error.title, error.text);
   }
 };
 

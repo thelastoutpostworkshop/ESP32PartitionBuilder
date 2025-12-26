@@ -189,7 +189,9 @@ function loadPartitions() {
     })
   }
 };
-loadPartitions();
+if (store.partitionTables.getPartitions().length === 0) {
+  loadPartitions();
+}
 
 </script>
 
