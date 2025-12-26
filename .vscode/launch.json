@@ -8,7 +8,7 @@
       "name": "Launch Vite in Chrome",
       "type": "pwa-chrome",
       "request": "launch",
-      "url": "http://localhost:5173?flash=16&partitions=base64:IyBOYW1lLFR5cGUsU3ViVHlwZSxPZmZzZXQsU2l6ZSxGbGFncwpmYWN0b3J5LGFwcCxmYWN0b3J5LDB4MTAwMDAsMHhEMDAwMCwKc3BpZmZzLGRhdGEsc3BpZmZzLDB4RTAwMDAsMHg3RTAwMCwKZmF0LGRhdGEsZmF0LDB4MTVFMDAwLDB4ODQwMDAsCmxpdHRsZWZzLGRhdGEsbGl0dGxlZnMsMHgxRTIwMDAsMHg3RTAwMCwKbnZzLGRhdGEsbnZzLDB4MjYwMDAwLDB4MzAwMCwKY29yZWR1bXAsZGF0YSxjb3JlZHVtcCwweDI2MzAwMCwweDEwMDAwLA==",
+      "url": "http://localhost:3000?flash=16&partitions=base64:IyBOYW1lLFR5cGUsU3ViVHlwZSxPZmZzZXQsU2l6ZSxGbGFncwpmYWN0b3J5LGFwcCxmYWN0b3J5LDB4MTAwMDAsMHhEMDAwMCwKc3BpZmZzLGRhdGEsc3BpZmZzLDB4RTAwMDAsMHg3RTAwMCwKZmF0LGRhdGEsZmF0LDB4MTVFMDAwLDB4ODQwMDAsCmxpdHRsZWZzLGRhdGEsbGl0dGxlZnMsMHgxRTIwMDAsMHg3RTAwMCwKbnZzLGRhdGEsbnZzLDB4MjYwMDAwLDB4MzAwMCwKY29yZWR1bXAsZGF0YSxjb3JlZHVtcCwweDI2MzAwMCwweDEwMDAwLA==",
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
