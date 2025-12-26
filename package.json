@@ -1,6 +1,6 @@
 {
   "name": "esp32_partitions",
-  "version": "0.0.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "scripts": {
