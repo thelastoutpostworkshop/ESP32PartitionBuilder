@@ -156,10 +156,12 @@ function goToYoutube() {
 }
 
 function changeFlashSize() {
+  store.partitionTables.releaseFixedOffsets();
   store.partitionTables.setFlashSize(store.flashSize)
 }
 
 function changePartitionTableOffset(offset: number) {
+  store.partitionTables.releaseFixedOffsets();
   store.setPartitionTableOffset(offset);
 }
 
@@ -172,6 +174,7 @@ function applyCustomPartitionTableOffset(value: string) {
   if (ruleResult !== true) {
     return;
   }
+  store.partitionTables.releaseFixedOffsets();
   store.setPartitionTableOffset(parsed);
   partitionTableOffsetText.value = formatHex(parsed);
 }

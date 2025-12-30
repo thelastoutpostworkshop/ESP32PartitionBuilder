@@ -376,4 +376,17 @@ export class PartitionTable {
   generateTable(): Partition[] {
     return this.partitions;
   }
+
+  releaseFixedOffsets() {
+    let hadFixedOffsets = false;
+    for (const partition of this.partitions) {
+      if (partition.fixedOffset) {
+        partition.fixedOffset = false;
+        hadFixedOffsets = true;
+      }
+    }
+    if (hadFixedOffsets) {
+      this.recalculateOffsets();
+    }
+  }
 }
