@@ -68,42 +68,33 @@
             @click:append-inner="applyCustomPartitionTableOffset(partitionTableOffsetText)"
             @change="applyCustomPartitionTableOffset($event)"
           ></v-text-field>
-          <v-select
-            data-testid="target-chip-select"
-            v-model="selectedChipTargetId"
-            :items="CHIP_TARGETS"
-            item-value="value"
-            item-title="text"
-            label="Target Chip"
-            density="comfortable"
-            hide-details
-          ></v-select>
+          <div class="target-chip-control">
+            <v-select
+              data-testid="target-chip-select"
+              v-model="selectedChipTargetId"
+              :items="CHIP_TARGETS"
+              item-value="value"
+              item-title="text"
+              label="Target Chip"
+              density="comfortable"
+              hide-details
+            ></v-select>
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  data-testid="flashing-hints-button"
+                  icon="mdi-information-outline"
+                  variant="text"
+                  density="comfortable"
+                  v-bind="props"
+                  @click="showFlashingHintsDialog = true"
+                ></v-btn>
+              </template>
+              <span>Show flashing hints</span>
+            </v-tooltip>
+          </div>
           <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
             label="Show Hint Size in" density="comfortable" hide-details></v-select>
-          <div class="flashing-hints" data-testid="flashing-hints">
-            <div class="flashing-hints__title">{{ selectedChipTarget.text }} flashing hints</div>
-            <div class="flashing-hints__row">
-              <span>Chip flag</span>
-              <code class="flashing-hints__value">--chip {{ selectedChipTarget.esptoolChip }}</code>
-            </div>
-            <div class="flashing-hints__row">
-              <span>Bootloader</span>
-              <code class="flashing-hints__value">{{ formatHex(selectedChipTarget.bootloaderOffset) }}</code>
-            </div>
-            <div class="flashing-hints__row">
-              <span>Partition table</span>
-              <code class="flashing-hints__value">{{ formatHex(store.partitionTableOffset) }}</code>
-            </div>
-            <div class="flashing-hints__row">
-              <span>App image</span>
-              <code class="flashing-hints__value">{{ formatHex(OFFSET_APP_TYPE) }}</code>
-            </div>
-            <details class="flashing-hints__details" data-testid="flashing-command-details">
-              <summary data-testid="flashing-command-summary">Command shape</summary>
-              <code class="flashing-hints__command" data-testid="flashing-command">{{ flashingCommand }}</code>
-              <div class="flashing-hints__note">Convert the CSV to partition-table.bin with gen_esp32part.py before flashing.</div>
-            </details>
-          </div>
           <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
             <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
             Over the air update capability
@@ -160,6 +151,35 @@
         <v-btn text @click="showUrlNotification = false">Close</v-btn>
       </template>
     </v-snackbar>
+    <v-dialog v-model="showFlashingHintsDialog" width="520" data-testid="flashing-hints-dialog">
+      <v-card color="white" :title="`${selectedChipTarget.text} flashing hints`">
+        <v-card-text>
+          <div class="flashing-hints" data-testid="flashing-hints">
+            <div class="flashing-hints__row">
+              <span>Chip flag</span>
+              <code class="flashing-hints__value">--chip {{ selectedChipTarget.esptoolChip }}</code>
+            </div>
+            <div class="flashing-hints__row">
+              <span>Bootloader</span>
+              <code class="flashing-hints__value">{{ formatHex(selectedChipTarget.bootloaderOffset) }}</code>
+            </div>
+            <div class="flashing-hints__row">
+              <span>Partition table</span>
+              <code class="flashing-hints__value">{{ formatHex(store.partitionTableOffset) }}</code>
+            </div>
+            <div class="flashing-hints__row">
+              <span>App image</span>
+              <code class="flashing-hints__value">{{ formatHex(OFFSET_APP_TYPE) }}</code>
+            </div>
+            <code class="flashing-hints__command" data-testid="flashing-command">{{ flashingCommand }}</code>
+            <div class="flashing-hints__note">Convert the CSV to partition-table.bin with gen_esp32part.py before flashing.</div>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn class="ms-auto" text="Close" @click="showFlashingHintsDialog = false"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -186,6 +206,7 @@ const store = partitionStore();
 const urlPartitionMessage = inject<Ref<string | null> | null>('urlPartitionMessage', null);
 const urlNotificationText = ref('');
 const showUrlNotification = ref(false);
+const showFlashingHintsDialog = ref(false);
 const activePage = ref<'partitionBuilder' | 'makerTools'>('partitionBuilder');
 
 if (urlPartitionMessage) {
@@ -363,19 +384,19 @@ if (store.partitionTables.getPartitions().length === 0) {
   font-size: 0.88rem;
 }
 
+.target-chip-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+}
+
 .flashing-hints {
-  margin: 10px 8px 0;
   padding: 10px 12px;
   border: 1px solid rgba(148, 163, 184, 0.24);
   border-radius: 8px;
   background: rgba(15, 23, 42, 0.28);
   color: rgba(255, 255, 255, 0.86);
-}
-
-.flashing-hints__title {
-  margin-bottom: 6px;
-  font-size: 0.76rem;
-  font-weight: 700;
 }
 
 .flashing-hints__row {
@@ -395,16 +416,6 @@ if (store.partitionTables.getPartitions().length === 0) {
 
 .flashing-hints__value {
   text-align: right;
-}
-
-.flashing-hints__details {
-  margin-top: 7px;
-  font-size: 0.72rem;
-}
-
-.flashing-hints__details summary {
-  cursor: pointer;
-  color: #93c5fd;
 }
 
 .flashing-hints__command {
