@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app data-testid="app-shell">
     <v-app-bar :title="'ESP32 Partition Builder v' + APP_VERSION">
       <div class="text-caption">
         Tutorial
@@ -19,18 +19,19 @@
         </v-container>
       </template>
     </v-app-bar>
-    <v-navigation-drawer permanent>
-      <div :class="availableMemoryColor()">
+    <v-navigation-drawer permanent data-testid="sidebar">
+      <div :class="availableMemoryColor()" data-testid="available-memory">
         <div>Available Flash Memory:</div>
         <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
           store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
         </div>
       </div>
-      <v-select v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
+      <v-select data-testid="built-in-partitions-select" v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
         label="Built-in partitions" dense hide-details></v-select>
-      <v-select v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
+      <v-select data-testid="flash-size-select" v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
         dense hide-details @update:model-value="changeFlashSize"></v-select>
       <v-select
+        data-testid="partition-table-offset-select"
         v-model="store.partitionTableOffset"
         :items="PARTITION_TABLE_OFFSET_OPTIONS"
         item-value="value"
@@ -41,6 +42,7 @@
         @update:model-value="changePartitionTableOffset"
       ></v-select>
       <v-text-field
+        data-testid="custom-offset-input"
         v-model="partitionTableOffsetText"
         label="Custom Offset (hex)"
         density="compact"
@@ -52,13 +54,14 @@
         @click:append-inner="applyCustomPartitionTableOffset(partitionTableOffsetText)"
         @change="applyCustomPartitionTableOffset($event)"
       ></v-text-field>
-      <v-select v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
+      <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
         label="Show Hint Size in" dense hide-details></v-select>
       <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
         <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
         Over the air update capability
       </div>
       <v-alert
+        data-testid="ota-nvs-warning"
         v-else-if="store.partitionTables.hasOTAPartitions()"
         type="warning"
         density="comfortable"
@@ -74,7 +77,7 @@
     <v-main class="d-flex align-top">
       <partition-editor></partition-editor>
     </v-main>
-    <v-snackbar v-model="showUrlNotification" location="top">
+    <v-snackbar v-model="showUrlNotification" location="top" data-testid="url-notification">
       {{ urlNotificationText }}
       <template #actions>
         <v-btn text @click="showUrlNotification = false">Close</v-btn>

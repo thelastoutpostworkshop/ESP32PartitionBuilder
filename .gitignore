@@ -19,6 +19,8 @@ public/*
 
 /cypress/videos/
 /cypress/screenshots/
+/test-results/
+/playwright-report/
 
 # Editor directories and files
 .idea

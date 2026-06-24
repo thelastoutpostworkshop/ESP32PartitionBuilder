@@ -2,52 +2,52 @@
   <v-container>
     <v-form ref="formRef" @submit.prevent="downloadCSV">
       <v-app-bar location="top" permanent>
-        <v-btn color="primary" @click="addPartition">Add Partition
+        <v-btn data-testid="add-partition-button" color="primary" @click="addPartition">Add Partition
           <v-menu activator="parent">
-            <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;">
+            <v-list v-if="store.partitionTables.getAvailableMemory() > 0" style="cursor: pointer;" data-testid="add-partition-menu">
               <v-tooltip location="end">
                 <template #activator="{ props }">
-                  <v-list-item v-bind="props" @click="addNVSPartition">
+                  <v-list-item data-testid="add-nvs-partition" v-bind="props" @click="addNVSPartition">
                     NVS (Non-Volatile Storage)
                   </v-list-item>
                 </template>
                 <span>Required when using Wi-Fi, BLE, or Preferences APIs.</span>
               </v-tooltip>
-              <v-list-item @click="addOTAPartition">
+              <v-list-item data-testid="add-ota-partitions" @click="addOTAPartition">
                 OTA (Over The Air Updates)
               </v-list-item>
-              <v-list-item @click="addFactoryPartition">
+              <v-list-item data-testid="add-factory-partition" @click="addFactoryPartition">
                 Factory App
               </v-list-item>
-              <v-list-item @click="addFATPartition">
+              <v-list-item data-testid="add-fat-partition" @click="addFATPartition">
                 FAT File System
               </v-list-item>
-              <v-list-item @click="addSPIFFPartition">
+              <v-list-item data-testid="add-spiffs-partition" @click="addSPIFFPartition">
                 SPIFFS File System
               </v-list-item>
-              <v-list-item @click="addLittleFSPartition">
+              <v-list-item data-testid="add-littlefs-partition" @click="addLittleFSPartition">
                 LittleFS File System
               </v-list-item>
-              <v-list-item @click="addOTADataPartition">
+              <v-list-item data-testid="add-ota-data-partition" @click="addOTADataPartition">
                 OTA Data
               </v-list-item>
-              <v-list-item @click="addCoreDumpPartition">
+              <v-list-item data-testid="add-coredump-partition" @click="addCoreDumpPartition">
                 Core Dump
               </v-list-item>
-              <v-list-item @click="addTestPartition">
+              <v-list-item data-testid="add-test-partition" @click="addTestPartition">
                 Test App
               </v-list-item>
-              <v-list-item @click="addPhyPartition">
+              <v-list-item data-testid="add-phy-partition" @click="addPhyPartition">
                 PHY Initialisation Data
               </v-list-item>
             </v-list>
           </v-menu>
         </v-btn>
-        <v-btn color="primary" @click="loadCSV" dense class="mr-2">Load CSV
+        <v-btn data-testid="load-csv-button" color="primary" @click="loadCSV" dense class="mr-2">Load CSV
           <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
         </v-btn>
-        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-        <v-btn color="primary" type="submit" dense
+        <input data-testid="csv-file-input" type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
+        <v-btn data-testid="download-csv-button" color="primary" type="submit" dense
           :disabled="store.partitionTables.getPartitions().length == 0">Download
           CSV
           <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
@@ -55,7 +55,7 @@
         <v-spacer></v-spacer>
         <v-tooltip location="top">
           <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text"
+            <v-btn data-testid="clear-partitions-button" icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text"
               :disabled="store.partitionTables.getPartitions().length == 0">
               <v-icon color="red-darken-4">
                 mdi-trash-can
@@ -65,7 +65,7 @@
           <span>Delete all Partitions</span>
         </v-tooltip>
       </v-app-bar>
-      <div v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index"
+      <div data-testid="partition-card" v-for="(partition, index) in store.partitionTables.getPartitions()" :key="index"
         class="partition mt-4" :style="partitionStyle(partition, index)">
         <div class="partition__tag">
           <div class="partition__label">
@@ -100,7 +100,7 @@
           <v-col cols="auto">
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-btn icon v-bind="props" @click="removePartition(partition)" variant="text">
+                <v-btn data-testid="remove-partition-button" icon v-bind="props" @click="removePartition(partition)" variant="text">
                   <v-icon color="red-darken-4">
                     mdi-trash-can
                   </v-icon>
@@ -127,11 +127,11 @@
               </template>
               <span>Resize to fit</span>
             </v-tooltip>
-            <v-btn color="primary" icon="mdi-minus-box" size="small" variant="text"
+            <v-btn data-testid="decrement-partition-button" color="primary" icon="mdi-minus-box" size="small" variant="text"
               @click="decrement(partition)"></v-btn>
           </template>
           <template v-slot:append>
-            <v-btn color="primary" icon="mdi-plus-box" size="small" variant="text"
+            <v-btn data-testid="increment-partition-button" color="primary" icon="mdi-plus-box" size="small" variant="text"
               @click="increment(partition)"></v-btn>
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
@@ -159,7 +159,7 @@
         </v-slider>
       </div>
     </v-form>
-    <v-dialog v-model="showAlert" width="auto">
+    <v-dialog v-model="showAlert" width="auto" data-testid="alert-dialog">
       <v-card max-width="400" prepend-icon="mdi-alert-circle-outline" color="white" :text="alertText"
         :title="alertTitle">
         <template v-slot:actions>
@@ -167,12 +167,12 @@
         </template>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="showOverrideDialog" width="auto">
+    <v-dialog v-model="showOverrideDialog" width="auto" data-testid="override-dialog">
       <v-card max-width="400" color="white" :title="dialogTitle">
         <v-card-text>{{ dialogText }}</v-card-text>
         <v-card-actions>
           <v-btn @click="showOverrideDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="confirmOverride">Proceed</v-btn>
+          <v-btn data-testid="confirm-download-button" color="primary" @click="confirmOverride">Proceed</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

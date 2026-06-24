@@ -1,0 +1,85 @@
+import { beforeEach, describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { loadPartitionsFromCsv } from '@/partitionLoader'
+import { partitionStore } from '@/store'
+
+describe('loadPartitionsFromCsv', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('loads valid CSV rows and calculates offsets', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'nvs,data,nvs,,0x5000,',
+        'factory,app,factory,,1M,'
+      ].join('\n'),
+      store
+    )
+
+    expect(error).toBeNull()
+    expect(store.flashSize).toBe(4)
+    expect(store.partitionTables.getPartitions()).toMatchObject([
+      { name: 'nvs', type: 'data', subtype: 'nvs', offset: 0x9000, fixedOffset: false },
+      { name: 'factory', type: 'app', subtype: 'factory', offset: 0x10000, fixedOffset: false }
+    ])
+  })
+
+  it('keeps explicit fixed offsets from CSV rows', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'nvs,data,nvs,0x9000,0x5000,',
+        'factory,app,factory,0x10000,0x10000,'
+      ].join('\n'),
+      store
+    )
+
+    expect(error).toBeNull()
+    expect(store.partitionTables.getPartitions()).toMatchObject([
+      { name: 'nvs', offset: 0x9000, fixedOffset: true },
+      { name: 'factory', offset: 0x10000, fixedOffset: true }
+    ])
+  })
+
+  it('honors a forced flash size option', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'nvs,data,nvs,,0x5000,'
+      ].join('\n'),
+      store,
+      { forceFlashSize: 8 }
+    )
+
+    expect(error).toBeNull()
+    expect(store.flashSize).toBe(8)
+    expect(store.partitionTables.flashSize).toBe(8 * 1024 * 1024)
+  })
+
+  it('returns a format error for invalid CSV content', () => {
+    const store = partitionStore()
+
+    expect(loadPartitionsFromCsv('not,a,partition,file', store)).toEqual({
+      title: 'Invalid CSV Format',
+      text: 'The CSV file format is incorrect. Please use the correct format.'
+    })
+  })
+
+  it('rejects app partitions with invalid alignment', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'factory,app,factory,0x9000,0x10000,'
+      ].join('\n'),
+      store
+    )
+
+    expect(error?.title).toBe('Invalid Offset Alignment')
+  })
+})

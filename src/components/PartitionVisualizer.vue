@@ -1,5 +1,5 @@
 <template>
-  <div class="partition-visualizer">
+  <div class="partition-visualizer" data-testid="partition-visualizer">
     <div v-for="segment in partitionSegments" :key="segment.id" class="partition-segment"
       :class="`partition-segment--${segment.kind}`" :style="segment.style" :title="segment.title">
       <div class="partition-segment__content">
