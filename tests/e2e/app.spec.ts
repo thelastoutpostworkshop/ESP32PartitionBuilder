@@ -96,6 +96,37 @@ test('keeps tiny fixed-offset partitions visible in the visualizer', async ({ pa
   }
 })
 
+test('keeps imported fixed offsets after partition size edits', async ({ page }) => {
+  await page.goto('/')
+  const csv = [
+    '# Name,   Type, SubType, Offset,  Size, Flags',
+    'otadata,data,ota,0x9000,0x2000,',
+    'phy_init,data,phy,0xB000,0x1000,',
+    'app0,app,ota_0,0x10000,0x640000,',
+    'app1,app,ota_1,0x650000,0x640000,',
+    'nvs,data,nvs,0xC90000,0x40000,',
+    'storage,data,spiffs,0xCD0000,0x330000,'
+  ].join('\n')
+
+  await page.getByTestId('csv-file-input').setInputFiles({
+    name: 'issue-18.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv)
+  })
+
+  await expect(page.getByText('0xB000')).toBeVisible()
+  await expect(page.getByText('0xC90000')).toBeVisible()
+  await expect(page.getByText('0xCD0000')).toBeVisible()
+
+  await page.getByTestId('partition-card').nth(5).getByTestId('increment-partition-button').click()
+
+  await expect(page.getByText('0xB000')).toBeVisible()
+  await expect(page.getByText('0xC90000')).toBeVisible()
+  await expect(page.getByText('0xCD0000')).toBeVisible()
+  await expect(page.getByText('0xC91000')).toHaveCount(0)
+  await expect(page.getByText('0xCD1000')).toHaveCount(0)
+})
+
 test('adds and removes a partition from the add menu', async ({ page }) => {
   await page.goto('/')
 

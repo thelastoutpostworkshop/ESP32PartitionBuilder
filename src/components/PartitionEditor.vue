@@ -236,9 +236,6 @@ const showOverrideDialog = ref(false);
 const pendingCsvAction = ref<'download' | 'copy' | null>(null);
 const showPasteDialog = ref(false);
 const pastedCsvText = ref('');
-const unlockPartitionOffsets = () => {
-  store.partitionTables.releaseFixedOffsets();
-};
 
 const partitionStyle = (partition: Partition, index: number) => {
   const baseColor = getPartitionBaseColor(partition, index);
@@ -475,7 +472,6 @@ const getSubtypes = (type: string) => {
 
 
 const updateSize = (partition: Partition) => {
-  unlockPartitionOffsets();
   store.partitionTables.updatePartitionSize(partition, partition.size);
 };
 
@@ -505,7 +501,6 @@ const addPartition = () => {
 };
 
 const addNVSPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < NVS_PARTITION_SIZE_RECOMMENDED) {
     showAlertMessage("Cannot add a NVS partition", `There is not enough memory to add a NVS partition. NVS partition size must be at least ${NVS_PARTITION_SIZE_RECOMMENDED} bytes (${store.hintDisplaySize(NVS_PARTITION_SIZE_RECOMMENDED)}).`)
   } else {
@@ -515,7 +510,6 @@ const addNVSPartition = () => {
 };
 
 const addFATPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < FAT_MIN_PARTITION_SIZE) {
     showAlertMessage("Cannot add a FAT partition", `There is not enough memory to add a FAT partition. FAT partition size must be at least ${FAT_MIN_PARTITION_SIZE} bytes (${store.hintDisplaySize(FAT_MIN_PARTITION_SIZE)}).`)
   } else {
@@ -524,7 +518,6 @@ const addFATPartition = () => {
   }
 };
 const addSPIFFPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < SPIFFS_MIN_PARTITION_SIZE) {
     showAlertMessage("Cannot add a SPIFF partition", `There is not enough memory to add a SPIFFS partition. SPIFFS partition size must be at least ${SPIFFS_MIN_PARTITION_SIZE} bytes (${store.hintDisplaySize(SPIFFS_MIN_PARTITION_SIZE)}).`)
   } else {
@@ -533,7 +526,6 @@ const addSPIFFPartition = () => {
   }
 };
 const addLittleFSPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < LITTLEFS_MIN_PARTITION_SIZE) {
     showAlertMessage("Cannot add a LittleFS partition", `There is not enough memory to add a LittleFS partition. LittleFS partition size must be at least ${LITTLEFS_MIN_PARTITION_SIZE} bytes (${store.hintDisplaySize(LITTLEFS_MIN_PARTITION_SIZE)}).`)
   } else {
@@ -542,7 +534,6 @@ const addLittleFSPartition = () => {
   }
 };
 const addCoreDumpPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < COREDUMP_MIN_PARTITION_SIZE) {
     showAlertMessage("Cannot add a Core Dump partition", `There is not enough memory to add a Core Dump partition. Core Dump partition size must be at least ${COREDUMP_MIN_PARTITION_SIZE} bytes (${store.hintDisplaySize(COREDUMP_MIN_PARTITION_SIZE)}).`)
   } else {
@@ -551,7 +542,6 @@ const addCoreDumpPartition = () => {
   }
 };
 const addPhyPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < PHY_MIN_PARTITION_SIZE) {
     showAlertMessage("Cannot add a PHY partition", `There is not enough memory to add a PHY partition. Phy partition size must be at least ${PHY_MIN_PARTITION_SIZE} bytes (${store.hintDisplaySize(PHY_MIN_PARTITION_SIZE)}).`)
   } else {
@@ -560,7 +550,6 @@ const addPhyPartition = () => {
   }
 };
 const addFactoryPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < OFFSET_APP_TYPE) {
     showAlertMessage("Cannot add a Factory App partition", `There is not enough memory to add a Factory App partition. Factory App partition size must be at least ${OFFSET_APP_TYPE} bytes (${store.hintDisplaySize(OFFSET_APP_TYPE)}).`)
   } else {
@@ -569,7 +558,6 @@ const addFactoryPartition = () => {
   }
 };
 const addTestPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < OFFSET_APP_TYPE) {
     showAlertMessage("Cannot add a Test App partition", `There is not enough memory to add a Test App partition. Factory App partition size must be at least ${OFFSET_APP_TYPE} bytes (${store.hintDisplaySize(OFFSET_APP_TYPE)}).`)
   } else {
@@ -578,7 +566,6 @@ const addTestPartition = () => {
   }
 };
 const addOTADataPartition = () => {
-  unlockPartitionOffsets();
   if (store.partitionTables.getAvailableMemory() < OTA_DATA_PARTITION_SIZE) {
     showAlertMessage("Cannot add an OTA Data partition", `There is not enough memory to add an OTA Data partition. Factory App partition size must be at least ${OTA_DATA_PARTITION_SIZE} bytes (${store.hintDisplaySize(OTA_DATA_PARTITION_SIZE)}).`)
     return
@@ -593,7 +580,6 @@ const addOTADataPartition = () => {
 };
 
 const addOTAPartition = () => {
-  unlockPartitionOffsets();
   const needsNvs = !store.partitionTables.hasSubtype(PARTITION_NVS)
   const sizeNeeded = OTA_DATA_PARTITION_SIZE + OFFSET_APP_TYPE * 2 + (needsNvs ? NVS_PARTITION_SIZE_RECOMMENDED : 0)
   if (store.partitionTables.getAvailableMemory() < sizeNeeded) {
@@ -618,12 +604,10 @@ const addOTAPartition = () => {
 };
 
 const removePartition = (partition: Partition) => {
-  unlockPartitionOffsets();
   store.partitionTables.removePartition(partition.name)
 };
 
 const reclaimMemory = (partition: Partition) => {
-  unlockPartitionOffsets();
   const available = store.partitionTables.getAvailableMemory();
   if (available <= 0) {
     return;
@@ -636,7 +620,6 @@ const reclaimMemory = (partition: Partition) => {
 };
 
 const resizeToFit = (partition: Partition) => {
-  unlockPartitionOffsets();
   let resize: number
   const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
   if (resizeOnOta) {

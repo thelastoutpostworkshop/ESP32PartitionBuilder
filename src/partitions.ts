@@ -113,19 +113,29 @@ export class PartitionTable {
   }
 
   getMaxPartitionSize(partition: Partition): number {
-    const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
-    const alignedOffset = this.alignOffset(partition.offset, alignment);
+    const alignment = this.getPartitionAlignment(partition);
+    const nextFixedPartition = this.hasFixedOffsets()
+      ? this.getNextPartitionByOffset(partition)
+      : undefined;
+    const maxEndOffset = nextFixedPartition?.offset ?? this.flashSize;
+    const maxSize = Math.floor((maxEndOffset - partition.offset) / alignment) * alignment;
 
-    let maxSize = this.flashSize - alignedOffset;
+    return Math.max(alignment, maxSize);
+  }
 
-    for (const existingPartition of this.partitions) {
-      if (existingPartition.offset > partition.offset) {
-        maxSize = existingPartition.offset - alignedOffset;
-        break;
-      }
+  private getPartitionAlignment(partition: Partition): number {
+    return partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+  }
+
+  private getNextPartitionByOffset(partition: Partition): Partition | undefined {
+    const sortedPartitions = [...this.partitions].sort((a, b) => a.offset - b.offset);
+    const currentIndex = sortedPartitions.indexOf(partition);
+
+    if (currentIndex === -1) {
+      return undefined;
     }
 
-    return maxSize;
+    return sortedPartitions[currentIndex + 1];
   }
 
 
@@ -173,8 +183,7 @@ export class PartitionTable {
     const baseOffset = this.getPartitionTableBaseOffset();
     const otadataRequiredOffset = this.getOtadataRequiredOffset();
 
-    const hasFixedOffsets = this.partitions.some(p => p.fixedOffset);
-    if (hasFixedOffsets) {
+    if (this.hasFixedOffsets()) {
       this.partitions.sort((a, b) => a.offset - b.offset);
       return;
     }
@@ -299,19 +308,26 @@ export class PartitionTable {
 
 
   updatePartitionSize(partition: Partition, newSize: number) {
-    const alignment = partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+    const alignment = this.getPartitionAlignment(partition);
     const minSize = alignment;
-    const maxPossible = Math.max(minSize, Math.floor((this.flashSize - partition.offset) / alignment) * alignment);
+    const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
+    const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
+    const isOtaPair = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && ota0Index !== -1 && ota1Index !== -1;
+    const resizeTargets = isOtaPair
+      ? [this.partitions[ota0Index], this.partitions[ota1Index]]
+      : [partition];
+    const maxPossible = Math.max(
+      minSize,
+      Math.min(...resizeTargets.map(targetPartition => {
+        return targetPartition ? this.getMaxPartitionSize(targetPartition) : minSize;
+      }))
+    );
     let target = Math.min(Math.max(newSize, minSize), maxPossible);
     target = Math.floor(target / alignment) * alignment;
 
     if (target < minSize) {
       target = minSize;
     }
-
-    const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
-    const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-    const isOtaPair = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && ota0Index !== -1 && ota1Index !== -1;
 
     const originalSizes = this.partitions.map(p => p.size);
     const attemptResize = (candidateSize: number): boolean => {
@@ -375,6 +391,10 @@ export class PartitionTable {
 
   generateTable(): Partition[] {
     return this.partitions;
+  }
+
+  hasFixedOffsets(): boolean {
+    return this.partitions.some(p => p.fixedOffset);
   }
 
   releaseFixedOffsets() {

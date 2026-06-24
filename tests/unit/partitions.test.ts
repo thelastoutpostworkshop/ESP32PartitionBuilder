@@ -10,6 +10,8 @@ import {
   PARTITION_FACTORY,
   PARTITION_NVS,
   PARTITION_OTA,
+  PARTITION_PHY,
+  PARTITION_SPIFFS,
   PARTITION_TYPE_APP,
   PARTITION_TYPE_DATA
 } from '@/const'
@@ -60,6 +62,30 @@ describe('PartitionTable', () => {
 
     expect(app0!.size).toBe(OFFSET_APP_TYPE * 2)
     expect(app1!.size).toBe(OFFSET_APP_TYPE * 2)
+  })
+
+  it('preserves fixed offsets when resizing imported partition layouts', () => {
+    const table = new PartitionTable(16)
+    table.addPartition('otadata', PARTITION_TYPE_DATA, PARTITION_OTA, 0x2000, '', 0x9000, true)
+    table.addPartition('phy_init', PARTITION_TYPE_DATA, PARTITION_PHY, 0x1000, '', 0xb000, true)
+    table.addPartition('app0', PARTITION_TYPE_APP, 'ota_0', 0x640000, '', 0x10000, true)
+    table.addPartition('app1', PARTITION_TYPE_APP, 'ota_1', 0x640000, '', 0x650000, true)
+    table.addPartition('nvs', PARTITION_TYPE_DATA, PARTITION_NVS, 0x40000, '', 0xc90000, true)
+    table.addPartition('storage', PARTITION_TYPE_DATA, PARTITION_SPIFFS, 0x330000, '', 0xcd0000, true)
+
+    const originalOffsets = table.getPartitions().map(partition => [partition.name, partition.offset])
+    const app0 = table.getPartitions().find(partition => partition.name === 'app0')
+    const app1 = table.getPartitions().find(partition => partition.name === 'app1')
+    const storage = table.getPartitions().find(partition => partition.name === 'storage')
+
+    expect(table.hasFixedOffsets()).toBe(true)
+    table.updatePartitionSize(app0!, app0!.size + OFFSET_APP_TYPE)
+    table.updatePartitionSize(storage!, storage!.size + OFFSET_DATA_TYPE)
+
+    expect(table.getPartitions().map(partition => [partition.name, partition.offset])).toEqual(originalOffsets)
+    expect(app0!.size).toBe(0x640000)
+    expect(app1!.size).toBe(0x640000)
+    expect(storage!.size).toBe(0x330000)
   })
 
   it('rejects unaligned partition table offsets', () => {
