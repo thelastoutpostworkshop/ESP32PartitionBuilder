@@ -2,6 +2,7 @@
 
 ## 1.2.2
 ### Improvement
+- Added a dedicated Maker Tools page under Resources with companion tools, tutorials, and source links.
 
 ### Internal runtime
 - Added Vitest unit tests for partition table calculations, CSV loading, URL parsing, and partition color helpers.

@@ -14,68 +14,111 @@
         <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
       </v-btn>
       <template v-slot:extension>
-        <v-container fluid class="mb-1 ml-1">
+        <v-container v-if="activePage === 'partitionBuilder'" fluid class="mb-1 ml-1">
           <partition-visualizer></partition-visualizer>
         </v-container>
       </template>
     </v-app-bar>
-    <v-navigation-drawer permanent data-testid="sidebar">
-      <div :class="availableMemoryColor()" data-testid="available-memory">
-        <div>Available Flash Memory:</div>
-        <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
-          store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
+    <v-navigation-drawer permanent data-testid="sidebar" class="app-sidebar">
+      <div class="app-sidebar__content">
+        <v-list density="compact" nav>
+          <v-list-subheader class="app-sidebar__section-label">Sections</v-list-subheader>
+          <v-list-item
+            data-testid="partition-builder-nav"
+            prepend-icon="mdi-table-cog"
+            :active="activePage === 'partitionBuilder'"
+            rounded="lg"
+            @click="activePage = 'partitionBuilder'"
+          >
+            <v-list-item-title>Partition Builder</v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <div v-show="activePage === 'partitionBuilder'" class="app-sidebar__controls">
+          <div :class="availableMemoryColor()" data-testid="available-memory">
+            <div>Available Flash Memory:</div>
+            <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
+              store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
+            </div>
+          </div>
+          <v-select data-testid="built-in-partitions-select" v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
+            label="Built-in partitions" density="comfortable" hide-details></v-select>
+          <v-select data-testid="flash-size-select" v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
+            density="comfortable" hide-details @update:model-value="changeFlashSize"></v-select>
+          <v-select
+            data-testid="partition-table-offset-select"
+            v-model="store.partitionTableOffset"
+            :items="PARTITION_TABLE_OFFSET_OPTIONS"
+            item-value="value"
+            item-title="text"
+            label="Partition Table Offset"
+            density="comfortable"
+            hide-details
+            @update:model-value="changePartitionTableOffset"
+          ></v-select>
+          <v-text-field
+            data-testid="custom-offset-input"
+            v-model="partitionTableOffsetText"
+            label="Custom Offset (hex)"
+            density="compact"
+            hide-details="auto"
+            persistent-hint
+            hint="Must align to 0x1000; leave CSV offsets blank to auto-align"
+            :rules="[customOffsetRule]"
+            append-inner-icon="mdi-check"
+            @click:append-inner="applyCustomPartitionTableOffset(partitionTableOffsetText)"
+            @change="applyCustomPartitionTableOffset($event)"
+          ></v-text-field>
+          <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
+            label="Show Hint Size in" density="comfortable" hide-details></v-select>
+          <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
+            <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
+            Over the air update capability
+          </div>
+          <v-alert
+            data-testid="ota-nvs-warning"
+            v-else-if="store.partitionTables.hasOTAPartitions()"
+            type="warning"
+            density="comfortable"
+            border="start"
+            class="ma-3 mt-4"
+            variant="outlined"
+            icon="mdi-alert"
+          >
+            <div class="font-weight-medium">NVS partition required</div>
+            <div class="text-body-2">Add an NVS partition to restore Over the Air update capability.</div>
+          </v-alert>
+        </div>
+        <div class="app-sidebar__resources" data-testid="resources-section">
+          <v-divider class="mb-2"></v-divider>
+          <v-list density="compact" nav>
+            <v-list-subheader class="app-sidebar__section-label">Resources</v-list-subheader>
+            <v-list-item
+              v-for="link in resourceLinks"
+              :key="link.href"
+              :href="link.href"
+              :prepend-icon="link.icon"
+              target="_blank"
+              rel="noopener"
+              rounded="lg"
+            >
+              <v-list-item-title>{{ link.title }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              data-testid="maker-tools-nav"
+              prepend-icon="mdi-tools"
+              :active="activePage === 'makerTools'"
+              rounded="lg"
+              @click="activePage = 'makerTools'"
+            >
+              <v-list-item-title>Maker Tools</v-list-item-title>
+            </v-list-item>
+          </v-list>
         </div>
       </div>
-      <v-select data-testid="built-in-partitions-select" v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
-        label="Built-in partitions" density="comfortable" hide-details></v-select>
-      <v-select data-testid="flash-size-select" v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
-        density="comfortable" hide-details @update:model-value="changeFlashSize"></v-select>
-      <v-select
-        data-testid="partition-table-offset-select"
-        v-model="store.partitionTableOffset"
-        :items="PARTITION_TABLE_OFFSET_OPTIONS"
-        item-value="value"
-        item-title="text"
-        label="Partition Table Offset"
-        density="comfortable"
-        hide-details
-        @update:model-value="changePartitionTableOffset"
-      ></v-select>
-      <v-text-field
-        data-testid="custom-offset-input"
-        v-model="partitionTableOffsetText"
-        label="Custom Offset (hex)"
-        density="compact"
-        hide-details="auto"
-        persistent-hint
-        hint="Must align to 0x1000; leave CSV offsets blank to auto-align"
-        :rules="[customOffsetRule]"
-        append-inner-icon="mdi-check"
-        @click:append-inner="applyCustomPartitionTableOffset(partitionTableOffsetText)"
-        @change="applyCustomPartitionTableOffset($event)"
-      ></v-text-field>
-      <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
-        label="Show Hint Size in" density="comfortable" hide-details></v-select>
-      <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
-        <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
-        Over the air update capability
-      </div>
-      <v-alert
-        data-testid="ota-nvs-warning"
-        v-else-if="store.partitionTables.hasOTAPartitions()"
-        type="warning"
-        density="comfortable"
-        border="start"
-        class="ma-3 mt-4"
-        variant="outlined"
-        icon="mdi-alert"
-      >
-        <div class="font-weight-medium">NVS partition required</div>
-        <div class="text-body-2">Add an NVS partition to restore Over the Air update capability.</div>
-      </v-alert>
     </v-navigation-drawer>
     <v-main class="d-flex align-top">
-      <partition-editor></partition-editor>
+      <partition-editor v-if="activePage === 'partitionBuilder'"></partition-editor>
+      <maker-tools-page v-else></maker-tools-page>
     </v-main>
     <v-snackbar v-model="showUrlNotification" location="top" data-testid="url-notification">
       {{ urlNotificationText }}
@@ -89,6 +132,7 @@
 <script setup lang="ts">
 import { ref, watch, inject, type Ref } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
+import MakerToolsPage from './components/MakerToolsPage.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
 import {
@@ -106,6 +150,7 @@ const store = partitionStore();
 const urlPartitionMessage = inject<Ref<string | null> | null>('urlPartitionMessage', null);
 const urlNotificationText = ref('');
 const showUrlNotification = ref(false);
+const activePage = ref<'partitionBuilder' | 'makerTools'>('partitionBuilder');
 
 if (urlPartitionMessage) {
   watch(
@@ -129,6 +174,23 @@ const partitionOptions = esp32Partitions.map(set => ({
   text: set.name,
   value: set.name
 }));
+const resourceLinks = [
+  {
+    title: 'Tutorial',
+    href: 'https://youtu.be/EuHxodrye6E',
+    icon: 'mdi-youtube'
+  },
+  {
+    title: 'Buy Me a Coffee',
+    href: 'https://buymeacoffee.com/thelastoutpostworkshop',
+    icon: 'mdi-coffee'
+  },
+  {
+    title: 'Get Help',
+    href: 'https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder',
+    icon: 'mdi-lifebuoy'
+  }
+];
 
 watch(selectedPartitionSet, () => {
   loadPartitions();
@@ -223,4 +285,36 @@ if (store.partitionTables.getPartitions().length === 0) {
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.app-sidebar :deep(.v-navigation-drawer__content) {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.app-sidebar__content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.app-sidebar__controls {
+  flex: 1 1 auto;
+}
+
+.app-sidebar__resources {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-bottom: 8px;
+}
+
+.app-sidebar__section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-sidebar__resources :deep(.v-list-item-title) {
+  font-size: 0.88rem;
+}
+</style>

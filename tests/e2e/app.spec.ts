@@ -11,7 +11,26 @@ test('renders the default app shell', async ({ page }) => {
   await expect(page.getByTestId('app-shell')).toBeVisible()
   await expect(page.getByTestId('partition-visualizer')).toBeVisible()
   await expect(page.getByTestId('available-memory')).toContainText('Available Flash Memory')
+  await expect(page.getByTestId('resources-section')).toBeInViewport()
+  await expect(page.getByTestId('resources-section')).toContainText('Maker Tools')
   await expect(page.getByText('Unallocated Flash')).toBeVisible()
+  await expect(page.getByTestId('download-csv-button')).toBeDisabled()
+})
+
+test('opens the Maker Tools page from the sidebar', async ({ page }) => {
+  await page.goto('/')
+
+  await page.getByTestId('maker-tools-nav').click()
+
+  await expect(page.getByTestId('maker-tools-page')).toBeVisible()
+  await expect(page.getByTestId('maker-tool-card')).toHaveCount(5)
+  await expect(page.getByRole('link', { name: 'thelastoutpostworkshop/ESPVault' })).toHaveAttribute(
+    'href',
+    'https://github.com/thelastoutpostworkshop/ESPVault'
+  )
+
+  await page.getByTestId('partition-builder-nav').click()
+  await expect(page.getByTestId('download-csv-button')).toBeVisible()
   await expect(page.getByTestId('download-csv-button')).toBeDisabled()
 })
 
