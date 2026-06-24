@@ -90,6 +90,24 @@ test('exports the Zigbee ESP-IDF built-in partition set', async ({ page }) => {
   expect(csv).toContain('zb_fct,data,fat,0x140000,0x400,')
 })
 
+test('can reapply a selected built-in partition set after clearing partitions', async ({ page }) => {
+  await page.goto('/')
+
+  await openSelect(page, 'built-in-partitions-select', 'Zigbee ESP-IDF')
+  await expect(page.getByTestId('partition-card')).toHaveCount(5)
+
+  await page.getByTestId('clear-partitions-button').click()
+
+  await expect(page.getByTestId('partition-card')).toHaveCount(0)
+  await expect(page.getByTestId('built-in-partitions-select')).toContainText('Empty (no partitions)')
+
+  await openSelect(page, 'built-in-partitions-select', 'Zigbee ESP-IDF')
+
+  await expect(page.getByTestId('partition-card')).toHaveCount(5)
+  await expect(page.getByText('zb_storage')).toBeVisible()
+  await expect(page.getByText('zb_fct')).toBeVisible()
+})
+
 test('keeps tiny fixed-offset partitions visible in the visualizer', async ({ page }) => {
   await page.goto('/')
   const csv = [

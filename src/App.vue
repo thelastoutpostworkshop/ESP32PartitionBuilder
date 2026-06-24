@@ -137,7 +137,10 @@
       </div>
     </v-navigation-drawer>
     <v-main class="d-flex align-top">
-      <partition-editor v-if="activePage === 'partitionBuilder'"></partition-editor>
+      <partition-editor
+        v-if="activePage === 'partitionBuilder'"
+        @partitions-cleared="resetSelectedPartitionSet"
+      ></partition-editor>
       <maker-tools-page v-else></maker-tools-page>
     </v-main>
     <v-snackbar v-model="showUrlNotification" location="top" data-testid="url-notification">
@@ -363,6 +366,11 @@ function loadPartitions() {
     })
   }
 };
+
+function resetSelectedPartitionSet() {
+  selectedPartitionSet.value = defaultPartitionName;
+}
+
 if (store.partitionTables.getPartitions().length === 0) {
   loadPartitions();
 }

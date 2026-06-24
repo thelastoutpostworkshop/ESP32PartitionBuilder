@@ -67,7 +67,7 @@
         <v-spacer></v-spacer>
         <v-tooltip location="top">
           <template v-slot:activator="{ props }">
-            <v-btn data-testid="clear-partitions-button" icon v-bind="props" @click="store.partitionTables.clearPartitions()" variant="text"
+            <v-btn data-testid="clear-partitions-button" icon v-bind="props" @click="clearPartitions" variant="text"
               :disabled="store.partitionTables.getPartitions().length == 0">
               <v-icon color="red-darken-4">
                 mdi-trash-can
@@ -242,6 +242,9 @@ import type { Partition } from '@/types'
 import { getAccessibleTextColor, getPartitionBaseColor, lightenColor } from '@/partitionColors';
 
 const store = partitionStore();
+const emit = defineEmits<{
+  (event: 'partitions-cleared'): void
+}>();
 const formRef = ref();
 const showAlert = ref(false);
 const alertText = ref("")
@@ -735,6 +738,11 @@ const addOTAPartition = () => {
 
 const removePartition = (partition: Partition) => {
   store.partitionTables.removePartition(partition.name)
+};
+
+const clearPartitions = () => {
+  store.partitionTables.clearPartitions()
+  emit('partitions-cleared')
 };
 
 const reclaimMemory = (partition: Partition) => {

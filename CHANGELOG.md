@@ -10,6 +10,7 @@
 - Added Copy CSV and Paste CSV clipboard actions for partition tables ([#13](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/13)).
 
 ### Fixed Issues
+- Allow the currently selected built-in partition preset to be applied again after clearing all partitions.
 - Use `KB` and `MB` for byte-based size labels instead of `Kb` and `Mb` ([#19](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/19)).
 - Preserve imported fixed partition offsets when resizing partitions so custom CSV layouts do not silently shift ([#18](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/18)).
 - Keep tiny fixed-offset partitions and trailing unused flash visible in the partition visualizer ([#21](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/21)).
