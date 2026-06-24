@@ -4,6 +4,9 @@
 ### Improvement
 - Added a dedicated Maker Tools page under Resources with companion tools, including ESPConnect, tutorials, and source links.
 
+### Fixed Issues
+- Use `KB` and `MB` for byte-based size labels instead of `Kb` and `Mb` ([#19](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/19)).
+
 ### Internal runtime
 - Added Vitest unit tests for partition table calculations, CSV loading, URL parsing, and partition color helpers.
 - Added Playwright end-to-end tests for app rendering, partition workflows, CSV import/export, and OTA warnings.

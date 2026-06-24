@@ -25,8 +25,8 @@ export const PARTITION_TABLE_OFFSET_OPTIONS = [
 ]
 
 export const DISPLAY_SIZES = [
-    {value:1024, text:"Kilobytes (Kb)"},
-    {value:1024*1024, text:"Megabytes (Mb)"}
+    {value:1024, text:"Kilobytes (KB)"},
+    {value:1024*1024, text:"Megabytes (MB)"}
 ]
 export const PARTITION_TYPE_APP = "app"
 export const PARTITION_TYPE_DATA = "data"

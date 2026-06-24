@@ -16,10 +16,10 @@ export const partitionStore = defineStore('partition_store', () => {
         let label: string = ""
         switch (displaySizes.value) {
           case 1024:
-            label = `${size / displaySizes.value} Kb`
+            label = `${size / displaySizes.value} KB`
             break;
           case 1024 * 1024:
-            label = `${parseFloat((size / displaySizes.value).toFixed(5))} Mb`
+            label = `${parseFloat((size / displaySizes.value).toFixed(5))} MB`
             break;
           default:
             label = "Size unknown"
