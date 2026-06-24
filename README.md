@@ -32,21 +32,6 @@ for a microcontroller with 4MB flash memory.
 
 Use the “Partition Table Offset” control in the sidebar (0x8000 by default; 0x18000 for larger bootloaders). The app will realign partitions automatically—leave offsets blank in CSV files to have them adapt. Remember to build both bootloader and app with the same `PARTITION_TABLE_OFFSET` in `sdkconfig`, and keep the value a multiple of 0x1000.
 
-## Contributors
+## Contributing
 
-Contributors are welcomed! If you want to submit pull requests, [here is how you can do it](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project).
-
-**Recommended IDE Setup**
-The recommended IDE setup is [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official extension](https://marketplace.visualstudio.com/items?itemName=Vue.volar). 
-
-**Project Setup**
-
-```sh
-npm install
-```
-
-**Compile and Hot-Reload for Development**
-
-```sh
-npm run dev
-```
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, tests, and release notes expectations.
