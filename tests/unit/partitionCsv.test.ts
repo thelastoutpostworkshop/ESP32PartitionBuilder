@@ -17,4 +17,17 @@ describe('buildPartitionCsv', () => {
       ].join('\n')
     )
   })
+
+  it('preserves custom partition flags', () => {
+    const partitions: Partition[] = [
+      { name: 'esp_secure_cert', type: '63', subtype: '6', offset: 0xd000, size: 0x2000, flags: 'encrypted', custom: true }
+    ]
+
+    expect(buildPartitionCsv(partitions)).toBe(
+      [
+        '# Name,   Type, SubType, Offset,  Size, Flags',
+        'esp_secure_cert,63,6,0xD000,0x2000,encrypted'
+      ].join('\n')
+    )
+  })
 })

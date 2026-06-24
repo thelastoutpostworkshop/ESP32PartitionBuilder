@@ -2,14 +2,10 @@ import type { Partition } from '@/types';
 import {
   OFFSET_APP_TYPE, OFFSET_DATA_TYPE, PARTITION_TABLE_SIZE, PARTITION_TABLE_OFFSET_DEFAULT,
   OTADATA_OFFSET_FROM_PARTITION_TABLE,
-  PARTITION_APP_SUBTYPES, PARTITION_DATA_SUBTYPES, PARTITION_TYPE_APP, PARTITION_NVS, PARTITION_TYPE_DATA,
+  PARTITION_TYPE_APP, PARTITION_NVS, PARTITION_TYPE_DATA,
   NVS_PARTITION_SIZE_RECOMMENDED, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, PARTITION_COREDUMP,
   COREDUMP_MIN_PARTITION_SIZE
 } from '@/const'
-
-
-type AppSubType = typeof PARTITION_APP_SUBTYPES[number];
-type DataSubType = typeof PARTITION_DATA_SUBTYPES[number];
 
 
 export class PartitionTable {
@@ -76,11 +72,12 @@ export class PartitionTable {
   addPartition(
     name: string,
     type: string,
-    subtype: AppSubType | DataSubType,
+    subtype: string,
     sizeInBytes: number,
     flags: string,
     offset?: number,
-    fixedOffset: boolean = false
+    fixedOffset: boolean = false,
+    custom: boolean = false
   ) {
     const partition: Partition = {
       name,
@@ -89,7 +86,8 @@ export class PartitionTable {
       offset: offset ?? this.getCurrentOffset(type),
       size: sizeInBytes,
       flags,
-      fixedOffset
+      fixedOffset,
+      custom
     };
 
     this.partitions.push(partition);

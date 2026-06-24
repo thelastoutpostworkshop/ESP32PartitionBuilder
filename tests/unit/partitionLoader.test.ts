@@ -45,6 +45,31 @@ describe('loadPartitionsFromCsv', () => {
     ])
   })
 
+  it('loads custom numeric partition types and flags', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'esp_secure_cert,63,6,0xd000,8K,encrypted'
+      ].join('\n'),
+      store
+    )
+
+    expect(error).toBeNull()
+    expect(store.partitionTables.getPartitions()).toMatchObject([
+      {
+        name: 'esp_secure_cert',
+        type: '63',
+        subtype: '6',
+        offset: 0xd000,
+        size: 0x2000,
+        flags: 'encrypted',
+        fixedOffset: true,
+        custom: true
+      }
+    ])
+  })
+
   it('honors a forced flash size option', () => {
     const store = partitionStore()
     const error = loadPartitionsFromCsv(

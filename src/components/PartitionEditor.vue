@@ -40,6 +40,9 @@
               <v-list-item data-testid="add-phy-partition" @click="addPhyPartition">
                 PHY Initialisation Data
               </v-list-item>
+              <v-list-item data-testid="add-custom-partition" @click="addCustomPartition">
+                Custom Partition
+              </v-list-item>
             </v-list>
           </v-menu>
         </v-btn>
@@ -85,24 +88,34 @@
         </div>
         <v-row density="comfortable">
           <v-col>
-            <v-text-field v-model="partition.name" label="Name" density="compact"
+            <v-text-field data-testid="partition-name-input" v-model="partition.name" label="Name" density="compact"
               :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
           </v-col>
           <v-col>
-            <v-select readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" density="compact"
+            <v-text-field v-if="isCustomPartition(partition)" data-testid="partition-type-input"
+              v-model.trim="partition.type" label="Type" density="compact"
+              :rules="[partitionTypeRule(partition.type)]" @change="updateSize(partition)"></v-text-field>
+            <v-select v-else readonly v-model="partition.type" :items="PARTITION_TYPES" label="Type" density="compact"
               hide-details @update:model-value="validateType(partition)"></v-select>
           </v-col>
           <v-col>
-            <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
+            <v-text-field v-if="isCustomPartition(partition)" data-testid="partition-subtype-input"
+              v-model.trim="partition.subtype" label="Subtype" density="compact"
+              :rules="[partitionSubtypeRule(partition.subtype)]" @change="store.partitionTables.recalculateOffsets()"></v-text-field>
+            <v-select v-else readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
               density="compact"></v-select>
           </v-col>
           <v-col>
-            <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" density="compact"
+            <v-text-field data-testid="partition-size-input" :readonly="!isCustomPartition(partition)" v-model.number="partition.size"
+              label="Size (bytes)" density="compact" :type="isCustomPartition(partition) ? 'number' : undefined"
               :rules="[partitionSizeRule(partition)]" :hint="store.hintDisplaySize(partition.size)"
-              persistent-hint></v-text-field>
+              persistent-hint @change="updateSize(partition)"></v-text-field>
           </v-col>
           <v-col>
-            <v-text-field readonly active label="offset" density="compact">
+            <v-text-field v-if="isCustomPartition(partition)" data-testid="partition-offset-input"
+              :model-value="getOffsetInput(partition)" label="Offset (optional)" density="compact"
+              hint="Blank for auto" persistent-hint @change="updateCustomOffset(partition, $event)"></v-text-field>
+            <v-text-field v-else readonly active label="offset" density="compact">
               {{ getHexOffset(partition.offset) }}
             </v-text-field>
           </v-col>
@@ -117,6 +130,12 @@
               </template>
               <span>Delete Partition</span>
             </v-tooltip>
+          </v-col>
+        </v-row>
+        <v-row v-if="isCustomPartition(partition)" density="comfortable">
+          <v-col cols="12" md="6">
+            <v-text-field data-testid="partition-flags-input" v-model.trim="partition.flags" label="Flags"
+              density="compact" hint="Optional, for example encrypted" persistent-hint></v-text-field>
           </v-col>
         </v-row>
         <v-slider :color="partitionAccentColor(partition, index)"
@@ -216,9 +235,7 @@ import {
   OFFSET_DATA_TYPE, PARTITION_OTA, OFFSET_APP_TYPE, PARTITION_FAT, FAT_MIN_PARTITION_SIZE,
   PARTITION_SPIFFS, PARTITION_LITTLEFS, SPIFFS_MIN_PARTITION_SIZE, LITTLEFS_MIN_PARTITION_SIZE,
   COREDUMP_MIN_PARTITION_SIZE, PARTITION_COREDUMP, PARTITION_FACTORY, PARTITION_TEST, PHY_MIN_PARTITION_SIZE,
-  PARTITION_PHY,
-  PARTITION_TABLE_SIZE,
-  FLASH_SIZES
+  PARTITION_PHY
 } from '@/const';
 import { partitionStore } from '@/store'
 import type { Partition } from '@/types'
@@ -236,6 +253,7 @@ const showOverrideDialog = ref(false);
 const pendingCsvAction = ref<'download' | 'copy' | null>(null);
 const showPasteDialog = ref(false);
 const pastedCsvText = ref('');
+const MAX_PARTITION_NAME_LENGTH = 16;
 
 const partitionStyle = (partition: Partition, index: number) => {
   const baseColor = getPartitionBaseColor(partition, index);
@@ -260,15 +278,48 @@ const partitionAccentTrackColor = (partition: Partition, index: number) => {
 
 const partitionNameRule = (name: string, index: number) => {
   const nameConflict = store.partitionTables.getPartitions().some((p, i) => i !== index && p.name === name)
-  if (nameConflict) {
-    console.log(name)
+  if (!name) {
+    return 'Name is required'
+  } else if (nameConflict) {
     return 'Name already exists'
+  } else if (name.length > MAX_PARTITION_NAME_LENGTH) {
+    return `Name must be ${MAX_PARTITION_NAME_LENGTH} characters or less`
   } else {
     return true
   }
 };
 
+const isCustomPartition = (partition: Partition): boolean => partition.custom === true;
+
+const partitionTypeRule = (type: string) => {
+  if (!type) {
+    return 'Type is required';
+  }
+  if (type === PARTITION_TYPE_APP || type === PARTITION_TYPE_DATA || isNumericPartitionValue(type)) {
+    return true;
+  }
+  return 'Use app, data, or a numeric type from 0 to 254';
+};
+
+const partitionSubtypeRule = (subtype: string) => {
+  return subtype ? true : 'Subtype is required';
+};
+
+const isNumericPartitionValue = (value: string): boolean => {
+  const trimmed = value.trim();
+  const parsed = trimmed.toLowerCase().startsWith('0x')
+    ? parseInt(trimmed, 16)
+    : parseInt(trimmed, 10);
+
+  return /^\d+$/.test(trimmed) || /^0x[0-9a-f]+$/i.test(trimmed)
+    ? Number.isInteger(parsed) && parsed >= 0 && parsed <= 254
+    : false;
+};
+
 function partitionNotRecommendedSize(partition: Partition): boolean {
+  if (isCustomPartition(partition)) {
+    return false;
+  }
   let recommendeSize: boolean
   switch (partition.subtype) {
     case PARTITION_NVS:
@@ -319,6 +370,17 @@ function reszeToRecommendedValue(partition: Partition) {
 }
 
 const partitionSizeRule = (partition: Partition) => {
+  const alignment = stepSize(partition);
+  if (!Number.isFinite(partition.size) || partition.size <= 0) {
+    return 'Size must be greater than 0 bytes.';
+  }
+  if (partition.size % alignment !== 0) {
+    return `Size must align to ${getHexOffset(alignment)} bytes.`;
+  }
+  if (isCustomPartition(partition)) {
+    return true;
+  }
+
   switch (partition.subtype) {
     case PARTITION_NVS:
       if (partition.size < NVS_PARTITION_SIZE_RECOMMENDED) {
@@ -355,11 +417,10 @@ const partitionSizeRule = (partition: Partition) => {
 };
 
 function stepSize(partition: Partition): number {
-  if (partition.type === PARTITION_TYPE_DATA) {
-    return OFFSET_DATA_TYPE
-  } else {
+  if (partition.type === PARTITION_TYPE_APP) {
     return OFFSET_APP_TYPE
   }
+  return OFFSET_DATA_TYPE
 }
 
 function decrement(partition: Partition) {
@@ -377,6 +438,59 @@ function increment(partition: Partition) {
 
 const getHexOffset = (offset: number): string => {
   return '0x' + offset.toString(16).toUpperCase();
+};
+
+const getOffsetInput = (partition: Partition): string => {
+  return partition.fixedOffset ? getHexOffset(partition.offset) : '';
+};
+
+const getInputValue = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value instanceof Event && value.target instanceof HTMLInputElement) {
+    return value.target.value;
+  }
+  return String(value ?? '');
+};
+
+const parseHexInput = (value: string): number | null => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const normalized = trimmed.toLowerCase().startsWith('0x') ? trimmed : `0x${trimmed}`;
+  const parsed = parseInt(normalized, 16);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const updateCustomOffset = (partition: Partition, value: unknown) => {
+  const rawOffset = getInputValue(value).trim();
+  if (!rawOffset) {
+    partition.fixedOffset = false;
+    store.partitionTables.recalculateOffsets();
+    return;
+  }
+
+  const parsedOffset = parseHexInput(rawOffset);
+  if (parsedOffset === null) {
+    showAlertMessage('Invalid offset', 'Enter a hexadecimal offset, for example 0xD000.');
+    return;
+  }
+
+  const alignment = stepSize(partition);
+  if (parsedOffset < store.partitionTables.getPartitionTableBaseOffset()) {
+    showAlertMessage('Invalid offset', `Partition offsets must start at or after ${getHexOffset(store.partitionTables.getPartitionTableBaseOffset())}.`);
+    return;
+  }
+  if (parsedOffset % alignment !== 0) {
+    showAlertMessage('Invalid offset alignment', `This partition offset must align to ${getHexOffset(alignment)}.`);
+    return;
+  }
+
+  partition.offset = parsedOffset;
+  partition.fixedOffset = true;
+  store.partitionTables.recalculateOffsets();
 };
 
 const downloadCSV = async () => {
@@ -547,6 +661,14 @@ const addPhyPartition = () => {
   } else {
     const newName = generatePartitionName("phy");
     store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_PHY, PHY_MIN_PARTITION_SIZE, "")
+  }
+};
+const addCustomPartition = () => {
+  if (store.partitionTables.getAvailableMemory() < OFFSET_DATA_TYPE) {
+    showAlertMessage("Cannot add a custom partition", `There is not enough memory to add a custom partition. Custom partition size must be at least ${OFFSET_DATA_TYPE} bytes (${store.hintDisplaySize(OFFSET_DATA_TYPE)}).`)
+  } else {
+    const newName = generatePartitionName("custom");
+    store.partitionTables.addPartition(newName, PARTITION_TYPE_DATA, PARTITION_FAT, OFFSET_DATA_TYPE, "", undefined, false, true)
   }
 };
 const addFactoryPartition = () => {

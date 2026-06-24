@@ -6,6 +6,7 @@ export interface Partition {
     offset: number;
     flags:string;
     fixedOffset?: boolean;
+    custom?: boolean;
   }
 
  export  interface PartitionSet {

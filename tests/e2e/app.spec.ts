@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
 
 async function openSelect(page: Page, testId: string, optionText: string) {
   await page.getByTestId(testId).click()
@@ -157,6 +158,35 @@ test('adds and removes a partition from the add menu', async ({ page }) => {
 
   await page.getByTestId('remove-partition-button').click()
   await expect(page.getByTestId('partition-card')).toHaveCount(0)
+})
+
+test('creates a custom partition with numeric type and flags', async ({ page }) => {
+  await page.goto('/')
+
+  await page.getByTestId('add-partition-button').click()
+  await expect(page.getByTestId('add-partition-menu')).toBeVisible()
+  await page.getByTestId('add-custom-partition').click()
+
+  const customPartition = page.getByTestId('partition-card').first()
+  await customPartition.getByTestId('partition-name-input').locator('input').fill('esp_secure_cert')
+  await customPartition.getByTestId('partition-type-input').locator('input').fill('63')
+  await customPartition.getByTestId('partition-subtype-input').locator('input').fill('6')
+  await customPartition.getByTestId('partition-size-input').locator('input').fill('8192')
+  await customPartition.getByTestId('partition-offset-input').locator('input').fill('0xd000')
+  await customPartition.getByTestId('partition-offset-input').locator('input').press('Tab')
+  await customPartition.getByTestId('partition-flags-input').locator('input').fill('encrypted')
+
+  await page.getByTestId('download-csv-button').click()
+  await expect(page.getByTestId('override-dialog')).toBeVisible()
+
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByTestId('confirm-download-button').click()
+  const download = await downloadPromise
+  const downloadPath = await download.path()
+
+  expect(downloadPath).toBeTruthy()
+  const csv = await readFile(downloadPath!, 'utf8')
+  expect(csv).toContain('esp_secure_cert,63,6,0xD000,0x2000,encrypted')
 })
 
 test('loads CSV and downloads generated CSV after confirmation', async ({ page }) => {

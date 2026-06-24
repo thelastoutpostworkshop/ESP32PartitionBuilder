@@ -4,9 +4,14 @@ import {
   FLASH_SIZES,
   OFFSET_APP_TYPE,
   OFFSET_DATA_TYPE,
+  PARTITION_APP_SUBTYPES,
+  PARTITION_DATA_SUBTYPES,
+  PARTITION_FAT,
   PARTITION_OTA,
   PARTITION_TABLE_SIZE,
-  PARTITION_TYPE_APP
+  PARTITION_TYPE_APP,
+  PARTITION_TYPE_DATA,
+  FAT_MIN_PARTITION_SIZE
 } from '@/const';
 
 type PartitionStore = ReturnType<typeof partitionStore>;
@@ -116,7 +121,8 @@ export function loadPartitionsFromCsv(
       size,
       offset,
       flags: flags || '',
-      fixedOffset: Boolean(offsetHex)
+      fixedOffset: Boolean(offsetHex),
+      custom: isCustomPartition(type, subtype, size, flags || '')
     });
     totalSize += size;
   }
@@ -132,7 +138,8 @@ export function loadPartitionsFromCsv(
       partition.size,
       partition.flags,
       partition.offset,
-      partition.fixedOffset ?? false
+      partition.fixedOffset ?? false,
+      partition.custom ?? false
     );
   });
 
@@ -153,6 +160,23 @@ export function loadPartitionsFromCsv(
 }
 
 const formatHex = (value: number): string => `0x${value.toString(16).toUpperCase()}`;
+
+const isCustomPartition = (type: string, subtype: string, size: number, flags: string): boolean => {
+  if (flags) {
+    return true;
+  }
+
+  if (type === PARTITION_TYPE_APP) {
+    return !PARTITION_APP_SUBTYPES.includes(subtype as typeof PARTITION_APP_SUBTYPES[number]);
+  }
+
+  if (type === PARTITION_TYPE_DATA) {
+    const knownSubtype = PARTITION_DATA_SUBTYPES.includes(subtype as typeof PARTITION_DATA_SUBTYPES[number]);
+    return !knownSubtype || (subtype === PARTITION_FAT && size < FAT_MIN_PARTITION_SIZE);
+  }
+
+  return true;
+};
 
 const parseSize = (sizeStr: string): number => {
   const sizeRegex = /^(\d+)([KMB]?)$/;
