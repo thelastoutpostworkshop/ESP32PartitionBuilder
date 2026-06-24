@@ -349,7 +349,17 @@ function loadPartitions() {
   if (selectedSet) {
     store.partitionTables.clearPartitions();
     selectedSet.partitions.forEach(partition => {
-      store.partitionTables.addPartition(partition.name, partition.type, partition.subtype, partition.size, "");
+      const fixedOffset = partition.fixedOffset ?? false;
+      store.partitionTables.addPartition(
+        partition.name,
+        partition.type,
+        partition.subtype,
+        partition.size,
+        partition.flags,
+        fixedOffset ? partition.offset : undefined,
+        fixedOffset,
+        partition.custom ?? false
+      );
     })
   }
 };

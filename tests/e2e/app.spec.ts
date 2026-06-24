@@ -67,6 +67,29 @@ test('loads a built-in partition set and updates flash size', async ({ page }) =
   await expect(page.getByTestId('available-memory')).toContainText('bytes')
 })
 
+test('exports the Zigbee ESP-IDF built-in partition set', async ({ page }) => {
+  await page.goto('/')
+
+  await openSelect(page, 'built-in-partitions-select', 'Zigbee ESP-IDF')
+
+  await expect(page.getByTestId('partition-card')).toHaveCount(5)
+  await expect(page.getByText('zb_storage')).toBeVisible()
+  await expect(page.getByText('zb_fct')).toBeVisible()
+
+  await page.getByTestId('download-csv-button').click()
+  await expect(page.getByTestId('override-dialog')).toContainText('Memory Warnings')
+
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByTestId('confirm-download-button').click()
+  const download = await downloadPromise
+  const downloadPath = await download.path()
+
+  expect(downloadPath).toBeTruthy()
+  const csv = await readFile(downloadPath!, 'utf8')
+  expect(csv).toContain('zb_storage,data,nvs,0x13C000,0x4000,')
+  expect(csv).toContain('zb_fct,data,fat,0x140000,0x400,')
+})
+
 test('keeps tiny fixed-offset partitions visible in the visualizer', async ({ page }) => {
   await page.goto('/')
   const csv = [

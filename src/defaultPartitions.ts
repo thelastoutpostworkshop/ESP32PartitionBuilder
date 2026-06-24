@@ -34,4 +34,14 @@ export const esp32Partitions: PartitionSet[] = [
       { name: 'factory', type: 'app', subtype: 'factory', size: 0x3F0000, offset: 0, flags: "" },
     ]
   },
+  {
+    name: 'Zigbee ESP-IDF',
+    partitions: [
+      { name: 'nvs', type: 'data', subtype: 'nvs', size: 0x6000, offset: 0, flags: "" },
+      { name: 'phy_init', type: 'data', subtype: 'phy', size: 0x1000, offset: 0, flags: "" },
+      { name: 'factory', type: 'app', subtype: 'factory', size: 0x12C000, offset: 0, flags: "" },
+      { name: 'zb_storage', type: 'data', subtype: 'nvs', size: 0x4000, offset: 0, flags: "" },
+      { name: 'zb_fct', type: 'data', subtype: 'fat', size: 0x400, offset: 0, flags: "", custom: true },
+    ]
+  },
 ];

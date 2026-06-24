@@ -7,6 +7,8 @@ import {
   COREDUMP_MIN_PARTITION_SIZE
 } from '@/const'
 
+const CUSTOM_DATA_PARTITION_SIZE_STEP = 0x400;
+
 
 export class PartitionTable {
   partitions: Partition[] = [];
@@ -122,7 +124,10 @@ export class PartitionTable {
   }
 
   private getPartitionAlignment(partition: Partition): number {
-    return partition.type === PARTITION_TYPE_APP ? OFFSET_APP_TYPE : OFFSET_DATA_TYPE;
+    if (partition.custom && partition.type !== PARTITION_TYPE_APP) {
+      return CUSTOM_DATA_PARTITION_SIZE_STEP;
+    }
+    return OFFSET_DATA_TYPE;
   }
 
   private getNextPartitionByOffset(partition: Partition): Partition | undefined {

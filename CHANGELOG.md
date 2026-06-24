@@ -6,7 +6,7 @@
 - Added a target chip selector with flashing hints for common ESP32-family chips ([#17](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/17)).
 - Moved target chip flashing hints into an on-demand dialog to reduce sidebar clutter.
 - Improved the flashing hints dialog layout for easier scanning.
-- Added custom partition rows with editable type, subtype, offset, size, and flags for Zigbee, Matter, and other framework-specific layouts ([#12](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/12)).
+- Added custom partition support, including editable type, subtype, offset, size, and flags plus a built-in ESP-IDF Zigbee preset with `zb_storage` and `zb_fct` partitions ([#12](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/12)).
 - Added Copy CSV and Paste CSV clipboard actions for partition tables ([#13](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/13)).
 
 ### Fixed Issues

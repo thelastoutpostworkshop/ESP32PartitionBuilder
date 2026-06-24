@@ -254,6 +254,7 @@ const pendingCsvAction = ref<'download' | 'copy' | null>(null);
 const showPasteDialog = ref(false);
 const pastedCsvText = ref('');
 const MAX_PARTITION_NAME_LENGTH = 16;
+const CUSTOM_DATA_PARTITION_SIZE_STEP = 0x400;
 
 const partitionStyle = (partition: Partition, index: number) => {
   const baseColor = getPartitionBaseColor(partition, index);
@@ -417,6 +418,13 @@ const partitionSizeRule = (partition: Partition) => {
 };
 
 function stepSize(partition: Partition): number {
+  if (isCustomPartition(partition) && partition.type !== PARTITION_TYPE_APP) {
+    return CUSTOM_DATA_PARTITION_SIZE_STEP
+  }
+  return OFFSET_DATA_TYPE
+}
+
+function offsetAlignment(partition: Partition): number {
   if (partition.type === PARTITION_TYPE_APP) {
     return OFFSET_APP_TYPE
   }
@@ -478,7 +486,7 @@ const updateCustomOffset = (partition: Partition, value: unknown) => {
     return;
   }
 
-  const alignment = stepSize(partition);
+  const alignment = offsetAlignment(partition);
   if (parsedOffset < store.partitionTables.getPartitionTableBaseOffset()) {
     showAlertMessage('Invalid offset', `Partition offsets must start at or after ${getHexOffset(store.partitionTables.getPartitionTableBaseOffset())}.`);
     return;

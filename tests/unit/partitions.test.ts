@@ -7,6 +7,7 @@ import {
   OFFSET_DATA_TYPE,
   OTA_DATA_PARTITION_SIZE,
   PARTITION_COREDUMP,
+  PARTITION_FAT,
   PARTITION_FACTORY,
   PARTITION_NVS,
   PARTITION_OTA,
@@ -86,6 +87,26 @@ describe('PartitionTable', () => {
     expect(app0!.size).toBe(0x640000)
     expect(app1!.size).toBe(0x640000)
     expect(storage!.size).toBe(0x330000)
+  })
+
+  it('allows small custom data partitions for framework-specific storage', () => {
+    const table = new PartitionTable(4)
+    table.addPartition('factory', PARTITION_TYPE_APP, PARTITION_FACTORY, OFFSET_APP_TYPE, '')
+    table.addPartition('zb_fct', PARTITION_TYPE_DATA, PARTITION_FAT, 0x400, '', undefined, false, true)
+
+    const zbFactoryConfig = table.getPartitions().find(partition => partition.name === 'zb_fct')
+
+    expect(zbFactoryConfig).toMatchObject({
+      name: 'zb_fct',
+      type: PARTITION_TYPE_DATA,
+      subtype: PARTITION_FAT,
+      size: 0x400,
+      custom: true
+    })
+
+    table.updatePartitionSize(zbFactoryConfig!, 0x800)
+
+    expect(zbFactoryConfig!.size).toBe(0x800)
   })
 
   it('rejects unaligned partition table offsets', () => {
