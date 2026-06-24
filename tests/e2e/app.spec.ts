@@ -91,6 +91,38 @@ test('loads CSV and downloads generated CSV after confirmation', async ({ page }
   expect(download.suggestedFilename()).toBe('partitions.csv')
 })
 
+test('copies and imports CSV through clipboard actions', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' })
+  await page.goto('/')
+
+  await openSelect(page, 'built-in-partitions-select', 'OTA With Spiffs')
+  await expect(page.getByTestId('partition-card')).toHaveCount(6)
+
+  await page.getByTestId('copy-csv-button').click()
+  await expect(page.getByTestId('alert-dialog')).toContainText('CSV copied')
+
+  const copiedCsv = await page.evaluate(() => navigator.clipboard.readText())
+  expect(copiedCsv).toContain('# Name,   Type, SubType, Offset,  Size, Flags')
+  expect(copiedCsv).toContain('nvs,data,nvs,0x9000,0x5000,')
+  expect(copiedCsv).toContain('coredump,data,coredump,0x3F0000,0x10000,')
+
+  await page.getByTestId('alert-dialog').getByRole('button', { name: 'Ok' }).click()
+  await page.getByTestId('clear-partitions-button').click()
+  await expect(page.getByTestId('partition-card')).toHaveCount(0)
+
+  const clipboardCsv = [
+    '# Name,Type,SubType,Offset,Size,Flags',
+    'nvs,data,nvs,,0x5000,',
+    'factory,app,factory,,0x10000,'
+  ].join('\n')
+  await page.evaluate(csv => navigator.clipboard.writeText(csv), clipboardCsv)
+  await page.getByTestId('paste-csv-button').click()
+
+  await expect(page.getByTestId('partition-card')).toHaveCount(2)
+  await expect(page.getByText('app / factory')).toBeVisible()
+  await expect(page.getByTestId('alert-dialog')).toContainText('CSV imported')
+})
+
 test('shows OTA warning when OTA support has no NVS partition', async ({ page }) => {
   await page.goto('/')
   const csv = [

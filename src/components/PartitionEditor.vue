@@ -46,7 +46,16 @@
         <v-btn data-testid="load-csv-button" color="primary" @click="loadCSV" density="comfortable" class="mr-2">Load CSV
           <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
         </v-btn>
+        <v-btn data-testid="paste-csv-button" color="primary" prepend-icon="mdi-content-paste" @click="pasteCSV" density="comfortable" class="mr-2">
+          Paste CSV
+          <v-tooltip activator="parent" location="top">Import CSV from your clipboard</v-tooltip>
+        </v-btn>
         <input data-testid="csv-file-input" type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
+        <v-btn data-testid="copy-csv-button" color="primary" prepend-icon="mdi-content-copy" @click="copyCSV" density="comfortable" class="mr-2"
+          :disabled="store.partitionTables.getPartitions().length == 0">
+          Copy CSV
+          <v-tooltip activator="parent" location="top">Copy partitions as CSV to the clipboard</v-tooltip>
+        </v-btn>
         <v-btn data-testid="download-csv-button" color="primary" type="submit" density="comfortable"
           :disabled="store.partitionTables.getPartitions().length == 0">Download
           CSV
@@ -176,12 +185,31 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="showPasteDialog" width="720" data-testid="paste-csv-dialog">
+      <v-card color="white" title="Paste CSV">
+        <v-card-text>
+          <v-textarea
+            data-testid="paste-csv-textarea"
+            v-model="pastedCsvText"
+            label="CSV content"
+            auto-grow
+            rows="8"
+            hide-details
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="showPasteDialog = false">Cancel</v-btn>
+          <v-btn data-testid="import-pasted-csv-button" color="primary" @click="importPastedCSV">Import CSV</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { loadPartitionsFromCsv } from '@/partitionLoader';
+import { buildPartitionCsv } from '@/utils/partitionCsv';
 import {
   PARTITION_TYPES, PARTITION_TYPE_DATA, PARTITION_TYPE_APP, PARTITION_APP_SUBTYPES,
   PARTITION_DATA_SUBTYPES, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, OTA_DATA_PARTITION_SIZE,
@@ -205,6 +233,9 @@ const dialogText = ref("")
 const dialogTitle = ref("")
 const fileInput = ref<HTMLInputElement | null>(null);
 const showOverrideDialog = ref(false);
+const pendingCsvAction = ref<'download' | 'copy' | null>(null);
+const showPasteDialog = ref(false);
+const pastedCsvText = ref('');
 const unlockPartitionOffsets = () => {
   store.partitionTables.releaseFixedOffsets();
 };
@@ -352,43 +383,67 @@ const getHexOffset = (offset: number): string => {
 };
 
 const downloadCSV = async () => {
+  await requestCsvAction('download');
+};
+
+const copyCSV = async () => {
+  await requestCsvAction('copy');
+};
+
+const requestCsvAction = async (action: 'download' | 'copy') => {
   if (formRef.value) {
     const { valid } = await formRef.value.validate();
     if (valid) {
       if (store.partitionTables.getAvailableMemory() < 0) {
-        dialogText.value = "Partitions memory exceed flash memory capacity. Do you want to proceed and download the CSV anyway?"
-        dialogTitle.value = "Memory Warnings"
-        showOverrideDialog.value = true;
+        showCsvOverride(action, "Memory Warnings", "Partitions memory exceed flash memory capacity. Do you want to proceed anyway?")
       } else {
         if (store.partitionTables.getAvailableMemory() > 0) {
-          dialogText.value = "You have memory left avalaible in your flash memory. Do you want to proceed and download the CSV anyway?"
-          dialogTitle.value = "Memory Warnings"
-          showOverrideDialog.value = true;
+          showCsvOverride(action, "Memory Warnings", "You have memory left available in your flash memory. Do you want to proceed anyway?")
         } else {
-          generateCSV();
+          await runCsvAction(action);
         }
       }
     } else {
-      dialogText.value = "There are validation errors in the partitions. Do you want to proceed and download the CSV anyway?"
-      dialogTitle.value = "Partition Rules Warnings"
-      showOverrideDialog.value = true;
+      showCsvOverride(action, "Partition Rules Warnings", "There are validation errors in the partitions. Do you want to proceed anyway?")
     }
   }
 };
 
-const confirmOverride = () => {
-  showOverrideDialog.value = false;
-  generateCSV();
+const showCsvOverride = (action: 'download' | 'copy', title: string, text: string) => {
+  pendingCsvAction.value = action;
+  dialogText.value = text;
+  dialogTitle.value = title;
+  showOverrideDialog.value = true;
 };
 
-const generateCSV = () => {
-  const csvHeader = "# Name,   Type, SubType, Offset,  Size, Flags\n";
-  const csvContent = store.partitionTables.getPartitions().map(p => {
-    const sizeHex = '0x' + p.size.toString(16).toUpperCase();
-    const offsetHex = '0x' + p.offset.toString(16).toUpperCase();
-    return `${p.name},${p.type},${p.subtype},${offsetHex},${sizeHex},`;
-  }).join("\n");
-  const csvData = csvHeader + csvContent;
+const confirmOverride = async () => {
+  showOverrideDialog.value = false;
+  const action = pendingCsvAction.value ?? 'download';
+  pendingCsvAction.value = null;
+  await runCsvAction(action);
+};
+
+const runCsvAction = async (action: 'download' | 'copy') => {
+  const csvData = buildPartitionCsv(store.partitionTables.getPartitions());
+
+  if (action === 'copy') {
+    await copyCsvToClipboard(csvData);
+    return;
+  }
+
+  downloadCsvFile(csvData);
+};
+
+const copyCsvToClipboard = async (csvData: string) => {
+  try {
+    await navigator.clipboard.writeText(csvData);
+    showAlertMessage('CSV copied', 'The partition CSV has been copied to your clipboard.');
+  } catch {
+    showAlertMessage('Clipboard unavailable', 'The browser could not write to the clipboard. Try downloading the CSV instead.');
+  }
+};
+
+const downloadCsvFile = (csvData: string) => {
   const blob = new Blob([csvData], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -397,6 +452,7 @@ const generateCSV = () => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 const validateType = (partition: Partition) => {
@@ -619,14 +675,42 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
-const loadPartitionsFromCSV = (csv: string) => {
+const loadPartitionsFromCSV = (csv: string): boolean => {
   const error = loadPartitionsFromCsv(csv, store);
   if (error) {
     showAlertMessage(error.title, error.text);
+    return false;
+  }
+  return true;
+};
+
+const pasteCSV = async () => {
+  try {
+    const csv = await navigator.clipboard.readText();
+    if (!csv.trim()) {
+      showAlertMessage('Clipboard is empty', 'Copy partition CSV text first, then try again.');
+      return;
+    }
+    if (loadPartitionsFromCSV(csv)) {
+      showAlertMessage('CSV imported', 'The partition CSV has been imported from your clipboard.');
+    }
+  } catch {
+    pastedCsvText.value = '';
+    showPasteDialog.value = true;
   }
 };
 
-
+const importPastedCSV = () => {
+  if (!pastedCsvText.value.trim()) {
+    showAlertMessage('CSV required', 'Paste CSV content before importing.');
+    return;
+  }
+  if (loadPartitionsFromCSV(pastedCsvText.value)) {
+    showPasteDialog.value = false;
+    pastedCsvText.value = '';
+    showAlertMessage('CSV imported', 'The pasted partition CSV has been imported.');
+  }
+};
 
 const loadCSV = () => {
   if (fileInput.value) {

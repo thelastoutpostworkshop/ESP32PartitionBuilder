@@ -3,6 +3,7 @@
 ## 1.2.2
 ### Improvement
 - Added a dedicated Maker Tools page under Resources with companion tools, including ESPConnect, tutorials, and source links.
+- Added Copy CSV and Paste CSV clipboard actions for partition tables ([#13](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/13)).
 
 ### Fixed Issues
 - Use `KB` and `MB` for byte-based size labels instead of `Kb` and `Mb` ([#19](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/19)).
