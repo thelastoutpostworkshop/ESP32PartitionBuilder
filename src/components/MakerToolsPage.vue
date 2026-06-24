@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import arduinoMakerWorkshopThumbnail from '@/assets/tool-thumbnails/arduino-maker-workshop.jpg';
 import espBoardVaultThumbnail from '@/assets/tool-thumbnails/esp-board-vault.jpg';
+import espConnectThumbnail from '@/assets/tool-thumbnails/espconnect.jpg';
 import gpioViewerThumbnail from '@/assets/tool-thumbnails/gpio-viewer.jpg';
 import partitionBuilderThumbnail from '@/assets/tool-thumbnails/partition-builder.jpg';
 import videoConversionThumbnail from '@/assets/tool-thumbnails/video-conversion.jpg';
@@ -32,6 +33,18 @@ const makerTools: MakerTool[] = [
     sourceUrl: 'https://github.com/thelastoutpostworkshop/ESPVault',
     sourceLabel: 'thelastoutpostworkshop/ESPVault',
     tutorialUrl: 'https://youtu.be/YwYP-eET9Oo'
+  },
+  {
+    key: 'espconnect',
+    title: 'ESPConnect',
+    icon: 'mdi-connection',
+    description:
+      'A browser-based utility for working with ESP devices. It runs entirely inside a modern Chromium browser so you can inspect hardware details, manage SPIFFS, FAT, and LittleFS files, back up flash, and deploy firmware.',
+    thumbnailSrc: espConnectThumbnail,
+    url: 'https://thelastoutpostworkshop.github.io/ESPConnect/',
+    sourceUrl: 'https://github.com/thelastoutpostworkshop/ESPConnect',
+    sourceLabel: 'thelastoutpostworkshop/ESPConnect',
+    tutorialUrl: 'https://www.youtube.com/watch?v=-nhDKzBxHiI'
   },
   {
     key: 'partition-builder',

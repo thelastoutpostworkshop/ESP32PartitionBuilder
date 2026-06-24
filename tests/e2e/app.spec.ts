@@ -23,10 +23,14 @@ test('opens the Maker Tools page from the sidebar', async ({ page }) => {
   await page.getByTestId('maker-tools-nav').click()
 
   await expect(page.getByTestId('maker-tools-page')).toBeVisible()
-  await expect(page.getByTestId('maker-tool-card')).toHaveCount(5)
+  await expect(page.getByTestId('maker-tool-card')).toHaveCount(6)
   await expect(page.getByRole('link', { name: 'thelastoutpostworkshop/ESPVault' })).toHaveAttribute(
     'href',
     'https://github.com/thelastoutpostworkshop/ESPVault'
+  )
+  await expect(page.getByRole('link', { name: 'thelastoutpostworkshop/ESPConnect' })).toHaveAttribute(
+    'href',
+    'https://github.com/thelastoutpostworkshop/ESPConnect'
   )
 
   await page.getByTestId('partition-builder-nav').click()
