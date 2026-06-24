@@ -5,6 +5,7 @@
 - Added a dedicated Maker Tools page under Resources with companion tools, including ESPConnect, tutorials, and source links.
 - Added a target chip selector with flashing hints for common ESP32-family chips ([#17](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/17)).
 - Moved target chip flashing hints into an on-demand dialog to reduce sidebar clutter.
+- Improved the flashing hints dialog layout for easier scanning.
 - Added Copy CSV and Paste CSV clipboard actions for partition tables ([#13](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/13)).
 
 ### Fixed Issues

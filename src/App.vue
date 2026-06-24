@@ -79,19 +79,14 @@
               density="comfortable"
               hide-details
             ></v-select>
-            <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  data-testid="flashing-hints-button"
-                  icon="mdi-information-outline"
-                  variant="text"
-                  density="comfortable"
-                  v-bind="props"
-                  @click="showFlashingHintsDialog = true"
-                ></v-btn>
-              </template>
-              <span>Show flashing hints</span>
-            </v-tooltip>
+            <v-btn
+              data-testid="flashing-hints-button"
+              icon="mdi-information-outline"
+              variant="text"
+              density="comfortable"
+              aria-label="Show flashing hints"
+              @click="showFlashingHintsDialog = true"
+            ></v-btn>
           </div>
           <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
             label="Show Hint Size in" density="comfortable" hide-details></v-select>
@@ -151,28 +146,36 @@
         <v-btn text @click="showUrlNotification = false">Close</v-btn>
       </template>
     </v-snackbar>
-    <v-dialog v-model="showFlashingHintsDialog" width="520" data-testid="flashing-hints-dialog">
-      <v-card color="white" :title="`${selectedChipTarget.text} flashing hints`">
-        <v-card-text>
+    <v-dialog v-model="showFlashingHintsDialog" width="560" data-testid="flashing-hints-dialog">
+      <v-card color="white" class="flashing-dialog">
+        <v-card-title class="flashing-dialog__title">{{ selectedChipTarget.text }} flashing hints</v-card-title>
+        <v-card-text class="flashing-dialog__body">
           <div class="flashing-hints" data-testid="flashing-hints">
-            <div class="flashing-hints__row">
-              <span>Chip flag</span>
-              <code class="flashing-hints__value">--chip {{ selectedChipTarget.esptoolChip }}</code>
+            <div class="flashing-hints__grid">
+              <div class="flashing-hints__item">
+                <span>Chip flag</span>
+                <code>--chip {{ selectedChipTarget.esptoolChip }}</code>
+              </div>
+              <div class="flashing-hints__item">
+                <span>Bootloader</span>
+                <code>{{ formatHex(selectedChipTarget.bootloaderOffset) }}</code>
+              </div>
+              <div class="flashing-hints__item">
+                <span>Partition table</span>
+                <code>{{ formatHex(store.partitionTableOffset) }}</code>
+              </div>
+              <div class="flashing-hints__item">
+                <span>App image</span>
+                <code>{{ formatHex(OFFSET_APP_TYPE) }}</code>
+              </div>
             </div>
-            <div class="flashing-hints__row">
-              <span>Bootloader</span>
-              <code class="flashing-hints__value">{{ formatHex(selectedChipTarget.bootloaderOffset) }}</code>
+            <div class="flashing-hints__command-group">
+              <div class="flashing-hints__label">Command shape</div>
+              <code class="flashing-hints__command" data-testid="flashing-command">{{ flashingCommandPreview }}</code>
             </div>
-            <div class="flashing-hints__row">
-              <span>Partition table</span>
-              <code class="flashing-hints__value">{{ formatHex(store.partitionTableOffset) }}</code>
+            <div class="flashing-hints__note">
+              Convert the CSV to <code>partition-table.bin</code> with <code>gen_esp32part.py</code> before flashing.
             </div>
-            <div class="flashing-hints__row">
-              <span>App image</span>
-              <code class="flashing-hints__value">{{ formatHex(OFFSET_APP_TYPE) }}</code>
-            </div>
-            <code class="flashing-hints__command" data-testid="flashing-command">{{ flashingCommand }}</code>
-            <div class="flashing-hints__note">Convert the CSV to partition-table.bin with gen_esp32part.py before flashing.</div>
           </div>
         </v-card-text>
         <v-card-actions>
@@ -189,7 +192,7 @@ import PartitionEditor from './components/PartitionEditor.vue';
 import MakerToolsPage from './components/MakerToolsPage.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
-import { buildFlashCommand, CHIP_TARGETS } from '@/chipTargets';
+import { CHIP_TARGETS } from '@/chipTargets';
 import {
   FLASH_SIZES,
   APP_VERSION,
@@ -262,8 +265,13 @@ const selectedChipTarget = computed(() => {
   return CHIP_TARGETS.find(target => target.value === selectedChipTargetId.value) ?? CHIP_TARGETS[0]!;
 });
 
-const flashingCommand = computed(() => {
-  return buildFlashCommand(selectedChipTarget.value, store.partitionTableOffset);
+const flashingCommandPreview = computed(() => {
+  return [
+    `esptool --chip ${selectedChipTarget.value.esptoolChip} write_flash`,
+    `  ${formatHex(selectedChipTarget.value.bootloaderOffset)} bootloader.bin`,
+    `  ${formatHex(store.partitionTableOffset)} partition-table.bin`,
+    `  ${formatHex(OFFSET_APP_TYPE)} app.bin`
+  ].join('\n');
 });
 
 function availableMemoryColor(): string {
@@ -391,48 +399,80 @@ if (store.partitionTables.getPartitions().length === 0) {
   gap: 4px;
 }
 
+.flashing-dialog__title {
+  padding: 22px 24px 8px;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.flashing-dialog__body {
+  padding-top: 8px;
+}
+
 .flashing-hints {
+  color: #172033;
+}
+
+.flashing-hints__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.flashing-hints__item {
+  display: grid;
+  gap: 4px;
   padding: 10px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  border: 1px solid #d6dee8;
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.28);
-  color: rgba(255, 255, 255, 0.86);
+  background: #f8fafc;
 }
 
-.flashing-hints__row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 0.74rem;
-  line-height: 1.5;
+.flashing-hints__item span,
+.flashing-hints__label {
+  color: #58667a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.flashing-hints__value,
-.flashing-hints__command {
-  color: #dbeafe;
-  overflow-wrap: anywhere;
+.flashing-hints__item code,
+.flashing-hints__note code {
+  color: #172033;
+  font-weight: 700;
 }
 
-.flashing-hints__value {
-  text-align: right;
+.flashing-hints__command-group {
+  margin-top: 14px;
 }
 
 .flashing-hints__command {
   display: block;
-  margin-top: 7px;
-  padding: 7px 8px;
-  border-radius: 6px;
-  background: rgba(15, 23, 42, 0.56);
-  font-size: 0.7rem;
-  line-height: 1.4;
-  white-space: normal;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #111827;
+  color: #e5edff;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .flashing-hints__note {
-  margin-top: 6px;
-  font-size: 0.72rem;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.72);
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid #2563eb;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #314158;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .flashing-hints__grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

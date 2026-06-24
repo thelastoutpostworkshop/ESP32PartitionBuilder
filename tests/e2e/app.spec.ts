@@ -28,9 +28,10 @@ test('updates flashing hints when selecting a target chip', async ({ page }) => 
   await expect(page.getByTestId('flashing-hints-dialog')).toBeVisible()
   await expect(page.getByTestId('flashing-hints')).toContainText('--chip esp32c5')
   await expect(page.getByTestId('flashing-hints')).toContainText('0x2000')
-  await expect(page.getByTestId('flashing-command')).toContainText(
-    'esptool --chip esp32c5 write_flash 0x2000 bootloader.bin 0x8000 partition-table.bin 0x10000 app.bin'
-  )
+  await expect(page.getByTestId('flashing-command')).toContainText('esptool --chip esp32c5 write_flash')
+  await expect(page.getByTestId('flashing-command')).toContainText('0x2000 bootloader.bin')
+  await expect(page.getByTestId('flashing-command')).toContainText('0x8000 partition-table.bin')
+  await expect(page.getByTestId('flashing-command')).toContainText('0x10000 app.bin')
 })
 
 test('opens the Maker Tools page from the sidebar', async ({ page }) => {
