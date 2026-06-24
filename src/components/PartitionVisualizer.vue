@@ -28,18 +28,24 @@ interface PartitionSegment {
   showMeta: boolean;
 }
 
+interface PendingPartitionSegment extends Omit<PartitionSegment, 'style'> {
+  baseColor: string;
+  percentage: number;
+}
+
 const store = partitionStore();
 
 const RESERVED_COLOR = '#37474f';
 const FREE_COLOR = '#455a64';
+const MIN_VISIBLE_SEGMENT_PERCENTAGE = 1.4;
 
 const partitionSegments = computed<PartitionSegment[]>(() => {
   const partitions = [...store.partitionTables.getPartitions()].sort((a, b) => a.offset - b.offset);
   const flashSize = store.flashSizeBytes;
-  const segments: PartitionSegment[] = [];
+  const segments: PendingPartitionSegment[] = [];
 
   if (!flashSize || flashSize <= 0) {
-    return segments;
+    return [];
   }
 
   let cursor = 0;
@@ -50,7 +56,6 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
     }
     const percentage = (length / flashSize) * 100;
     const baseColor = kind === 'reserved' ? RESERVED_COLOR : FREE_COLOR;
-    const width = formatWidth(percentage);
     segments.push({
       id: `${kind}-${startOffset}`,
       name: label,
@@ -58,13 +63,14 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
       title: `${label}\nOffset: ${formatHex(startOffset)} - ${formatHex(startOffset + length)} (${store.hintDisplaySize(length)})`,
       kind,
       showMeta: percentage > 9,
-      style: buildSegmentStyle(baseColor, width)
+      baseColor,
+      percentage
     });
   };
 
   if (partitions.length === 0) {
     addGapSegment(flashSize, 0, 'Unallocated Flash', 'free');
-    return segments;
+    return finalizeSegments(segments);
   }
 
   partitions.forEach((partition, index) => {
@@ -77,7 +83,6 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
 
     const length = partition.size;
     const percentage = (length / flashSize) * 100;
-    const width = formatWidth(percentage);
     const baseColor = getPartitionBaseColor(partition, index);
     const start = partition.offset;
     const end = start + length;
@@ -91,7 +96,8 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
         `\nOffset: ${formatHex(start)} - ${formatHex(end)}`,
       kind: 'partition',
       showMeta: percentage > 8,
-      style: buildSegmentStyle(baseColor, width)
+      baseColor,
+      percentage
     });
 
     cursor = end;
@@ -101,8 +107,60 @@ const partitionSegments = computed<PartitionSegment[]>(() => {
     addGapSegment(flashSize - cursor, cursor, 'Unused Flash', 'free');
   }
 
-  return segments;
+  return finalizeSegments(segments);
 });
+
+function finalizeSegments(segments: PendingPartitionSegment[]): PartitionSegment[] {
+  const widths = calculateBalancedWidths(segments.map(segment => segment.percentage));
+
+  return segments.map((segment, index) => ({
+    id: segment.id,
+    name: segment.name,
+    meta: segment.meta,
+    title: segment.title,
+    kind: segment.kind,
+    showMeta: segment.showMeta,
+    style: buildSegmentStyle(segment.baseColor, formatWidth(widths[index] ?? 0))
+  }));
+}
+
+function calculateBalancedWidths(percentages: number[]): number[] {
+  const positiveIndexes = percentages
+    .map((percentage, index) => ({ percentage, index }))
+    .filter(segment => segment.percentage > 0);
+
+  if (positiveIndexes.length === 0) {
+    return percentages.map(() => 0);
+  }
+
+  const minimum = Math.min(MIN_VISIBLE_SEGMENT_PERCENTAGE, 100 / positiveIndexes.length);
+  const smallIndexes = new Set(
+    positiveIndexes
+      .filter(segment => segment.percentage < minimum)
+      .map(segment => segment.index)
+  );
+  const reservedForSmallSegments = smallIndexes.size * minimum;
+  const largeTotal = positiveIndexes.reduce((total, segment) => {
+    return smallIndexes.has(segment.index) ? total : total + segment.percentage;
+  }, 0);
+
+  if (largeTotal <= 0 || reservedForSmallSegments >= 100) {
+    const equalWidth = 100 / positiveIndexes.length;
+    return percentages.map(percentage => (percentage > 0 ? equalWidth : 0));
+  }
+
+  const largeScale = (100 - reservedForSmallSegments) / largeTotal;
+
+  return percentages.map((percentage, index) => {
+    if (percentage <= 0) {
+      return 0;
+    }
+    if (smallIndexes.has(index)) {
+      return minimum;
+    }
+    return percentage * largeScale;
+  });
+}
 
 function buildSegmentStyle(baseColor: string, width: string): Record<string, string> {
   const gradientStart = lightenColor(baseColor, 0.35);
@@ -145,7 +203,7 @@ function formatHex(value: number): string {
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  min-width: 24px;
+  min-width: 0;
   overflow: hidden;
 }
 

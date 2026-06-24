@@ -49,6 +49,53 @@ test('loads a built-in partition set and updates flash size', async ({ page }) =
   await expect(page.getByTestId('available-memory')).toContainText('bytes')
 })
 
+test('keeps tiny fixed-offset partitions visible in the visualizer', async ({ page }) => {
+  await page.goto('/')
+  const csv = [
+    '# ESP-IDF Partition Table',
+    '# Name, Type, SubType, Offset, Size, Flags',
+    'otadata,data,ota,0xe000,8K,',
+    'app0,app,ota_0,0x10000,7040K,',
+    'app1,app,ota_1,0x6f0000,7040K,',
+    'spiffs,data,spiffs,0xdd0000,2000K,',
+    'coredump,data,coredump,0xfc4000,64K,',
+    'nvs,data,nvs,0xfd4000,100K,'
+  ].join('\n')
+
+  await page.getByTestId('csv-file-input').setInputFiles({
+    name: 'issue-21.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv)
+  })
+
+  const visualizerSegments = await page.getByTestId('partition-visualizer').evaluate(visualizer => {
+    const containerRect = visualizer.getBoundingClientRect()
+    const segments = Array.from(visualizer.querySelectorAll('.partition-segment')).map(segment => {
+      const segmentRect = segment.getBoundingClientRect()
+      return {
+        title: segment.getAttribute('title') ?? '',
+        left: segmentRect.left - containerRect.left,
+        right: segmentRect.right - containerRect.left,
+        width: segmentRect.width
+      }
+    })
+
+    return {
+      width: containerRect.width,
+      segments
+    }
+  })
+
+  for (const label of ['coredump (data/coredump)', 'nvs (data/nvs)', 'Unused Flash']) {
+    const segment = visualizerSegments.segments.find(entry => entry.title.includes(label))
+
+    expect(segment).toBeDefined()
+    expect(segment!.width).toBeGreaterThan(0)
+    expect(segment!.left).toBeLessThan(visualizerSegments.width)
+    expect(segment!.right).toBeLessThanOrEqual(visualizerSegments.width + 1)
+  }
+})
+
 test('adds and removes a partition from the add menu', async ({ page }) => {
   await page.goto('/')
 

@@ -7,6 +7,7 @@
 
 ### Fixed Issues
 - Use `KB` and `MB` for byte-based size labels instead of `Kb` and `Mb` ([#19](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/19)).
+- Keep tiny fixed-offset partitions and trailing unused flash visible in the partition visualizer ([#21](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/21)).
 
 ### Internal runtime
 - Added Vitest unit tests for partition table calculations, CSV loading, URL parsing, and partition color helpers.
