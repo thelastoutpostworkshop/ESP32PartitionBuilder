@@ -27,9 +27,9 @@
         </div>
       </div>
       <v-select data-testid="built-in-partitions-select" v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
-        label="Built-in partitions" dense hide-details></v-select>
+        label="Built-in partitions" density="comfortable" hide-details></v-select>
       <v-select data-testid="flash-size-select" v-model="store.flashSize" :items="FLASH_SIZES" item-value="value" item-title="text" label="Flash Size"
-        dense hide-details @update:model-value="changeFlashSize"></v-select>
+        density="comfortable" hide-details @update:model-value="changeFlashSize"></v-select>
       <v-select
         data-testid="partition-table-offset-select"
         v-model="store.partitionTableOffset"
@@ -37,7 +37,7 @@
         item-value="value"
         item-title="text"
         label="Partition Table Offset"
-        dense
+        density="comfortable"
         hide-details
         @update:model-value="changePartitionTableOffset"
       ></v-select>
@@ -55,7 +55,7 @@
         @change="applyCustomPartitionTableOffset($event)"
       ></v-text-field>
       <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
-        label="Show Hint Size in" dense hide-details></v-select>
+        label="Show Hint Size in" density="comfortable" hide-details></v-select>
       <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
         <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
         Over the air update capability

@@ -43,11 +43,11 @@
             </v-list>
           </v-menu>
         </v-btn>
-        <v-btn data-testid="load-csv-button" color="primary" @click="loadCSV" dense class="mr-2">Load CSV
+        <v-btn data-testid="load-csv-button" color="primary" @click="loadCSV" density="comfortable" class="mr-2">Load CSV
           <v-tooltip activator="parent" location="top">Load a CSV partition file</v-tooltip>
         </v-btn>
         <input data-testid="csv-file-input" type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept=".csv" />
-        <v-btn data-testid="download-csv-button" color="primary" type="submit" dense
+        <v-btn data-testid="download-csv-button" color="primary" type="submit" density="comfortable"
           :disabled="store.partitionTables.getPartitions().length == 0">Download
           CSV
           <v-tooltip activator="parent" location="top">Download partitions as a CSV file</v-tooltip>
@@ -74,7 +74,7 @@
           </div>
           <span class="partition__size">{{ store.hintDisplaySize(partition.size) }}</span>
         </div>
-        <v-row dense>
+        <v-row density="comfortable">
           <v-col>
             <v-text-field v-model="partition.name" label="Name" density="compact"
               :rules="[partitionNameRule(partition.name, index)]"></v-text-field>
@@ -85,7 +85,7 @@
           </v-col>
           <v-col>
             <v-select readonly v-model="partition.subtype" :items="getSubtypes(partition.type)" label="Subtype"
-              density="compact" dense></v-select>
+              density="compact"></v-select>
           </v-col>
           <v-col>
             <v-text-field readonly v-model.number="partition.size" label="Size (bytes)" density="compact"
@@ -113,7 +113,7 @@
         <v-slider :color="partitionAccentColor(partition, index)"
           :track-color="partitionAccentTrackColor(partition, index)" v-model="partition.size" thumb-label label="Size"
           :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
-          :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" dense hide-details
+          :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" density="comfortable" hide-details
           :step="stepSize(partition)" :min="stepSize(partition)">
           <template v-slot:prepend>
             <v-tooltip location="top">
