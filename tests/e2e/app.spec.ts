@@ -11,10 +11,25 @@ test('renders the default app shell', async ({ page }) => {
   await expect(page.getByTestId('app-shell')).toBeVisible()
   await expect(page.getByTestId('partition-visualizer')).toBeVisible()
   await expect(page.getByTestId('available-memory')).toContainText('Available Flash Memory')
+  await expect(page.getByTestId('flashing-hints')).toContainText('--chip esp32')
+  await expect(page.getByTestId('flashing-hints')).toContainText('0x1000')
   await expect(page.getByTestId('resources-section')).toBeInViewport()
   await expect(page.getByTestId('resources-section')).toContainText('Maker Tools')
   await expect(page.getByText('Unallocated Flash')).toBeVisible()
   await expect(page.getByTestId('download-csv-button')).toBeDisabled()
+})
+
+test('updates flashing hints when selecting a target chip', async ({ page }) => {
+  await page.goto('/')
+
+  await openSelect(page, 'target-chip-select', 'ESP32-C5')
+
+  await expect(page.getByTestId('flashing-hints')).toContainText('--chip esp32c5')
+  await expect(page.getByTestId('flashing-hints')).toContainText('0x2000')
+  await page.getByTestId('flashing-command-summary').click()
+  await expect(page.getByTestId('flashing-command')).toContainText(
+    'esptool --chip esp32c5 write_flash 0x2000 bootloader.bin 0x8000 partition-table.bin 0x10000 app.bin'
+  )
 })
 
 test('opens the Maker Tools page from the sidebar', async ({ page }) => {

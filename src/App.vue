@@ -68,8 +68,42 @@
             @click:append-inner="applyCustomPartitionTableOffset(partitionTableOffsetText)"
             @change="applyCustomPartitionTableOffset($event)"
           ></v-text-field>
+          <v-select
+            data-testid="target-chip-select"
+            v-model="selectedChipTargetId"
+            :items="CHIP_TARGETS"
+            item-value="value"
+            item-title="text"
+            label="Target Chip"
+            density="comfortable"
+            hide-details
+          ></v-select>
           <v-select data-testid="display-size-select" v-model="store.displaySizes" :items="DISPLAY_SIZES" item-value="value" item-title="text"
             label="Show Hint Size in" density="comfortable" hide-details></v-select>
+          <div class="flashing-hints" data-testid="flashing-hints">
+            <div class="flashing-hints__title">{{ selectedChipTarget.text }} flashing hints</div>
+            <div class="flashing-hints__row">
+              <span>Chip flag</span>
+              <code class="flashing-hints__value">--chip {{ selectedChipTarget.esptoolChip }}</code>
+            </div>
+            <div class="flashing-hints__row">
+              <span>Bootloader</span>
+              <code class="flashing-hints__value">{{ formatHex(selectedChipTarget.bootloaderOffset) }}</code>
+            </div>
+            <div class="flashing-hints__row">
+              <span>Partition table</span>
+              <code class="flashing-hints__value">{{ formatHex(store.partitionTableOffset) }}</code>
+            </div>
+            <div class="flashing-hints__row">
+              <span>App image</span>
+              <code class="flashing-hints__value">{{ formatHex(OFFSET_APP_TYPE) }}</code>
+            </div>
+            <details class="flashing-hints__details" data-testid="flashing-command-details">
+              <summary data-testid="flashing-command-summary">Command shape</summary>
+              <code class="flashing-hints__command" data-testid="flashing-command">{{ flashingCommand }}</code>
+              <div class="flashing-hints__note">Convert the CSV to partition-table.bin with gen_esp32part.py before flashing.</div>
+            </details>
+          </div>
           <div v-if="store.partitionTables.hasOTAPartitions() && store.partitionTables.hasSubtype(PARTITION_NVS)" class="pl-2 pt-4">
             <v-icon color="green-darken-2" icon="mdi-wifi" size="large"></v-icon>
             Over the air update capability
@@ -130,11 +164,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject, type Ref } from 'vue';
+import { computed, ref, watch, inject, type Ref } from 'vue';
 import PartitionEditor from './components/PartitionEditor.vue';
 import MakerToolsPage from './components/MakerToolsPage.vue';
 import PartitionVisualizer from './components/PartitionVisualizer.vue';
 import { partitionStore } from '@/store';
+import { buildFlashCommand, CHIP_TARGETS } from '@/chipTargets';
 import {
   FLASH_SIZES,
   APP_VERSION,
@@ -142,7 +177,8 @@ import {
   PARTITION_NVS,
   PARTITION_TABLE_OFFSET_OPTIONS,
   OFFSET_DATA_TYPE,
-  PARTITION_TABLE_SIZE
+  PARTITION_TABLE_SIZE,
+  OFFSET_APP_TYPE
 } from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
@@ -169,6 +205,7 @@ const firstPartitionSet = esp32Partitions[0];
 const defaultPartitionName = firstPartitionSet ? firstPartitionSet.name : '';
 const selectedPartitionSet = ref(defaultPartitionName);
 const partitionTableOffsetText = ref(formatHex(store.partitionTableOffset));
+const selectedChipTargetId = ref(CHIP_TARGETS[0]?.value ?? 'esp32');
 
 const partitionOptions = esp32Partitions.map(set => ({
   text: set.name,
@@ -198,6 +235,14 @@ watch(selectedPartitionSet, () => {
 
 watch(() => store.partitionTableOffset, (val) => {
   partitionTableOffsetText.value = formatHex(val);
+});
+
+const selectedChipTarget = computed(() => {
+  return CHIP_TARGETS.find(target => target.value === selectedChipTargetId.value) ?? CHIP_TARGETS[0]!;
+});
+
+const flashingCommand = computed(() => {
+  return buildFlashCommand(selectedChipTarget.value, store.partitionTableOffset);
 });
 
 function availableMemoryColor(): string {
@@ -316,5 +361,67 @@ if (store.partitionTables.getPartitions().length === 0) {
 
 .app-sidebar__resources :deep(.v-list-item-title) {
   font-size: 0.88rem;
+}
+
+.flashing-hints {
+  margin: 10px 8px 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.28);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.flashing-hints__title {
+  margin-bottom: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.flashing-hints__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.flashing-hints__value,
+.flashing-hints__command {
+  color: #dbeafe;
+  overflow-wrap: anywhere;
+}
+
+.flashing-hints__value {
+  text-align: right;
+}
+
+.flashing-hints__details {
+  margin-top: 7px;
+  font-size: 0.72rem;
+}
+
+.flashing-hints__details summary {
+  cursor: pointer;
+  color: #93c5fd;
+}
+
+.flashing-hints__command {
+  display: block;
+  margin-top: 7px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.56);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.flashing-hints__note {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.72);
 }
 </style>
