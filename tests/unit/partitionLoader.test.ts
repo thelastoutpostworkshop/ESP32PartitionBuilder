@@ -45,6 +45,50 @@ describe('loadPartitionsFromCsv', () => {
     ])
   })
 
+  it('keeps a fixed-offset app slot that ends at the selected flash boundary', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'nvs,data,nvs,0x9000,100K,',
+        'otadata,data,ota,0x22000,8K,',
+        'spiffs,data,spiffs,0x24000,1456K,',
+        'coredump,data,coredump,0x190000,64K,',
+        'app0,app,ota_0,0x1A0000,7360K,',
+        'app1,app,ota_1,0x8D0000,7360K,'
+      ].join('\n'),
+      store
+    )
+
+    const partitions = store.partitionTables.getPartitions()
+    const app1 = partitions.find(partition => partition.name === 'app1')
+
+    expect(error).toBeNull()
+    expect(store.partitionTableOffset).toBe(0x8000)
+    expect(store.flashSize).toBe(16)
+    expect(partitions).toHaveLength(6)
+    expect(app1).toMatchObject({ offset: 0x8D0000, size: 7360 * 1024, fixedOffset: true })
+  })
+
+  it('uses the highest fixed offset end address when choosing flash size', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'nvs,data,nvs,0x9000,0x1000,',
+        'storage,data,spiffs,0x500000,0x1000,'
+      ].join('\n'),
+      store
+    )
+
+    expect(error).toBeNull()
+    expect(store.flashSize).toBe(8)
+    expect(store.partitionTables.getPartitions()).toMatchObject([
+      { name: 'nvs', offset: 0x9000, fixedOffset: true },
+      { name: 'storage', offset: 0x500000, fixedOffset: true }
+    ])
+  })
+
   it('loads custom numeric partition types and flags', () => {
     const store = partitionStore()
     const error = loadPartitionsFromCsv(

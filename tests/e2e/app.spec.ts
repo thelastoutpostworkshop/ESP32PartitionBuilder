@@ -155,6 +155,56 @@ test('keeps tiny fixed-offset partitions visible in the visualizer', async ({ pa
   }
 })
 
+test('keeps a fixed-offset app slot visible at the flash boundary', async ({ page }) => {
+  await page.goto('/')
+  const csv = [
+    '# Name, Type, SubType, Offset, Size, Flags',
+    'nvs,data,nvs,0x9000,100K,',
+    'otadata,data,ota,0x22000,8K,',
+    'spiffs,data,spiffs,0x24000,1456K,',
+    'coredump,data,coredump,0x190000,64K,',
+    'app0,app,ota_0,0x1A0000,7360K,',
+    'app1,app,ota_1,0x8D0000,7360K,'
+  ].join('\n')
+
+  await page.getByTestId('csv-file-input').setInputFiles({
+    name: 'issue-21-latest.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv)
+  })
+
+  await expect(page.getByTestId('flash-size-select')).toContainText('16 MB')
+  await expect(page.getByText('0x8D0000')).toBeVisible()
+
+  const app1Segment = await page.getByTestId('partition-visualizer').evaluate(visualizer => {
+    const containerRect = visualizer.getBoundingClientRect()
+    const segment = Array.from(visualizer.querySelectorAll('.partition-segment')).find(entry => {
+      return entry.getAttribute('title')?.includes('app1 (app/ota_1)')
+    })
+    const segmentRect = segment?.getBoundingClientRect()
+
+    return segmentRect
+      ? {
+          left: segmentRect.left - containerRect.left,
+          right: segmentRect.right - containerRect.left,
+          width: segmentRect.width,
+          containerWidth: containerRect.width
+        }
+      : null
+  })
+
+  expect(app1Segment).not.toBeNull()
+  expect(app1Segment!.width).toBeGreaterThan(0)
+  expect(app1Segment!.left).toBeLessThan(app1Segment!.containerWidth)
+  expect(app1Segment!.right).toBeLessThanOrEqual(app1Segment!.containerWidth + 1)
+
+  await page.getByTestId('flashing-hints-button').click()
+  await expect(page.getByTestId('flashing-hints-dialog')).toBeVisible()
+  await expect(page.getByTestId('flashing-hints')).toContainText('0x1A0000')
+  await expect(page.getByTestId('flashing-command')).toContainText('0x1A0000 app.bin')
+  await expect(page.getByTestId('app-offset-warning')).toContainText('0x1A0000')
+})
+
 test('keeps imported fixed offsets after partition size edits', async ({ page }) => {
   await page.goto('/')
   const csv = [

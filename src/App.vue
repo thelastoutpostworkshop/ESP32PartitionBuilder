@@ -169,13 +169,23 @@
               </div>
               <div class="flashing-hints__item">
                 <span>App image</span>
-                <code>{{ formatHex(OFFSET_APP_TYPE) }}</code>
+                <code>{{ formatHex(firstAppPartitionOffset) }}</code>
               </div>
             </div>
             <div class="flashing-hints__command-group">
               <div class="flashing-hints__label">Command shape</div>
               <code class="flashing-hints__command" data-testid="flashing-command">{{ flashingCommandPreview }}</code>
             </div>
+            <v-alert
+              v-if="hasCustomAppOffset"
+              data-testid="app-offset-warning"
+              type="warning"
+              density="compact"
+              variant="tonal"
+              class="mt-3"
+            >
+              Arduino uploads must be configured for app offset {{ formatHex(firstAppPartitionOffset) }}; otherwise the sketch can still be written to {{ formatHex(OFFSET_APP_TYPE) }}.
+            </v-alert>
             <div class="flashing-hints__note">
               Convert the CSV to <code>partition-table.bin</code> with <code>gen_esp32part.py</code> before flashing.
             </div>
@@ -204,7 +214,8 @@ import {
   PARTITION_TABLE_OFFSET_OPTIONS,
   OFFSET_DATA_TYPE,
   PARTITION_TABLE_SIZE,
-  OFFSET_APP_TYPE
+  OFFSET_APP_TYPE,
+  PARTITION_TYPE_APP
 } from '@/const';
 import { esp32Partitions } from '@/defaultPartitions';
 
@@ -268,12 +279,22 @@ const selectedChipTarget = computed(() => {
   return CHIP_TARGETS.find(target => target.value === selectedChipTargetId.value) ?? CHIP_TARGETS[0]!;
 });
 
+const firstAppPartitionOffset = computed(() => {
+  const appPartition = [...store.partitionTables.getPartitions()]
+    .sort((a, b) => a.offset - b.offset)
+    .find(partition => partition.type === PARTITION_TYPE_APP);
+
+  return appPartition?.offset ?? OFFSET_APP_TYPE;
+});
+
+const hasCustomAppOffset = computed(() => firstAppPartitionOffset.value !== OFFSET_APP_TYPE);
+
 const flashingCommandPreview = computed(() => {
   return [
     `esptool --chip ${selectedChipTarget.value.esptoolChip} write_flash`,
     `  ${formatHex(selectedChipTarget.value.bootloaderOffset)} bootloader.bin`,
     `  ${formatHex(store.partitionTableOffset)} partition-table.bin`,
-    `  ${formatHex(OFFSET_APP_TYPE)} app.bin`
+    `  ${formatHex(firstAppPartitionOffset.value)} app.bin`
   ].join('\n');
 });
 

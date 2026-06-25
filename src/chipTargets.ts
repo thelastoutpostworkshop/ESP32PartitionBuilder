@@ -21,7 +21,11 @@ export function formatHexOffset(value: number): string {
   return `0x${value.toString(16).toUpperCase()}`;
 }
 
-export function buildFlashCommand(target: ChipTarget, partitionTableOffset: number): string {
+export function buildFlashCommand(
+  target: ChipTarget,
+  partitionTableOffset: number,
+  appOffset: number = OFFSET_APP_TYPE
+): string {
   return [
     'esptool',
     '--chip',
@@ -31,7 +35,7 @@ export function buildFlashCommand(target: ChipTarget, partitionTableOffset: numb
     'bootloader.bin',
     formatHexOffset(partitionTableOffset),
     'partition-table.bin',
-    formatHexOffset(OFFSET_APP_TYPE),
+    formatHexOffset(appOffset),
     'app.bin'
   ].join(' ');
 }

@@ -44,21 +44,21 @@ export function loadPartitionsFromCsv(
   const alignOffset = (offset: number, alignment: number): number => Math.ceil(offset / alignment) * alignment;
   const alignDown = (offset: number, alignment: number): number => Math.floor(offset / alignment) * alignment;
   const suggestPartitionTableOffset = (parts: Partition[]): number => {
+    const minOffset = Math.min(...parts.map((p) => p.offset));
+    const maxSafeOffset = Math.max(OFFSET_DATA_TYPE, alignDown(minOffset - PARTITION_TABLE_SIZE, OFFSET_DATA_TYPE));
     const appOffsets = parts.filter((p) => p.type === PARTITION_TYPE_APP).map((p) => p.offset);
     if (appOffsets.length > 0) {
       const minApp = Math.min(...appOffsets);
       if (minApp >= OFFSET_APP_TYPE) {
         const candidate = minApp - OFFSET_APP_TYPE / 2;
-        return Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE));
+        return Math.min(maxSafeOffset, Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE)));
       }
     }
-    const minOffset = Math.min(...parts.map((p) => p.offset));
-    const candidate = minOffset - PARTITION_TABLE_SIZE;
-    return Math.max(OFFSET_DATA_TYPE, alignDown(candidate, OFFSET_DATA_TYPE));
+    return maxSafeOffset;
   };
 
   const partitions: Partition[] = [];
-  let totalSize = 0;
+  let requiredFlashSize = 0;
   const baseOffset = store.partitionTables.getPartitionTableBaseOffset();
   let nextOffset = baseOffset;
 
@@ -124,7 +124,7 @@ export function loadPartitionsFromCsv(
       fixedOffset: Boolean(offsetHex),
       custom: isCustomPartition(type, subtype, size, flags || '')
     });
-    totalSize += size;
+    requiredFlashSize = Math.max(requiredFlashSize, offset + size);
   }
 
   store.partitionTables.clearPartitions();
@@ -148,7 +148,7 @@ export function loadPartitionsFromCsv(
     store.partitionTables.setFlashSize(options.forceFlashSize);
   } else {
     for (const size of FLASH_SIZES) {
-      if (totalSize <= size.value * 1024 * 1024) {
+      if (requiredFlashSize <= size.value * 1024 * 1024) {
         store.flashSize = size.value;
         store.partitionTables.setFlashSize(size.value);
         break;

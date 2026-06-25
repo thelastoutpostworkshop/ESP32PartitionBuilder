@@ -19,4 +19,13 @@ describe('chip targets', () => {
       'esptool --chip esp32c5 write_flash 0x2000 bootloader.bin 0x8000 partition-table.bin 0x10000 app.bin'
     )
   })
+
+  it('uses a custom app offset in the esptool flashing command', () => {
+    const target = CHIP_TARGETS.find(chip => chip.value === 'esp32c5')
+
+    expect(target).toBeDefined()
+    expect(buildFlashCommand(target!, 0x8000, 0x1A0000)).toBe(
+      'esptool --chip esp32c5 write_flash 0x2000 bootloader.bin 0x8000 partition-table.bin 0x1A0000 app.bin'
+    )
+  })
 })
