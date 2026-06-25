@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3
+### Fixed Issues
+- Keep fixed-offset app partitions visible when imported CSV layouts end at the flash-size boundary ([#21](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/21)).
+- Infer imported flash size from the highest used flash address instead of summed partition sizes for sparse fixed-offset layouts.
+- Show custom app image offsets in flashing hints and warn when Arduino uploads need matching app offset configuration.
+
 ## 1.2.2
 ### Improvement
 - Added a dedicated Maker Tools page under Resources with companion tools, including ESPConnect, tutorials, and source links.
