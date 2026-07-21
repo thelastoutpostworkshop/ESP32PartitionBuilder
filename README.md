@@ -22,6 +22,7 @@ The web application is available here: [ESP32 Partition Builder](https://thelast
 - Add custom partition rows with editable type, subtype, offset, size, and flags.
 - Use the built-in ESP-IDF Zigbee preset with `zb_storage` and `zb_fct` partitions.
 - Check OTA support and NVS requirements.
+- Optionally create unequal OTA slots for staging-firmware workflows.
 - View target chip flashing hints for common ESP32-family chips.
 - Open related Maker Tools from the Resources section.
 
@@ -33,6 +34,14 @@ The web application is available here: [ESP32 Partition Builder](https://thelast
 4. Use the visualizer and available flash memory indicator to check the layout.
 5. Copy or download the generated `partitions.csv`.
 6. Use the CSV in your ESP-IDF, Arduino, PlatformIO, or related ESP32 build flow.
+
+## Asymmetric OTA Slots
+
+Standard OTA layouts use equal-sized `ota_0` and `ota_1` app slots so each update can replace the inactive slot. For an advanced staging workflow, enable **Allow unequal OTA slots** in the sidebar after adding OTA support. This lets you keep a small OTA image in one slot and reserve a larger slot for the main firmware ([#22](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/22)).
+
+An OTA update must fit the currently inactive slot. A larger firmware therefore cannot alternate directly with a small slot; first install a small staging firmware, then use it to install the larger image in the larger slot. Keep the option disabled for normal alternating OTA updates.
+
+ESP32 app partitions must start on `0x10000` (64 KB) boundaries. If an app slot's size is not a multiple of `0x10000`, alignment padding can appear before the next app slot. Choose slot sizes such as `0x130000` or `0x140000` to avoid that gap.
 
 ## CSV And Custom Partitions
 
