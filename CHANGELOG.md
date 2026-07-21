@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.4
+### Improvement
+- Added an opt-in sidebar control for unequal OTA application slots, enabling a small staging slot alongside a larger firmware slot ([#22](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/22)).
+- Kept equal OTA slots as the default and explain the inactive-slot update constraint when asymmetric mode is enabled.
+
 ## 1.2.3
 ### Fixed Issues
 - Keep fixed-offset app partitions visible when imported CSV layouts end at the flash-size boundary ([#21](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/21)).
