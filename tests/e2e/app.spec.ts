@@ -67,6 +67,21 @@ test('loads a built-in partition set and updates flash size', async ({ page }) =
   await expect(page.getByTestId('available-memory')).toContainText('bytes')
 })
 
+test('requires opting in before allowing unequal OTA slots', async ({ page }) => {
+  await page.goto('/')
+
+  await openSelect(page, 'built-in-partitions-select', 'OTA With Spiffs')
+  await expect(page.getByTestId('asymmetric-ota-toggle')).toBeVisible()
+  await expect(page.getByTestId('asymmetric-ota-warning')).toHaveCount(0)
+  const partitionCards = page.getByTestId('partition-card')
+  await partitionCards.nth(3).getByTestId('decrement-partition-button').click()
+  await expect(partitionCards.nth(2).getByTestId('partition-size-input').locator('input')).toHaveValue('1306624')
+  await expect(partitionCards.nth(3).getByTestId('partition-size-input').locator('input')).toHaveValue('1306624')
+
+  await page.getByRole('checkbox', { name: 'Allow unequal OTA slots' }).check()
+  await expect(page.getByTestId('asymmetric-ota-warning')).toBeVisible()
+})
+
 test('exports the Zigbee ESP-IDF built-in partition set', async ({ page }) => {
   await page.goto('/')
 

@@ -140,7 +140,7 @@
         </v-row>
         <v-slider :color="partitionAccentColor(partition, index)"
           :track-color="partitionAccentTrackColor(partition, index)" v-model="partition.size" thumb-label label="Size"
-          :disabled="partition.subtype === 'ota_0' && store.partitionTables.hasOTAPartitions()"
+          :disabled="partition.subtype === 'ota_0' && isPairedOtaSlot(partition) && !asymmetricOtaSlots"
           :max="store.partitionTables.getTotalMemory()" @end="updateSize(partition)" density="comfortable" hide-details
           :step="stepSize(partition)" :min="stepSize(partition)">
           <template v-slot:prepend>
@@ -226,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { loadPartitionsFromCsv } from '@/partitionLoader';
 import { buildPartitionCsv } from '@/utils/partitionCsv';
 import {
@@ -258,6 +258,14 @@ const showPasteDialog = ref(false);
 const pastedCsvText = ref('');
 const MAX_PARTITION_NAME_LENGTH = 16;
 const CUSTOM_DATA_PARTITION_SIZE_STEP = 0x400;
+
+const asymmetricOtaSlots = computed({
+  get: () => store.partitionTables.allowsUnequalOtaSlots() || store.partitionTables.hasUnequalOtaSlots(),
+  set: (allow: boolean) => store.partitionTables.setAllowUnequalOtaSlots(allow)
+});
+
+const isPairedOtaSlot = (partition: Partition): boolean =>
+  store.partitionTables.hasOTAPartitions() && (partition.subtype === 'ota_0' || partition.subtype === 'ota_1');
 
 const partitionStyle = (partition: Partition, index: number) => {
   const baseColor = getPartitionBaseColor(partition, index);
@@ -750,7 +758,7 @@ const reclaimMemory = (partition: Partition) => {
   if (available <= 0) {
     return;
   }
-  const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions();
+  const resizeOnOta = isPairedOtaSlot(partition) && !asymmetricOtaSlots.value;
   const targetSize = resizeOnOta
     ? partition.size + Math.floor(available / 2)
     : partition.size + available;
@@ -759,7 +767,7 @@ const reclaimMemory = (partition: Partition) => {
 
 const resizeToFit = (partition: Partition) => {
   let resize: number
-  const resizeOnOta: boolean = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && store.partitionTables.hasOTAPartitions()
+  const resizeOnOta = isPairedOtaSlot(partition) && !asymmetricOtaSlots.value
   if (resizeOnOta) {
     resize = partition.size * 2 + store.partitionTables.getAvailableMemory()
   } else {

@@ -65,6 +65,26 @@ describe('PartitionTable', () => {
     expect(app1!.size).toBe(OFFSET_APP_TYPE * 2)
   })
 
+  it('allows independently sized OTA slots only when asymmetric mode is enabled', () => {
+    const table = new PartitionTable(4)
+    table.addPartition('otadata', PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, '')
+    table.addPartition('app0', PARTITION_TYPE_APP, 'ota_0', OFFSET_APP_TYPE, '')
+    table.addPartition('app1', PARTITION_TYPE_APP, 'ota_1', OFFSET_APP_TYPE, '')
+
+    const app0 = table.getPartitions().find(partition => partition.name === 'app0')!
+    const app1 = table.getPartitions().find(partition => partition.name === 'app1')!
+    table.setAllowUnequalOtaSlots(true)
+    table.updatePartitionSize(app1, OFFSET_APP_TYPE * 2)
+
+    expect(app0.size).toBe(OFFSET_APP_TYPE)
+    expect(app1.size).toBe(OFFSET_APP_TYPE * 2)
+    expect(table.hasUnequalOtaSlots()).toBe(true)
+
+    table.setAllowUnequalOtaSlots(false)
+    expect(app0.size).toBe(OFFSET_APP_TYPE)
+    expect(app1.size).toBe(OFFSET_APP_TYPE)
+  })
+
   it('preserves fixed offsets when resizing imported partition layouts', () => {
     const table = new PartitionTable(16)
     table.addPartition('otadata', PARTITION_TYPE_DATA, PARTITION_OTA, 0x2000, '', 0x9000, true)

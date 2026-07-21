@@ -14,6 +14,7 @@ export class PartitionTable {
   partitions: Partition[] = [];
   flashSize: number;
   partitionTableOffset: number;
+  private allowUnequalOtaSlots = false;
 
   constructor(flashSize: number, partitionTableOffset: number = PARTITION_TABLE_OFFSET_DEFAULT) {
     this.flashSize = flashSize * 1024 * 1024; // Convert MB to bytes
@@ -322,7 +323,7 @@ export class PartitionTable {
     const minSize = alignment;
     const ota0Index = this.partitions.findIndex(p => p.subtype === 'ota_0');
     const ota1Index = this.partitions.findIndex(p => p.subtype === 'ota_1');
-    const isOtaPair = (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && ota0Index !== -1 && ota1Index !== -1;
+    const isOtaPair = !this.allowUnequalOtaSlots && (partition.subtype === 'ota_0' || partition.subtype === 'ota_1') && ota0Index !== -1 && ota1Index !== -1;
     const resizeTargets = isOtaPair
       ? [this.partitions[ota0Index], this.partitions[ota1Index]]
       : [partition];
@@ -386,6 +387,36 @@ export class PartitionTable {
       default:
         return OFFSET_DATA_TYPE;
     }
+  }
+
+  setAllowUnequalOtaSlots(allow: boolean) {
+    this.allowUnequalOtaSlots = allow;
+    if (!allow) {
+      this.makeOtaSlotsEqual();
+    }
+  }
+
+  allowsUnequalOtaSlots(): boolean {
+    return this.allowUnequalOtaSlots;
+  }
+
+  hasUnequalOtaSlots(): boolean {
+    const ota0 = this.partitions.find(partition => partition.subtype === 'ota_0');
+    const ota1 = this.partitions.find(partition => partition.subtype === 'ota_1');
+    return Boolean(ota0 && ota1 && ota0.size !== ota1.size);
+  }
+
+  private makeOtaSlotsEqual() {
+    const ota0 = this.partitions.find(partition => partition.subtype === 'ota_0');
+    const ota1 = this.partitions.find(partition => partition.subtype === 'ota_1');
+    if (!ota0 || !ota1) {
+      return;
+    }
+
+    const size = Math.min(ota0.size, ota1.size);
+    ota0.size = size;
+    ota1.size = size;
+    this.recalculateOffsets();
   }
     
   hasSubtype(subtype:string):boolean {

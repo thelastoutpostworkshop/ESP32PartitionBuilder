@@ -107,6 +107,20 @@
             <div class="font-weight-medium">NVS partition required</div>
             <div class="text-body-2">Add an NVS partition to restore Over the Air update capability.</div>
           </v-alert>
+          <div v-if="store.partitionTables.hasOTAPartitions()" class="px-3 pt-2">
+            <v-switch
+              v-model="asymmetricOtaSlots"
+              data-testid="asymmetric-ota-toggle"
+              label="Allow unequal OTA slots"
+              color="primary"
+              density="compact"
+              hide-details
+            ></v-switch>
+            <div v-if="asymmetricOtaSlots" data-testid="asymmetric-ota-warning" class="text-caption pt-1">
+              Advanced: updates must fit the inactive slot. A small staging firmware may be needed before a larger image.
+            </div>
+            <div v-else class="text-caption pt-1">Keep slots equal for standard alternating OTA updates.</div>
+          </div>
         </div>
         <div class="app-sidebar__resources" data-testid="resources-section">
           <v-divider class="mb-2"></v-divider>
@@ -220,6 +234,10 @@ import {
 import { esp32Partitions } from '@/defaultPartitions';
 
 const store = partitionStore();
+const asymmetricOtaSlots = computed({
+  get: () => store.partitionTables.allowsUnequalOtaSlots() || store.partitionTables.hasUnequalOtaSlots(),
+  set: (allow: boolean) => store.partitionTables.setAllowUnequalOtaSlots(allow)
+});
 const urlPartitionMessage = inject<Ref<string | null> | null>('urlPartitionMessage', null);
 const urlNotificationText = ref('');
 const showUrlNotification = ref(false);
