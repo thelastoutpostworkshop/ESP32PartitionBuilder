@@ -199,6 +199,18 @@ export class PartitionTable {
     return available + Math.max(0, this.flashSize - cursor);
   }
 
+  getReclaimableMemory(partition: Partition): number {
+    const partitions = [...this.partitions].sort((a, b) => a.offset - b.offset);
+    const partitionIndex = partitions.indexOf(partition);
+    if (partitionIndex === -1) {
+      return 0;
+    }
+
+    const nextPartition = partitions[partitionIndex + 1];
+    const boundary = nextPartition?.offset ?? this.flashSize;
+    return Math.max(0, boundary - (partition.offset + partition.size));
+  }
+
   private hasOverlappingPartitions(): boolean {
     const partitions = [...this.partitions].sort((a, b) => a.offset - b.offset);
     let endOffset = this.getPartitionTableBaseOffset();

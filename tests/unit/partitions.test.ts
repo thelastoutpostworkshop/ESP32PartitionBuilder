@@ -100,9 +100,12 @@ describe('PartitionTable', () => {
 
     expect(table.getAvailableMemory()).toBe(0)
     expect(table.getUnallocatedMemory()).toBe(0x2000)
+    expect(table.getReclaimableMemory(nvs)).toBe(0x2000)
+    expect(table.getReclaimableMemory(app1)).toBe(0)
 
     table.updatePartitionSize(nvs, 0x4000)
     expect(table.getUnallocatedMemory()).toBe(0x1000)
+    expect(table.getReclaimableMemory(nvs)).toBe(0x1000)
 
     table.updatePartitionSize(nvs, 0x5000)
     expect(table.getUnallocatedMemory()).toBe(0)

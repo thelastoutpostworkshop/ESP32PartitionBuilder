@@ -164,7 +164,7 @@
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
                 <v-btn icon v-bind="props" @click="reclaimMemory(partition)" variant="text"
-                  :disabled="store.partitionTables.getAvailableMemory() <= 0">
+                  :disabled="getReclaimableMemory(partition) <= 0">
                   <v-icon color="blue">
                     mdi-arrow-right-bold
                   </v-icon>
@@ -754,7 +754,7 @@ const clearPartitions = () => {
 };
 
 const reclaimMemory = (partition: Partition) => {
-  const available = store.partitionTables.getAvailableMemory();
+  const available = getReclaimableMemory(partition);
   if (available <= 0) {
     return;
   }
@@ -763,6 +763,13 @@ const reclaimMemory = (partition: Partition) => {
     ? partition.size + Math.floor(available / 2)
     : partition.size + available;
   store.partitionTables.updatePartitionSize(partition, targetSize);
+};
+
+const getReclaimableMemory = (partition: Partition): number => {
+  const resizeOnOta = isPairedOtaSlot(partition) && !asymmetricOtaSlots.value;
+  return resizeOnOta
+    ? store.partitionTables.getAvailableMemory()
+    : store.partitionTables.getReclaimableMemory(partition);
 };
 
 const resizeToFit = (partition: Partition) => {
