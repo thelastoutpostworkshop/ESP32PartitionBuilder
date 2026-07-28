@@ -85,6 +85,33 @@ describe('PartitionTable', () => {
     expect(app1.size).toBe(OFFSET_APP_TYPE)
   })
 
+  it('counts the gap before otadata and prevents NVS from overlapping it', () => {
+    const table = new PartitionTable(4)
+
+    table.addPartition('nvs', PARTITION_TYPE_DATA, PARTITION_NVS, NVS_PARTITION_SIZE_RECOMMENDED, '')
+    table.addPartition('otadata', PARTITION_TYPE_DATA, PARTITION_OTA, OTA_DATA_PARTITION_SIZE, '')
+    table.addPartition('app0', PARTITION_TYPE_APP, 'ota_0', OFFSET_APP_TYPE, '')
+    table.addPartition('app1', PARTITION_TYPE_APP, 'ota_1', OFFSET_APP_TYPE, '')
+
+    const nvs = table.getPartitions().find(partition => partition.name === 'nvs')!
+    const app1 = table.getPartitions().find(partition => partition.name === 'app1')!
+    table.setAllowUnequalOtaSlots(true)
+    table.updatePartitionSize(app1, table.flashSize - app1.offset)
+
+    expect(table.getAvailableMemory()).toBe(0)
+    expect(table.getUnallocatedMemory()).toBe(0x2000)
+
+    table.updatePartitionSize(nvs, 0x4000)
+    expect(table.getUnallocatedMemory()).toBe(0x1000)
+
+    table.updatePartitionSize(nvs, 0x5000)
+    expect(table.getUnallocatedMemory()).toBe(0)
+
+    table.updatePartitionSize(nvs, 0x6000)
+    expect(nvs.size).toBe(0x5000)
+    expect(nvs.offset + nvs.size).toBe(0xe000)
+  })
+
   it('preserves fixed offsets when resizing imported partition layouts', () => {
     const table = new PartitionTable(16)
     table.addPartition('otadata', PARTITION_TYPE_DATA, PARTITION_OTA, 0x2000, '', 0x9000, true)

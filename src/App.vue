@@ -36,8 +36,8 @@
         <div v-show="activePage === 'partitionBuilder'" class="app-sidebar__controls">
           <div :class="availableMemoryColor()" data-testid="available-memory">
             <div>Available Flash Memory:</div>
-            <div>{{ store.partitionTables.getAvailableMemory() }} bytes ({{
-              store.hintDisplaySize(store.partitionTables.getAvailableMemory()) }})
+            <div>{{ store.partitionTables.getUnallocatedMemory() }} bytes ({{
+              store.hintDisplaySize(store.partitionTables.getUnallocatedMemory()) }})
             </div>
           </div>
           <v-select data-testid="built-in-partitions-select" v-model="selectedPartitionSet" :items="partitionOptions" item-value="value" item-title="text"
@@ -317,10 +317,10 @@ const flashingCommandPreview = computed(() => {
 });
 
 function availableMemoryColor(): string {
-  if (store.partitionTables.getAvailableMemory() == 0) {
+  if (store.partitionTables.getUnallocatedMemory() == 0) {
     return 'pa-4 text-green'
   }
-  if (store.partitionTables.getAvailableMemory() > 0) {
+  if (store.partitionTables.getUnallocatedMemory() > 0) {
     return 'pa-4 text-yellow'
   }
   return 'pa-4 text-red'

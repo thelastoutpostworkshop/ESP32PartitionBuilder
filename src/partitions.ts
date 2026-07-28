@@ -178,6 +178,41 @@ export class PartitionTable {
     return available;
   }
 
+  /**
+   * Returns every usable byte not covered by a partition. Unlike
+   * getAvailableMemory(), this includes gaps between partitions as well as the
+   * free space after the final partition.
+   */
+  getUnallocatedMemory(): number {
+    const baseOffset = this.getPartitionTableBaseOffset();
+    const partitions = [...this.partitions].sort((a, b) => a.offset - b.offset);
+    let cursor = baseOffset;
+    let available = 0;
+
+    for (const partition of partitions) {
+      if (partition.offset > cursor) {
+        available += partition.offset - cursor;
+      }
+      cursor = Math.max(cursor, partition.offset + partition.size);
+    }
+
+    return available + Math.max(0, this.flashSize - cursor);
+  }
+
+  private hasOverlappingPartitions(): boolean {
+    const partitions = [...this.partitions].sort((a, b) => a.offset - b.offset);
+    let endOffset = this.getPartitionTableBaseOffset();
+
+    for (const partition of partitions) {
+      if (partition.offset < endOffset) {
+        return true;
+      }
+      endOffset = partition.offset + partition.size;
+    }
+
+    return false;
+  }
+
 
   removePartition(name: string) {
     const index = this.partitions.findIndex(partition => partition.name === name);
@@ -340,8 +375,13 @@ export class PartitionTable {
       target = minSize;
     }
 
-    const originalSizes = this.partitions.map(p => p.size);
+    const originalPartitions = [...this.partitions];
+    const originalSizes = new Map(this.partitions.map(p => [p, p.size]));
     const attemptResize = (candidateSize: number): boolean => {
+      this.partitions.splice(0, this.partitions.length, ...originalPartitions);
+      for (const originalPartition of originalPartitions) {
+        originalPartition.size = originalSizes.get(originalPartition)!;
+      }
       if (isOtaPair) {
         const ota0Partition = this.partitions[ota0Index];
         const ota1Partition = this.partitions[ota1Index];
@@ -354,7 +394,7 @@ export class PartitionTable {
         partition.size = candidateSize;
       }
       this.recalculateOffsets();
-      return this.getAvailableMemory() >= 0;
+      return this.getAvailableMemory() >= 0 && !this.hasOverlappingPartitions();
     };
 
     let candidate = target;
@@ -366,12 +406,10 @@ export class PartitionTable {
     }
 
     // Revert if no candidate fits
-    this.partitions.forEach((p, index) => {
-      const originalSize = originalSizes[index];
-      if (typeof originalSize === 'number') {
-        p.size = originalSize;
-      }
-    });
+    this.partitions.splice(0, this.partitions.length, ...originalPartitions);
+    for (const originalPartition of originalPartitions) {
+      originalPartition.size = originalSizes.get(originalPartition)!;
+    }
     this.recalculateOffsets();
   }
 
