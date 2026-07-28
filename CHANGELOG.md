@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.5
+### Fixed Issues
+- Count free space in internal partition gaps, including the 8 KB gap before `otadata` in asymmetric OTA layouts ([#22](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/22)).
+- Prevent a resized partition from overlapping the next partition.
+- Enable Reclaim Memory when a partition, such as NVS, has contiguous free space immediately after it.
+
 ## 1.2.4
 ### Improvement
 - Added an opt-in sidebar control for unequal OTA application slots, enabling a small staging slot alongside a larger firmware slot ([#22](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/22)).
