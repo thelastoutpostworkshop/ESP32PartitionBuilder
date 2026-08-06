@@ -44,6 +44,18 @@ describe('partition URL helpers', () => {
     expect(getFlashSizeFromUrl()).toBe(16)
   })
 
+  it('reads the opt-in automatic offset mode', async () => {
+    const { getPartitionOffsetModeFromUrl } = await loadModuleWithSearch('?offsets=auto')
+
+    expect(getPartitionOffsetModeFromUrl()).toBe('auto')
+  })
+
+  it('preserves offsets unless automatic mode is explicitly requested', async () => {
+    const { getPartitionOffsetModeFromUrl } = await loadModuleWithSearch('?offsets=preserve')
+
+    expect(getPartitionOffsetModeFromUrl()).toBe('preserve')
+  })
+
   it('returns null for invalid flash size values', async () => {
     const { getFlashSizeFromUrl } = await loadModuleWithSearch('?flash=large')
 

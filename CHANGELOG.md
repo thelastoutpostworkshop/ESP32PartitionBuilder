@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.6
+### Fixed Issues
+- Add an `offsets=auto` URL mode for editable partition layouts while preserving explicit offsets in regular CSV imports ([#24](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/24)).
+
 ## 1.2.5
 ### Fixed Issues
 - Count free space in internal partition gaps, including the 8 KB gap before `otadata` in asymmetric OTA layouts ([#22](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/22)).

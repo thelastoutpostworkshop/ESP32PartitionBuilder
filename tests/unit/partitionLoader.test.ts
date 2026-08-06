@@ -45,6 +45,32 @@ describe('loadPartitionsFromCsv', () => {
     ])
   })
 
+  it('loads explicitly positioned rows as an editable auto-offset layout when requested', () => {
+    const store = partitionStore()
+    const error = loadPartitionsFromCsv(
+      [
+        '# Name,Type,SubType,Offset,Size,Flags',
+        'factory,app,factory,0x10000,0x10000,',
+        'nvs,data,nvs,0x20000,0x5000,'
+      ].join('\n'),
+      store,
+      { offsetMode: 'auto' }
+    )
+
+    expect(error).toBeNull()
+    expect(store.partitionTables.getPartitions()).toMatchObject([
+      { name: 'factory', offset: 0x10000, fixedOffset: false },
+      { name: 'nvs', offset: 0x20000, fixedOffset: false }
+    ])
+
+    const factory = store.partitionTables.getPartitions().find(partition => partition.name === 'factory')!
+    store.partitionTables.updatePartitionSize(factory, 0x20000)
+
+    expect(store.partitionTables.getPartitions().find(partition => partition.name === 'nvs')).toMatchObject({
+      offset: 0x30000
+    })
+  })
+
   it('keeps a fixed-offset app slot that ends at the selected flash boundary', () => {
     const store = partitionStore()
     const error = loadPartitionsFromCsv(

@@ -55,6 +55,12 @@ factory,app,factory,0x10000,0x100000,
 
 Offsets can be fixed or left blank. Blank offsets are recalculated using the selected partition table offset and ESP-IDF alignment rules.
 
+### Loading layouts from a URL
+
+Use the `partitions` query parameter to load CSV data from a URL, and optionally set `flash` to the board's flash size in MB. By default, explicit CSV offsets are preserved exactly. Add `offsets=auto` when the URL is a starter layout that should remain editable; its partition positions will then recalculate automatically as partitions are resized or changed.
+
+For example: `?flash=4&offsets=auto&partitions=...`
+
 Custom rows are useful for framework-specific layouts such as Zigbee, Matter, manufacturing data, certificates, or other vendor-defined partitions. Custom rows support editable names, numeric or named types, subtypes, sizes, offsets, and flags such as `encrypted` or `readonly`.
 
 ## Zigbee Partitions

@@ -51,3 +51,12 @@ export function getFlashSizeFromUrl(): number | null {
 
   return parsed;
 }
+
+export function getPartitionOffsetModeFromUrl(): 'preserve' | 'auto' {
+  if (!isBrowser) {
+    return 'preserve';
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  return params.get('offsets') === 'auto' ? 'auto' : 'preserve';
+}

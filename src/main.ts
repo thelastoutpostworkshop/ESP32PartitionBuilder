@@ -12,7 +12,7 @@ import * as directives from 'vuetify/directives'
 import App from './App.vue'
 import { partitionStore } from '@/store'
 import { loadPartitionsFromCsv } from '@/partitionLoader'
-import { getPartitionCsvFromUrl, getFlashSizeFromUrl } from '@/utils/partitionUrl'
+import { getPartitionCsvFromUrl, getFlashSizeFromUrl, getPartitionOffsetModeFromUrl } from '@/utils/partitionUrl'
 import { FLASH_SIZES } from '@/const'
 // import router from './router'
 
@@ -48,15 +48,18 @@ if (resolvedFlashSize) {
 const csvPayload = getPartitionCsvFromUrl()
 if (csvPayload) {
   console.debug('partition payload decoded from URL', csvPayload)
+  const offsetMode = getPartitionOffsetModeFromUrl()
   const error = loadPartitionsFromCsv(csvPayload, store, {
-    forceFlashSize: resolvedFlashSize ?? undefined
+    forceFlashSize: resolvedFlashSize ?? undefined,
+    offsetMode
   })
   if (error) {
     urlPartitionMessage.value = `${error.title}: ${error.text}`
     console.warn('Failed to load partitions from URL:', error.title, error.text)
   } else {
     const flashMessage = resolvedFlashSize ? ` using ${resolvedFlashSize} MB flash size` : ''
-    urlPartitionMessage.value = `Loaded partitions from URL${flashMessage}`
+    const offsetMessage = offsetMode === 'auto' ? ' with automatic offsets' : ''
+    urlPartitionMessage.value = `Loaded partitions from URL${flashMessage}${offsetMessage}`
   }
 }
 app.use(vuetify)

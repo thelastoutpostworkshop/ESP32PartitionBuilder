@@ -23,6 +23,11 @@ export interface PartitionLoadError {
 
 export interface PartitionLoadOptions {
   forceFlashSize?: number;
+  /**
+   * Keep stated CSV offsets by default. URL integrations can opt into an
+   * editable layout whose offsets are recalculated after import.
+   */
+  offsetMode?: 'preserve' | 'auto';
 }
 
 export function loadPartitionsFromCsv(
@@ -121,7 +126,7 @@ export function loadPartitionsFromCsv(
       size,
       offset,
       flags: flags || '',
-      fixedOffset: Boolean(offsetHex),
+      fixedOffset: options?.offsetMode !== 'auto' && Boolean(offsetHex),
       custom: isCustomPartition(type, subtype, size, flags || '')
     });
     requiredFlashSize = Math.max(requiredFlashSize, offset + size);
