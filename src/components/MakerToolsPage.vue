@@ -2,6 +2,7 @@
 import arduinoMakerWorkshopThumbnail from '@/assets/tool-thumbnails/arduino-maker-workshop.jpg';
 import espBoardVaultThumbnail from '@/assets/tool-thumbnails/esp-board-vault.jpg';
 import espConnectThumbnail from '@/assets/tool-thumbnails/espconnect.jpg';
+import espPinoutExplorerThumbnail from '@/assets/tool-thumbnails/esp-pinout-explorer.png';
 import gpioViewerThumbnail from '@/assets/tool-thumbnails/gpio-viewer.jpg';
 import partitionBuilderThumbnail from '@/assets/tool-thumbnails/partition-builder.jpg';
 import videoConversionThumbnail from '@/assets/tool-thumbnails/video-conversion.jpg';
@@ -10,7 +11,6 @@ interface MakerTool {
   key: string;
   title: string;
   description: string;
-  icon: string;
   thumbnailSrc: string;
   url?: string;
   actionLabel?: string;
@@ -24,9 +24,19 @@ const coffeeUrl = 'https://buymeacoffee.com/thelastoutpostworkshop';
 
 const makerTools: MakerTool[] = [
   {
+    key: 'esp-pinout-explorer',
+    title: 'ESP Pinout Explorer',
+    description:
+      'An interactive bench-side reference for ESP development boards, modules, and chip packages. Find pins, functions, header labels, and documented wiring constraints before connecting hardware.',
+    thumbnailSrc: espPinoutExplorerThumbnail,
+    url: 'https://thelastoutpostworkshop.github.io/esp-pinout-explorer/',
+    sourceUrl: 'https://github.com/thelastoutpostworkshop/esp-pinout-explorer',
+    sourceLabel: 'thelastoutpostworkshop/esp-pinout-explorer',
+    tutorialUrl: 'https://youtu.be/l357x8bTJg0'
+  },
+  {
     key: 'esp-board-vault',
     title: 'ESP Board Vault',
-    icon: 'mdi-database-lock-outline',
     description:
       'A local-first desktop inventory app for ESP32 makers to scan, identify, organize, and track boards with hardware details, partition maps, photos, projects, checklists, and backups.',
     thumbnailSrc: espBoardVaultThumbnail,
@@ -37,7 +47,6 @@ const makerTools: MakerTool[] = [
   {
     key: 'espconnect',
     title: 'ESPConnect',
-    icon: 'mdi-connection',
     description:
       'A browser-based utility for working with ESP devices. It runs entirely inside a modern Chromium browser so you can inspect hardware details, manage SPIFFS, FAT, and LittleFS files, back up flash, and deploy firmware.',
     thumbnailSrc: espConnectThumbnail,
@@ -49,7 +58,6 @@ const makerTools: MakerTool[] = [
   {
     key: 'partition-builder',
     title: 'ESP32 Partition Builder',
-    icon: 'mdi-table-cog',
     description:
       'A web tool to plan and create custom partition layouts for ESP32 boards.',
     thumbnailSrc: partitionBuilderThumbnail,
@@ -61,7 +69,6 @@ const makerTools: MakerTool[] = [
   {
     key: 'video-conversion',
     title: 'Video Conversion Studio',
-    icon: 'mdi-movie-cog-outline',
     description:
       'Converts video and audio assets into output that fits ESP32 display projects.',
     thumbnailSrc: videoConversionThumbnail,
@@ -73,7 +80,6 @@ const makerTools: MakerTool[] = [
   {
     key: 'gpio-viewer',
     title: 'GPIOViewer',
-    icon: 'mdi-chip',
     description:
       'A browser-based real-time GPIO pin activity viewer for inspecting pin states, confirming board behavior, and troubleshooting wiring or signal activity.',
     thumbnailSrc: gpioViewerThumbnail,
@@ -86,7 +92,6 @@ const makerTools: MakerTool[] = [
   {
     key: 'arduino-maker-workshop',
     title: 'Arduino Maker Workshop',
-    icon: 'mdi-microsoft-visual-studio-code',
     description:
       'A VS Code extension for Arduino-centered maker development with a focused editor workflow for sketch-driven projects and board-oriented iteration.',
     thumbnailSrc: arduinoMakerWorkshopThumbnail,
@@ -112,7 +117,7 @@ const makerTools: MakerTool[] = [
         <h2>Support the project</h2>
         <p>These maker utilities are free to use. If they help at your bench, a coffee supports ongoing development.</p>
       </div>
-      <v-btn prepend-icon="mdi-coffee-outline" :href="coffeeUrl" target="_blank" rel="noopener">
+      <v-btn class="maker-tools-page__coffee-button" prepend-icon="mdi-coffee-outline" :href="coffeeUrl" target="_blank" rel="noopener">
         Buy Me a Coffee
       </v-btn>
     </section>
@@ -133,9 +138,6 @@ const makerTools: MakerTool[] = [
           :aria-label="`${tool.title} tutorial or tool link`"
         >
           <img :src="tool.thumbnailSrc" :alt="`${tool.title} thumbnail`" loading="lazy">
-          <span class="maker-tools-page__media-icon" aria-hidden="true">
-            <v-icon :icon="tool.icon" size="20"></v-icon>
-          </span>
         </a>
 
         <v-card-text class="maker-tools-page__copy">
@@ -230,6 +232,11 @@ const makerTools: MakerTool[] = [
   line-height: 1.45;
 }
 
+.maker-tools-page__coffee-button {
+  background: #ffdd00;
+  color: #1f2937;
+}
+
 .maker-tools-page__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -256,20 +263,6 @@ const makerTools: MakerTool[] = [
   height: 100%;
   display: block;
   object-fit: cover;
-}
-
-.maker-tools-page__media-icon {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.88);
-  color: white;
 }
 
 .maker-tools-page__copy {

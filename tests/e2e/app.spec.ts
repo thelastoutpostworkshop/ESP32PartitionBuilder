@@ -41,7 +41,12 @@ test('opens the Maker Tools page from the sidebar', async ({ page }) => {
   await page.getByTestId('maker-tools-nav').click()
 
   await expect(page.getByTestId('maker-tools-page')).toBeVisible()
-  await expect(page.getByTestId('maker-tool-card')).toHaveCount(6)
+  await expect(page.getByTestId('maker-tool-card')).toHaveCount(7)
+  await expect(page.getByRole('heading', { name: 'ESP Pinout Explorer' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'thelastoutpostworkshop/esp-pinout-explorer' })).toHaveAttribute(
+    'href',
+    'https://github.com/thelastoutpostworkshop/esp-pinout-explorer'
+  )
   await expect(page.getByRole('link', { name: 'thelastoutpostworkshop/ESPVault' })).toHaveAttribute(
     'href',
     'https://github.com/thelastoutpostworkshop/ESPVault'
