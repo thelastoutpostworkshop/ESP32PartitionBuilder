@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.7
+### Improvement
+- Added ESP Pinout Explorer to Maker Tools, with links to its interactive pinout reference, tutorial, and source repository.
+
 ## 1.2.6
 ### Fixed Issues
 - Add an `offsets=auto` URL mode for editable partition layouts while preserving explicit offsets in regular CSV imports ([#24](https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder/issues/24)).
