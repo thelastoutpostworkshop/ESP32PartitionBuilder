@@ -9,6 +9,10 @@
         ☕ Buymeacoffee
         <v-tooltip activator="parent" location="top">Please support this project!</v-tooltip>
       </v-btn>
+      <v-btn color="yellow" prepend-icon="mdi-credit-card-outline" @click="goToPayPal">
+        Donate via PayPal
+        <v-tooltip activator="parent" location="top">Donate to support this project!</v-tooltip>
+      </v-btn>
       <v-btn @click="goToRepository" prepend-icon="mdi-help-box">
         Get Help
         <v-tooltip activator="parent" location="top">Help & Issues</v-tooltip>
@@ -333,6 +337,9 @@ function availableMemoryColor(): string {
 
 function goToBuyMeACoffee() {
   window.open('https://www.buymeacoffee.com/thelastoutpostworkshop', '_blank');
+}
+function goToPayPal() {
+  window.open('https://www.paypal.com/donate/?hosted_button_id=GF3QFYJ2BX9SA', '_blank');
 }
 function goToRepository() {
   window.open('https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder', '_blank');

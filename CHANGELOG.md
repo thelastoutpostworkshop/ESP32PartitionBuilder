@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.8
+### Improvement
+- Added PayPal donation links to the Resources section and app bar.
+
 ## 1.2.7
 ### Improvement
 - Added ESP Pinout Explorer to Maker Tools, with links to its interactive pinout reference, tutorial, and source repository.
