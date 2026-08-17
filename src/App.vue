@@ -279,6 +279,11 @@ const resourceLinks = [
     icon: 'mdi-coffee'
   },
   {
+    title: 'Donate via PayPal',
+    href: 'https://www.paypal.com/donate/?hosted_button_id=GF3QFYJ2BX9SA',
+    icon: 'mdi-credit-card-outline'
+  },
+  {
     title: 'Get Help',
     href: 'https://github.com/thelastoutpostworkshop/ESP32PartitionBuilder',
     icon: 'mdi-lifebuoy'
