@@ -2,7 +2,7 @@
 
 ## 1.2.9
 ### Internal runtime
-- Updated application and development dependencies, including Vitest 5.
+- Updated application and development dependencies, including Vitest 5 and npm-run-all2 9.
 - Updated the CI and deployment workflows to Node.js 22.22.2.
 
 ## 1.2.8
