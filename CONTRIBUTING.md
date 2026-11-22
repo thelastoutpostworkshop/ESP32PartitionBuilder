@@ -6,7 +6,7 @@ Contributions are welcome. Keep changes focused, include tests for behavior chan
 
 Use [Visual Studio Code](https://code.visualstudio.com/) with the [Vue - Official extension](https://marketplace.visualstudio.com/items?itemName=Vue.volar).
 
-Use Node.js 22.12.0 or newer in the same major line. GitHub Actions currently runs Node.js 22.12.0.
+Use Node.js 22.22.0 or newer in the same major line. GitHub Actions currently runs Node.js 22.22.2.
 
 Install dependencies:
 
