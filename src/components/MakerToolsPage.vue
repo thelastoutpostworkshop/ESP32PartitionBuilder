@@ -2,6 +2,7 @@
 import arduinoMakerWorkshopThumbnail from '@/assets/tool-thumbnails/arduino-maker-workshop.jpg';
 import espBoardVaultThumbnail from '@/assets/tool-thumbnails/esp-board-vault.jpg';
 import espConnectThumbnail from '@/assets/tool-thumbnails/espconnect.jpg';
+import espImageServerThumbnail from '@/assets/tool-thumbnails/esp-image-server.png';
 import espPinoutExplorerThumbnail from '@/assets/tool-thumbnails/esp-pinout-explorer.png';
 import gpioViewerThumbnail from '@/assets/tool-thumbnails/gpio-viewer.jpg';
 import partitionBuilderThumbnail from '@/assets/tool-thumbnails/partition-builder.jpg';
@@ -23,6 +24,16 @@ interface MakerTool {
 const coffeeUrl = 'https://buymeacoffee.com/thelastoutpostworkshop';
 
 const makerTools: MakerTool[] = [
+  {
+    key: 'esp-image-server',
+    title: 'ESPImageServer',
+    description:
+      'A free desktop app for generating AI images and videos locally. Create images from text prompts, animate still images, and play the results on supported ESP32 displays.',
+    thumbnailSrc: espImageServerThumbnail,
+    sourceUrl: 'https://github.com/thelastoutpostworkshop/ESPImageServer',
+    sourceLabel: 'thelastoutpostworkshop/ESPImageServer',
+    tutorialUrl: 'https://youtu.be/4_eT38NmxBw'
+  },
   {
     key: 'esp-pinout-explorer',
     title: 'ESP Pinout Explorer',

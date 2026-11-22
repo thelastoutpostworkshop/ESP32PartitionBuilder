@@ -1,6 +1,9 @@
 # Changelog
 
 ## 1.2.9
+### Improvement
+- Added ESPImageServer to Maker Tools with a preview, source repository, and video tutorial.
+
 ### Internal runtime
 - Updated application and development dependencies, including Vitest 5 and npm-run-all2 9.
 - Updated the CI and deployment workflows to Node.js 22.22.2.

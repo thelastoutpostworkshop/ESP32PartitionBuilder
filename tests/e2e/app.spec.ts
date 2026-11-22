@@ -41,7 +41,21 @@ test('opens the Maker Tools page from the sidebar', async ({ page }) => {
   await page.getByTestId('maker-tools-nav').click()
 
   await expect(page.getByTestId('maker-tools-page')).toBeVisible()
-  await expect(page.getByTestId('maker-tool-card')).toHaveCount(7)
+  await expect(page.getByTestId('maker-tool-card')).toHaveCount(8)
+  const imageServerCard = page.getByTestId('maker-tool-card').filter({
+    has: page.getByRole('heading', { name: 'ESPImageServer', exact: true })
+  })
+  await expect(imageServerCard).toBeVisible()
+  await expect(imageServerCard.getByRole('link', { name: 'thelastoutpostworkshop/ESPImageServer' })).toHaveAttribute(
+    'href',
+    'https://github.com/thelastoutpostworkshop/ESPImageServer'
+  )
+  await expect(imageServerCard.getByRole('link', { name: 'Watch tutorial' })).toHaveAttribute(
+    'href',
+    'https://youtu.be/4_eT38NmxBw'
+  )
+  const imageServerThumbnail = imageServerCard.getByRole('img', { name: 'ESPImageServer thumbnail' })
+  await expect.poll(() => imageServerThumbnail.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
   await expect(page.getByRole('heading', { name: 'ESP Pinout Explorer' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'thelastoutpostworkshop/esp-pinout-explorer' })).toHaveAttribute(
     'href',
